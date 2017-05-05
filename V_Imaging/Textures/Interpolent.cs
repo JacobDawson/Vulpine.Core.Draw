@@ -128,27 +128,28 @@ namespace Vulpine.Core.Draw.Textures
         #region Texture Implenentation...
 
         /// <summary>
-        /// Extracts the color data from the texture at an explicit point,
-        /// in texture cordinates, where the principle width and height of
-        /// the texture are equal to one.
+        /// Samples the texture at a given point, calculating the color of the 
+        /// texture at that point. The sample point is provided in UV cordinats
+        /// with the origin at the center and the V axis pointing up.
         /// </summary>
-        /// <param name="u">The u texture cordinate</param>
-        /// <param name="v">The v texture cordinate</param>
+        /// <param name="u">The U texture cordinate</param>
+        /// <param name="v">The V texture cordinate</param>
         /// <returns>The color sampled at the given point</returns>
-        public Color GetValue(double u, double v)
+        public Color Sample(double u, double v)
         {
             //scales the UV cordinates as appropriate
-            double x = u * raster.Width;
-            double y = v * raster.Height;
+            double x = (1.0 + u) * raster.Width * 0.5;
+            double y = (1.0 - v) * raster.Height * 0.5;
 
             //obtains the desired sub-pixel
             return GetSubPixel(x, y);
         }
 
         /// <summary>
-        /// Allows for sub-pixel access into the internal image. This is diffrent
-        /// from standard texturer cordinates, as each pixel corisponds to a single
-        /// unit in the cordinate space.
+        /// Interpolates the values between pixels in the source data inorder
+        /// to procude a continious image. Here the XY cordinates used corispond to
+        /// the pixels of the source image, where the origin is in the top left
+        /// corner, and a distance of one is equivlent to one pixel.
         /// </summary>
         /// <param name="x">The x pixel cordinate</param>
         /// <param name="y">The y pixel cordinate</param>
@@ -203,7 +204,7 @@ namespace Vulpine.Core.Draw.Textures
             double xs = x - (x0 + 0.5);
             double ys = y - (y0 + 0.5);
 
-            //gets the piels at each of the four corners of the square
+            //gets the pixels at each of the four corners of the square
             Color pix00 = GetPixel(x0, y0);
             Color pix01 = GetPixel(x0, y0 + 1);
             Color pix10 = GetPixel(x0 + 1, y0);

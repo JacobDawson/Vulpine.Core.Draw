@@ -56,7 +56,7 @@ namespace Vulpine.Core.Draw
         /// Interpolates color using the Sinc3 (Lanczos) resampling function.
         /// It works by treating the image as a 2D signal, and passing a windoing
         /// funciton over that signal. Usualy this produces very good results,
-        /// but the method has been known to produce ringing artifacts.
+        /// but the method has been known to cause ringing artifacts.
         /// </summary>
         Sinc3 = 4,
 
@@ -72,7 +72,7 @@ namespace Vulpine.Core.Draw
     /// Represnets the various methods of anti-ailising that can be utilised
     /// in pixel-based rendering.
     /// </summary>
-    public enum AAMethod
+    public enum AntiAilis
     {
         /// <summary>
         /// No Anti-Aliasing is used. Instead a single sample is calculated per pixel
@@ -150,6 +150,32 @@ namespace Vulpine.Core.Draw
         /// be consistent between builds.
         /// </summary>
         Default = Natural,
+    }
+
+    /// <summary>
+    /// Textures lack a notion of absolute scale. Thus, when textures are rendered out to
+    /// an image, they must be scaled to fit the target image. How this scaling (or streaching)
+    /// is acomplished can be spesified by this enumeration.
+    /// </summary>
+    public enum Scaling
+    {
+        /// <summary>
+        /// The texture is scaled verticaly to match the height of the image. In
+        /// other words, the virtical FOV is preserved when resizing the image.
+        /// </summary>
+        Vertical = 1,
+
+        /// <summary>
+        /// The texture is scaled horizontaly to match the width of the image. In
+        /// other words, the horizontal FOV is preserved when resizing the image.
+        /// </summary>
+        Horizontal = 2,
+
+        /// <summary>
+        /// The texture is steched horizontaly and verticaly inorder to fit the
+        /// dimentions of the image. This option may lead to visual distortions.
+        /// </summary>
+        Streach = 3,
     }
 
 

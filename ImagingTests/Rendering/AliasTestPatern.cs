@@ -9,13 +9,16 @@ namespace ImagingTests.Rendering
 {
     public class AliasTestPatern : Texture
     {
-        public Color GetValue(double u, double v)
+        public Color Sample(double u, double v)
         {
             Color black = Color.FromRGB(0.0, 0.0, 0.0);
             Color white = Color.FromRGB(1.0, 1.0, 1.0);
 
-            double x = u * 128.0;
-            double y = v * 128.0;
+            //double x = u * 128.0;
+            //double y = v * 128.0;
+
+            double x = (1.0 + u) * 64.0;
+            double y = (1.0 - v) * 64.0;
 
             return (GeneratePattern(x, y) ? white : black);
         }

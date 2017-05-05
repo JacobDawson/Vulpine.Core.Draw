@@ -42,6 +42,8 @@ namespace Vulpine.Core.Draw.Textures
     {
         #region Class Definitions...
 
+        //NOTE: Consider adding constructors that take Images instead of Textures
+
         //refrences the source texture
         private Texture source;
 
@@ -141,22 +143,18 @@ namespace Vulpine.Core.Draw.Textures
         #region Texture Implenentation...
 
         /// <summary>
-        /// Extracts the color data from the texture at an explicit point,
-        /// in texture cordinates, where the principle width and height of
-        /// the texture are equal to one.
+        /// Samples the texture at a given point, calculating the color of the 
+        /// texture at that point. The sample point is provided in UV cordinats
+        /// with the origin at the center and the V axis pointing up.
         /// </summary>
-        /// <param name="u">The u texture cordinate</param>
-        /// <param name="v">The v texture cordinate</param>
+        /// <param name="u">The U texture cordinate</param>
+        /// <param name="v">The V texture cordinate</param>
         /// <returns>The color sampled at the given point</returns>
-        public Color GetValue(double u, double v)
+        public Color Sample(double u, double v)
         {
-            //moves the range to [1,1] : [-1,1]
-            double u0 = (u - 0.5) * 2.0;
-            double v0 = (v - 0.5) * 2.0;
-
             //converts the point and grabs a sample
-            Point2D p = Convert(u0, v0);
-            return source.GetValue(p.X, p.Y);
+            Point2D p = Convert(u, -v);
+            return source.Sample(p.X, p.Y);
         }
 
         /// <summary>
@@ -179,11 +177,15 @@ namespace Vulpine.Core.Draw.Textures
             //calculates the spherical cordinates
             double rho = (t > VMath.TAU) ? t - VMath.TAU : t;
             double phi = 2.0 * Math.Atan(1.0 / r);
-            
+
             //scales the values to the range [0, 1]
             rho = rho / VMath.TAU;
             phi = phi / Math.PI;
-            phi = inv ? 1.0 - phi : phi;
+            phi = inv ? phi : 1.0 - phi;
+
+            //scales the values to the range [-1, 1]
+            rho = (rho * 2.0) - 1.0;
+            phi = (phi * 2.0) - 1.0;
 
             return new Point2D(rho, phi);
         }

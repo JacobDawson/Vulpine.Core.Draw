@@ -18,12 +18,12 @@ namespace ImagingTests.Resampeling
 
 
 
-        public Color GetValue(double u, double v)
+        public Color Sample(double u, double v)
         {
             double un = u * 2.0;
             double vn = v * 2.0;
 
-            return inner.GetValue(un, vn);
+            return inner.Sample(un, vn);
         }
     }
 }

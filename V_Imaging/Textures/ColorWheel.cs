@@ -40,6 +40,8 @@ namespace Vulpine.Core.Draw.Textures
     {
         #region Class Definitions...
 
+        //IDEA: I should use delegats to define the various types of color wheels
+
         //stores the 'mode' of the color wheel
         private const int M = 3;
         private int mode;
@@ -92,24 +94,20 @@ namespace Vulpine.Core.Draw.Textures
         #region Texture Implenentation...
 
         /// <summary>
-        /// Extracts the color data from the texture at an explicit point,
-        /// in texture cordinates, where the principle width and height of
-        /// the texture are equal to one.
+        /// Samples the texture at a given point, calculating the color of the 
+        /// texture at that point. The sample point is provided in UV cordinats
+        /// with the origin at the center and the V axis pointing up.
         /// </summary>
-        /// <param name="u">The u texture cordinate</param>
-        /// <param name="v">The v texture cordinate</param>
+        /// <param name="u">The U texture cordinate</param>
+        /// <param name="v">The V texture cordinate</param>
         /// <returns>The color sampled at the given point</returns>
-        public Color GetValue(double u, double v)
+        public Color Sample(double u, double v)
         {
-            //moves the range to [1,1] : [-1,-1]
-            double u0 = (u - 0.5) * 2.0;
-            double v0 = (v - 0.5) * 2.0;
-
             switch (mode % M)
             {
-                case 0: return GetSpherical(u0, v0);
-                case 1: return GetModulated(u0, v0);
-                case 2: return GetPartitioned(u0, v0);
+                case 0: return GetSpherical(u, v);
+                case 1: return GetModulated(u, v);
+                case 2: return GetPartitioned(u, v);
             }
 
             //we should not reach this point

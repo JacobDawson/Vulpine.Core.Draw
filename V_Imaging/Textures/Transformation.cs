@@ -53,10 +53,10 @@ namespace Vulpine.Core.Draw.Textures
         /// <param name="u">The u texture cordinate</param>
         /// <param name="v">The v texture cordinate</param>
         /// <returns>The color sampled at the given point</returns>
-        public Color GetValue(double u, double v)
+        public Color Sample(double u, double v)
         {
             Point2D targ = trans.Trans(u, v);
-            return inner.GetValue(targ.X, targ.Y);
+            return inner.Sample(targ.X, targ.Y);
         }
     }
 }

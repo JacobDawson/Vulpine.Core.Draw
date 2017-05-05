@@ -44,12 +44,20 @@ namespace Vulpine.Core.Draw
     {
         #region Class Definitons...
 
+
+        //IMPORTANT: I still need to update the various AA methods to use the new
+        //texture cordinate system. Curently only AA.None works as intended.
+
+
         //uses a PRNG for anti-aliasing
         private VRandom rng;
 
         //refrences the subsampeling method used
-        private AAMethod method;
+        private AntiAilis method;
         private int samples;
+
+
+        private Scaling scale = Scaling.Vertical;
 
         /// <summary>
         /// Creates a basic, no-frills renderor that dosent provide any
@@ -58,7 +66,7 @@ namespace Vulpine.Core.Draw
         public Renderor()
         {
             rng = new RandXOR();
-            method = AAMethod.None;
+            method = AntiAilis.None;
             samples = 4;
         }
 
@@ -71,7 +79,7 @@ namespace Vulpine.Core.Draw
         /// <param name="samp">Number of sub-samples per pixel</param>
         /// <exception cref="ArgRangeExp">If the number of samples is 
         /// less than four</exception>
-        public Renderor(AAMethod meth, int samp)
+        public Renderor(AntiAilis meth, int samp)
         {
             //checks that our sample size is apropriate
             ArgRangeExcp.Atleast("samp", samp, 4);
@@ -91,7 +99,7 @@ namespace Vulpine.Core.Draw
         /// <param name="seed">Seed of the internal PRNG</param>
         /// <exception cref="ArgRangeExp">If the number of samples is 
         /// less than four</exception>
-        public Renderor(AAMethod meth, int samp, int seed)
+        public Renderor(AntiAilis meth, int samp, int seed)
         {
             //checks that our sample size is apropriate
             ArgRangeExcp.Atleast("samp", samp, 4);
@@ -111,7 +119,7 @@ namespace Vulpine.Core.Draw
         /// <param name="rng">Reference to the internal PRNG</param>
         /// <exception cref="ArgRangeExp">If the number of samples is 
         /// less than four</exception>
-        public Renderor(AAMethod meth, int samp, VRandom rng)
+        public Renderor(AntiAilis meth, int samp, VRandom rng)
         {
             //checks that our sample size is apropriate
             ArgRangeExcp.Atleast("samp", samp, 4);
@@ -126,9 +134,9 @@ namespace Vulpine.Core.Draw
         #region Class Properties...
 
         /// <summary>
-        /// Represents the curent Anti-Aliasing method in use by the Renderor.
+        /// Represents the curent AntiAliasing method in use by the Renderor.
         /// </summary>
-        public AAMethod Method
+        public AntiAilis Method
         {
             get { return method; }
         }
@@ -211,13 +219,13 @@ namespace Vulpine.Core.Draw
         {
             switch (method)
             {
-                case AAMethod.None:
+                case AntiAilis.None:
                     return GetCenter(t, w, h, x, y);
-                case AAMethod.Random:
+                case AntiAilis.Random:
                     return GetRandom(t, w, h, x, y);
-                case AAMethod.Jittred:
+                case AntiAilis.Jittred:
                     return GetJittred(t, w, h, x, y);
-                case AAMethod.Poisson:
+                case AntiAilis.Poisson:
                     return GetPoisson(t, w, h, x, y);
                 default:
                     throw new NotSupportedException();
@@ -235,10 +243,11 @@ namespace Vulpine.Core.Draw
         /// <returns>The average color</returns>
         private Color GetCenter(Texture t, double w, double h, int x, int y)
         {
-            double u = (x + 0.5) / w;
-            double v = (y + 0.5) / h;
+            //double u = (x + 0.5) / w;
+            //double v = (y + 0.5) / h;
 
-            return t.GetValue(u, v);
+            Point2D p = ToTexture(x + 0.5, y + 0.5, w, h);
+            return t.Sample(p.X, p.Y);
         }
 
         /// <summary>
@@ -266,7 +275,7 @@ namespace Vulpine.Core.Draw
             {
                 double u = rng.RandDouble(u0, u1);
                 double v = rng.RandDouble(v0, v1);
-                temp += t.GetValue(u, v);
+                temp += t.Sample(u, v);
             }
 
             //returns the 'average' color
@@ -288,6 +297,9 @@ namespace Vulpine.Core.Draw
             Vector temp = new Vector(4);
             int rc = (int)Math.Floor(Math.Sqrt(samples));
 
+            //TEST: Make all pixels use the same samples:
+            rng.Reset();
+
             //calcualtes the width and height of each cell
             double us = 1.0 / (w * rc);
             double vs = 1.0 / (h * rc);
@@ -302,7 +314,7 @@ namespace Vulpine.Core.Draw
 
                     double u = rng.RandDouble(u0, u0 + us);
                     double v = rng.RandDouble(v0, v0 + vs);
-                    temp += t.GetValue(u, v);
+                    temp += t.Sample(u, v);
                 }
             }
 
@@ -365,7 +377,7 @@ namespace Vulpine.Core.Draw
             {
                 u = (points[k].X + x) / w;
                 v = (points[k].Y + y) / h;
-                temp += t.GetValue(u, v);
+                temp += t.Sample(u, v);
             }
 
             //returns the 'average' color
@@ -373,5 +385,40 @@ namespace Vulpine.Core.Draw
         }
 
         #endregion ////////////////////////////////////////////////////////////////
+
+
+        private Point2D ToTexture(double x, double y, double w, double h)
+        {
+            //double sx = 1.0;
+            //double sy = 1.0;
+
+            //switch (scale)
+            //{
+            //    case Scaling.Horizontal:
+            //        sx = w;
+            //        sy = w;
+            //        break;
+            //    case Scaling.Vertical:
+            //        sx = h;
+            //        sy = h;
+            //        break;
+            //    case Scaling.Streach:
+            //        sx = w;
+            //        sy = h;
+            //        break;
+            //}
+
+            //determins the scaling factor in the X and Y direction
+            double sx = (scale == Scaling.Vertical) ? h : w;
+            double sy = (scale == Scaling.Horizontal) ? w : h;
+
+            //scales the texture to fit the target image
+            double u = ((2.0 * x) - w) / sx;
+            double v = ((2.0 * y) - h) / sy;
+
+            return new Point2D(u, -v);
+        }
+
+
     }
 }

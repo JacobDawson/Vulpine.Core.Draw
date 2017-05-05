@@ -69,7 +69,7 @@ namespace ImagingTests.Rendering
 
         private Renderor GetRenderor()
         {
-            AAMethod meth = AAMethod.None;
+            AntiAilis meth = AntiAilis.None;
             int n = 4;
 
             bool pass = Int32.TryParse(txtN.Text, out n);
@@ -78,16 +78,16 @@ namespace ImagingTests.Rendering
             switch (cboAA.SelectedIndex)
             {
                 case 0:
-                    meth = AAMethod.None;
+                    meth = AntiAilis.None;
                     break;
                 case 1:
-                    meth = AAMethod.Random;
+                    meth = AntiAilis.Random;
                     break;
                 case 2:
-                    meth = AAMethod.Jittred;
+                    meth = AntiAilis.Jittred;
                     break;
                 case 3:
-                    meth = AAMethod.Poisson;
+                    meth = AntiAilis.Poisson;
                     break;
             }
 

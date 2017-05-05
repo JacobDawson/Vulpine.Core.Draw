@@ -632,7 +632,8 @@ namespace Vulpine.Core.Draw
         public static Color Lerp(Color c1, Color c2, double x)
         {
             //checks that the interpolent is bracketed correctly
-            ArgBoundsException.Check("x", x, 0.0, 1.0);
+            //ArgBoundsException.Check("x", x, 0.0, 1.0);
+            x = VMath.Clamp(x);
 
             //computes the inverse of x to save time
             double invx = 1.0 - x;

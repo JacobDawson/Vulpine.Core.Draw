@@ -28,23 +28,33 @@ using Vulpine.Core.Calc.Geometry;
 
 namespace Vulpine.Core.Draw.Textures
 {
+    /// <summary>
+    /// A complex map uses a function in the complex plane to map one texture into another.
+    /// These are sometimes referd to as conformal maps, as angles in the input texture are
+    /// preserved in the output texture. This class can also be used as a way of visualising
+    /// the complex functions themselves, utilising a process known as domain coloring.
+    /// </summary>
+    /// <remarks>Last Update: 2017-05-05</remarks>
     public class CmplxMap : Texture
     {
+        #region Class Definitions...
+
+        //how close we can be to a pole before coloring it white
         private const double Limit = 2.8e7;
 
         //the texture used for coloring the map
         private Texture source;
 
-        //the viewing window of the funciton
-        private Rectangle window;
-
         //the funciton to be rendered
         private VFunc<Cmplx> func;
 
+        //stores the viewing parmaters for the resulting texture
+        private Point2D center = new Point2D(0.0, 0.0);
+        private double scale = 2.0;
+
         /// <summary>
-        /// Creates a new complex map with the given source texture
-        /// and function to evaluate. The viewing window is centered
-        /// on the origin with a radius of one.
+        /// Creates a new complex map with the given source texture and function 
+        /// to evaluate. It is centered at the origin with a scaling value of one.
         /// </summary>
         /// <param name="source">Source texture</param>
         /// <param name="func">Function to evaluate</param>
@@ -52,65 +62,81 @@ namespace Vulpine.Core.Draw.Textures
         {
             this.source = source;
             this.func = func;
-            this.window = Rectangle.FromPoints(-1.0, -1.0, 1.0, 1.0);
+            this.center = new Point2D(0.0, 0.0);
+            this.scale = 1.0;
         }
 
-        ///// <summary>
-        ///// Creates a new complex map with the given source texture
-        ///// and function to evaluate. The viewing window is centered
-        ///// on the origin with a radius of one.
-        ///// </summary>
-        ///// <param name="source">Source texture</param>
-        ///// <param name="func">Function to evaluate</param>
-        //public CmplxMap(Texture source, Function<Cmplx> func)
-        //{
-        //    this.source = source;
-        //    this.func = (func.Evaluate);
-        //    this.window = Rectangle.FromPoints(-1.0, -1.0, 1.0, 1.0);
-        //}
-
         /// <summary>
-        /// Creates a new complex map with the given source texture
-        /// and funciton to evaluate, as well as the desired viewing
-        /// window for the function.
+        /// Creates a new complex map with the given source texture and function 
+        /// to evaluate. It is centered at the origin with the desired scale.
         /// </summary>
         /// <param name="source">Source texture</param>
-        /// <param name="window">Viewing window</param>
         /// <param name="func">Function to evaluate</param>
-        public CmplxMap(Texture source, Rectangle window, VFunc<Cmplx> func)
+        /// <param name="scale">Size of the output</param>
+        public CmplxMap(Texture source, VFunc<Cmplx> func, double scale)
         {
             this.source = source;
             this.func = func;
-            this.window = window;
+            this.center = new Point2D(0.0, 0.0);
+            this.scale = Math.Abs(scale);
         }
 
-        ///// <summary>
-        ///// Creates a new complex map with the given source texture
-        ///// and funciton to evaluate, as well as the desired viewing
-        ///// window for the function.
-        ///// </summary>
-        ///// <param name="source">Source texture</param>
-        ///// <param name="window">Viewing window</param>
-        ///// <param name="func">Function to evaluate</param>
-        //public CmplxMap(Texture source, Rectangle window, Function<Cmplx> func)
-        //{
-        //    this.source = source;
-        //    this.func = (func.Evaluate);
-        //    this.window = window;
-        //}
+        /// <summary>
+        /// Creates a new complex map with the given source texture and function 
+        /// to evaluate, as well as the center and scale of the resulting texture.
+        /// </summary>
+        /// <param name="source">Source texture</param>
+        /// <param name="func">Function to evaluate</param>
+        /// <param name="center">Center of the output</param>
+        /// <param name="scale">Size of the output</param>
+        public CmplxMap(Texture source, VFunc<Cmplx> func, Point2D center, double scale)
+        {
+            this.source = source;
+            this.func = func;
+            this.center = center;
+            this.scale = Math.Abs(scale);
+        }
+
+        #endregion ///////////////////////////////////////////////////////////////////////////
+
+        #region Class Properties... 
 
         /// <summary>
-        /// Extracts the color data from the texture at an explicit point,
-        /// in texture cordinates, where the principle width and height of
-        /// the texture are equal to one.
+        /// Represents the centerpoint of the resulting texture. This can be
+        /// though of as moving the origin on the complex plane.
         /// </summary>
-        /// <param name="u">The u texture cordinate</param>
-        /// <param name="v">The v texture cordinate</param>
-        /// <returns>The color sampled at the given point</returns>
-        public Color GetValue(double u, double v)
+        public Point2D Center
         {
-            Point2D p = window.Transform(u, v);
-            return EvaluateColor(p.X, p.Y);
+            get { return center; }
+        }
+
+        /// <summary>
+        /// Determins the scale of the resulting texture, that is, how big or
+        /// small the map looks when rendered out to an image.
+        /// </summary>
+        public double Scale
+        {
+            get { return scale; }
+        }
+
+        #endregion ///////////////////////////////////////////////////////////////////////////
+
+        #region Texture Implenentation...
+
+        /// <summary>
+        /// Samples the texture at a given point, calculating the color of the 
+        /// texture at that point. The sample point is provided in UV cordinats
+        /// with the origin at the center and the V axis pointing up.
+        /// </summary>
+        /// <param name="u">The U texture cordinate</param>
+        /// <param name="v">The V texture cordinate</param>
+        /// <returns>The color sampled at the given point</returns>
+        public Color Sample(double u, double v)
+        {
+            double x = (u * scale) + center.X;
+            double y = (v * scale) + center.Y;
+
+            return EvaluateColor(x, y);
         }
 
         /// <summary>
@@ -120,33 +146,29 @@ namespace Vulpine.Core.Draw.Textures
         /// <param name="x">Real component to evaluate</param>
         /// <param name="y">Imaginary component to evaluate</param>
         /// <returns>The result of the function as a color</returns>
-        public Color EvaluateColor(double x, double y)
+        private Color EvaluateColor(double x, double y)
         {
             //invokes the complex function
-            Cmplx z = func.Invoke(new Cmplx(x, -y));
+            Cmplx z = func.Invoke(new Cmplx(x, y));
 
-            if (z.IsInfinity())
-            {
-                //returns white if we are at a pole
-                return new Color(1.0, 1.0, 1.0);
-            }
-            else if (z.Abs > Limit)
+            if (z.IsInfinity() || z.Abs > Limit)
             {
                 //returns white if we are close to a pole
                 return new Color(1.0, 1.0, 1.0);
             }
+            else if (z.IsNaN())
+            {
+                //return neutral grey if the output is NaN
+                return new Color(0.5, 0.5, 0.5);
+            }
             else
             {
-                //converts the output to the range [0, 1]
-                double x0 = (z.CofR * 0.5) + 0.5;
-                double y0 = (z.CofI * 0.5) + 0.5;
-
-                //uses the source texture for the color
-                return source.GetValue(x0, y0);
+                //uses the source texture to determin our value
+                return source.Sample(z.CofR, z.CofI); 
             }
         }
 
-
+        #endregion ///////////////////////////////////////////////////////////////////////////
 
     }
 }

@@ -10,10 +10,13 @@ namespace ImagingTests.Rendering
 {
     public class ComplexTestPatern : Texture
 	{
-        public Color GetValue(double u, double v)
+        public Color Sample(double u, double v)
         {
-            double x = (u * 0.25) - 0.25;
-            double y = ((1.0 - v) * 0.25) - 0.125;
+            //double x = (u * 0.25) - 0.25;
+            //double y = ((1.0 - v) * 0.25) - 0.125;
+
+            double x = u * 0.25;
+            double y = v * 0.25;
 
             Cmplx c = new Cmplx(x, y);
             c = Cmplx.Sin(c.Inv());
