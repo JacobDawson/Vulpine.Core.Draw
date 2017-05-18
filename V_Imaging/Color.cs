@@ -528,7 +528,7 @@ namespace Vulpine.Core.Draw
         public Color GetGrayscale()
         {
             //uses the method below
-            return GetGrayscale(GrayMehtod.Default);
+            return GetGrayscale(Desaturate.Default);
         }
 
         /// <summary>
@@ -537,28 +537,28 @@ namespace Vulpine.Core.Draw
         /// </summary>
         /// <param name="gm">Conversion method to use</param>
         /// <returns>The corisponding grey value</returns>
-        public Color GetGrayscale(GrayMehtod gm)
+        public Color GetGrayscale(Desaturate gm)
         {
             //initialises luminace to an error value
             double lum = -1.0;
 
             switch (gm)
             {
-                case GrayMehtod.Average:
+                case Desaturate.Average:
                     lum = (red + green + blue) / 3.0;
                     break;
-                case GrayMehtod.Maximum:
+                case Desaturate.Maximum:
                     lum = VMath.Max(red, green, blue);
                     break;
-                case GrayMehtod.Minimum:
+                case Desaturate.Minimum:
                     lum = VMath.Min(red, green, blue);
                     break;
-                case GrayMehtod.Lumanince:
+                case Desaturate.Lumanince:
                     double max = VMath.Max(red, green, blue);
                     double min = VMath.Min(red, green, blue);
                     lum = (max + min) / 2.0;
                     break;
-                case GrayMehtod.Natural:
+                case Desaturate.Natural:
                     lum = (red * WR) + (green * WG) + (blue * WB);
                     break;
             }

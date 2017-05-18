@@ -109,7 +109,7 @@ namespace Vulpine.Core.Draw
     /// all depending on what effect the end user wishes to produce. This enum
     /// lists all sutch methods suported by the engine.
     /// </summary>
-    public enum GrayMehtod
+    public enum Desaturate
     {
         /// <summary>
         /// Takes the average of the red, green, and blue channels. This 
@@ -176,6 +176,61 @@ namespace Vulpine.Core.Draw
         /// dimentions of the image. This option may lead to visual distortions.
         /// </summary>
         Streach = 3,
+    }
+
+    /// <summary>
+    /// When rendering an image, several sample points are generated per pixel. A weighted
+    /// average is then computed to get the final result. The weight of each sample, or
+    /// how much that sample contributs to the final result, is determined by a weighting
+    /// funciton, also known as a window function. These functions are called windows because
+    /// they only consider samples up to a set distance, and zero out all others.
+    /// </summary>
+    public enum Window
+    {
+        /// <summary>
+        /// Scales the sample points uniformly. That is, every sample point contributs
+        /// equaly to the final pixel, iregardless of distance. It is called a box
+        /// window due to the shape of its graph.
+        /// </summary>
+        Box = 0,
+
+        /// <summary>
+        /// Scales the sample points liniarly. It uses the function one minius the
+        /// distance to determin the weight of each sample. It is called a tent
+        /// window due to the shape of its graph.
+        /// </summary>
+        Tent = 1,
+
+        /// <summary>
+        /// Uses a normalised cosine function to determin the weight of each sample.
+        /// It is scaled sutch that the cosine is zero when the distance is one.
+        /// The result is simlar to the sinc window, but is faster to compute.
+        /// </summary>
+        Cosine = 2,
+
+        /// <summary>
+        /// Uses a gausian function, also called a bell-curve, to determin the weight
+        /// of each sample. It is unique in that it dose not go to zero at a fixed
+        /// point, but rather continues to get smaller with greater distance. Ultmatly,
+        /// this leads to more bluring and a smoother image.
+        /// </summary>
+        Gausian = 3,
+
+        /// <summary>
+        /// Use a normalised sinc function to determin the weight of each sample.
+        /// It is scaled sutch that the function is zero when the distance is one.
+        /// It is based on the Nyquist sampling therum, and offers the most 
+        /// realistic results.
+        /// </summary>
+        Sinc = 4,
+
+        /// <summary>
+        /// The Lanczos filter is equivlent to the sinc filter squared. It is similar
+        /// to the Sinc3 interpolation funciton, which can be thought of as the reverse
+        /// of image rendering. It allows for a much sharper image while still removing
+        /// ailising artifacts.
+        /// </summary>
+        Lanczos = 5,
     }
 
 

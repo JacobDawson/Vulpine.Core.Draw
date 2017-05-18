@@ -54,10 +54,11 @@ namespace Vulpine.Core.Draw
 
         //refrences the subsampeling method used
         private AntiAilis method;
-        private int samples;
+        private int num_samples;
 
 
         private Scaling scale = Scaling.Vertical;
+        private Window win = Window.Box;
 
         /// <summary>
         /// Creates a basic, no-frills renderor that dosent provide any
@@ -67,7 +68,7 @@ namespace Vulpine.Core.Draw
         {
             rng = new RandXOR();
             method = AntiAilis.None;
-            samples = 4;
+            num_samples = 4;
         }
 
         /// <summary>
@@ -86,7 +87,7 @@ namespace Vulpine.Core.Draw
 
             this.rng = new RandXOR();
             this.method = meth;
-            this.samples = samp;
+            this.num_samples = samp;
         }
 
         /// <summary>
@@ -106,7 +107,7 @@ namespace Vulpine.Core.Draw
 
             this.rng = new RandXOR(seed);
             this.method = meth;
-            this.samples = samp;
+            this.num_samples = samp;
         }
 
         /// <summary>
@@ -126,7 +127,7 @@ namespace Vulpine.Core.Draw
 
             this.rng = rng;
             this.method = meth;
-            this.samples = samp;
+            this.num_samples = samp;
         }
 
         #endregion ////////////////////////////////////////////////////////////////
@@ -147,7 +148,7 @@ namespace Vulpine.Core.Draw
         /// </summary>
         public int Samples
         {
-            get { return samples; }
+            get { return num_samples; }
         }
 
         #endregion ////////////////////////////////////////////////////////////////
@@ -173,7 +174,7 @@ namespace Vulpine.Core.Draw
             for (int y = 0; y < output.Height; y++)
             {
                 for (int x = 0; x < output.Width; x++)
-                output[x, y] = GetSampled(t, w, h, x, y);
+                output[x, y] = RenderPixel(t, x, y, w, h);
             }
         }
 
@@ -197,7 +198,7 @@ namespace Vulpine.Core.Draw
             for (int y = 0; y < height; y++)
             {
                 for (int x = 0; x < width; x++)
-                yield return GetSampled(t, width, height, x, y);
+                yield return RenderPixel(t, x, y, width, height);
             }
         }
 
@@ -262,24 +263,28 @@ namespace Vulpine.Core.Draw
         /// <returns>The average color</returns>
         private Color GetRandom(Texture t, double w, double h, int x, int y)
         {
+            ////grabs the boundries of the pixel
+            //double u0 = x / w;
+            //double v0 = y / h;
+            //double u1 = (x + 1.0) / w;
+            //double v1 = (y + 1.0) / h;
+
             //grabs the boundries of the pixel
-            double u0 = x / w;
-            double v0 = y / h;
-            double u1 = (x + 1.0) / w;
-            double v1 = (y + 1.0) / h;
+            Point2D p0 = ToTexture(x, y, w, h);
+            Point2D p1 = ToTexture(x + 1, y + 1, w, h);
 
             Vector temp = new Vector(4);
 
             //takes the sum of all the random points
-            for (int i = 0; i < samples; i++)
+            for (int i = 0; i < num_samples; i++)
             {
-                double u = rng.RandDouble(u0, u1);
-                double v = rng.RandDouble(v0, v1);
+                double u = rng.RandDouble(p0.X, p1.X);
+                double v = rng.RandDouble(p0.Y, p1.Y);
                 temp += t.Sample(u, v);
             }
 
             //returns the 'average' color
-            return Color.FromRGB(temp / samples);
+            return Color.FromRGB(temp / num_samples);
         }
 
         /// <summary>
@@ -295,7 +300,7 @@ namespace Vulpine.Core.Draw
         private Color GetJittred(Texture t, double w, double h, int x, int y)
         {
             Vector temp = new Vector(4);
-            int rc = (int)Math.Floor(Math.Sqrt(samples));
+            int rc = (int)Math.Ceiling(Math.Sqrt(num_samples));
 
             //TEST: Make all pixels use the same samples:
             rng.Reset();
@@ -309,14 +314,33 @@ namespace Vulpine.Core.Draw
             {
                 for (int j = 0; j < rc; j++)
                 {
-                    double u0 = (x + ((double)i / rc)) / w;
-                    double v0 = (y + ((double)j / rc)) / h;
+                    double u0 = (x + ((double)i / rc));  // w;
+                    double v0 = (y + ((double)j / rc));  // h;
 
-                    double u = rng.RandDouble(u0, u0 + us);
-                    double v = rng.RandDouble(v0, v0 + vs);
+                    Point2D p0 = ToTexture(u0, v0, w, h);
+
+                    double u = rng.RandDouble(p0.X, p0.X + us);
+                    double v = rng.RandDouble(p0.Y, p0.Y + vs);
                     temp += t.Sample(u, v);
                 }
             }
+
+            //for (int i = 0; i < rc; i++)
+            //{
+            //    for (int j = 0; j < rc; j++)
+            //    {
+            //        double u0 = (double)i / rc;
+            //        double u1 = (double)(i + 1) / rc;
+
+            //        double v0 = (double)j / rc;
+            //        double v1 = (double)(j + 1) / rc;
+
+            //        u = rng.RandDouble(u0, u1);
+            //        v = rng.RandDouble(v0, v1);
+            //        yield return new Point2D(u, v);
+            //    }
+            //}
+
 
             //returns the 'average' color
             return Color.FromRGB(temp / (rc * rc));
@@ -334,8 +358,8 @@ namespace Vulpine.Core.Draw
         /// <returns>The average color</returns>
         private Color GetPoisson(Texture t, double w, double h, int x, int y)
         {
-            Point2D[] points = new Point2D[samples];
-            double mindist = 0.75 / Math.Sqrt(samples);
+            Point2D[] points = new Point2D[num_samples];
+            double mindist = 0.75 / Math.Sqrt(num_samples);
 
             //generates a random point to start with
             double u = rng.NextDouble();
@@ -345,7 +369,7 @@ namespace Vulpine.Core.Draw
             int i = 1;
             int z = 0;
 
-            while ((i < samples) && (z < 100))
+            while ((i < num_samples) && (z < 100))
             {
                 //generates a random canidate point
                 u = rng.NextDouble();
@@ -387,38 +411,152 @@ namespace Vulpine.Core.Draw
         #endregion ////////////////////////////////////////////////////////////////
 
 
+        private Color RenderPixel(Texture t, double x, double y, double w, double h)
+        {
+            if (method == AntiAilis.None)
+            {
+                //samples only the center of the pixel
+                Point2D p = ToTexture(x, y, w, h);
+                return t.Sample(p.X, p.Y);
+            }
+
+            //generates the sub-samples for the pixel
+            var samples = GenSamples();
+            double weight = 0.0;
+
+            Vector sum = new Vector(4);
+
+            foreach (Point2D sample in samples)
+            {
+                double range = 1.50;
+
+                //range = 0.5
+                double dx = (sample.X * range) + x;
+                double dy = (sample.Y * range) + y;
+                double dw = sample.Radius;
+
+                //only consider samples within the unit disk
+                if (dw >= 1.0) continue;
+
+                //computes the weight from the windowing funciton
+                dw = CalWeight(dw);
+
+
+                Point2D p = ToTexture(dx, dy, w, h);
+                Vector temp = (Vector)t.Sample(p.X, p.Y);
+
+                sum = sum + temp * dw;
+                weight = weight + dw;
+            }
+
+            //returns the 'average' color
+            return Color.FromRGB(sum / weight);
+        }
+
         private Point2D ToTexture(double x, double y, double w, double h)
         {
-            //double sx = 1.0;
-            //double sy = 1.0;
-
-            //switch (scale)
-            //{
-            //    case Scaling.Horizontal:
-            //        sx = w;
-            //        sy = w;
-            //        break;
-            //    case Scaling.Vertical:
-            //        sx = h;
-            //        sy = h;
-            //        break;
-            //    case Scaling.Streach:
-            //        sx = w;
-            //        sy = h;
-            //        break;
-            //}
-
             //determins the scaling factor in the X and Y direction
             double sx = (scale == Scaling.Vertical) ? h : w;
             double sy = (scale == Scaling.Horizontal) ? w : h;
 
             //scales the texture to fit the target image
-            double u = ((2.0 * x) - w) / sx;
-            double v = ((2.0 * y) - h) / sy;
+            double u = ((2.0 * (x + 0.5)) - w) / sx;
+            double v = ((2.0 * (y + 0.5)) - h) / sy;
 
             return new Point2D(u, -v);
         }
 
+        private double CalWeight(double rad)
+        {
+            //calculates the weight based on the window function
+            switch (win)
+            {
+                case Window.Box: 
+                    return 1.0;
+                case Window.Tent: 
+                    return 1.0 - rad;
+                case Window.Cosine:
+                    return Math.Cos(Math.PI / 2.0 * rad);
+                case Window.Gausian:
+                    return Math.Exp(-2.0 * rad * rad);
+                case Window.Sinc:
+                    return VMath.Sinc(Math.PI * rad);
+                case Window.Lanczos:
+                    double temp = VMath.Sinc(Math.PI * rad);
+                    return temp * temp;
+            }
+
+            //defaults to the box window
+            return 1.0;
+        }
+
+        #region Sample Gemeration...
+
+        private IEnumerable<Point2D> GenSamples()
+        {
+            switch (method)
+            {
+                case AntiAilis.Random: return RandomPoints();
+                case AntiAilis.Jittred: return JittredPoints();          
+            }
+
+            //defaults to using random points
+            return RandomPoints();
+        }
+
+
+        private IEnumerable<Point2D> RandomPoints()
+        {
+            for (int i = 0; i < num_samples; i++)
+            {
+                double u = rng.RandDouble(-1.0, 1.0);
+                double v = rng.RandDouble(-1.0, 1.0);
+                yield return new Point2D(u, v);
+            }
+        }
+
+        private IEnumerable<Point2D> JittredPoints()
+        {
+            double u, v;
+
+            double rc = Math.Ceiling(Math.Sqrt(num_samples));
+            double inv = 1.0 / rc;
+
+            //selects a random point inside each cell
+            for (int i = 0; i < rc; i++)
+            {
+                for (int j = 0; j < rc; j++)
+                {
+                    double u0 = (double)i / rc;
+                    double v0 = (double)j / rc;
+
+                    u = rng.RandDouble(u0, u0 + inv);
+                    v = rng.RandDouble(v0, v0 + inv);
+
+                    u = (u * 2.0) - 1.0;
+                    v = (v * 2.0) - 1.0;
+
+                    yield return new Point2D(u, v);
+                }
+            }
+        }
+
+        #endregion ////////////////////////////////////////////////////////////////
+
+
+        /*
+         * Consider the windowed sinc functions:
+         * 
+         * Sinc Functions [0 .. 3]
+         * sinc(pi * x / 3) * sinc(pi * x) : Lancaoze 
+         * e^(-1/4 * x^2) * sinc(pi * x) : Gausian
+         * cos(pi * x / 6) * sinc(pi * x) : Cosine
+         * 
+         * Gause Funcitons [0 .. 2]
+         * cos(pi * x / 4) * e^(-2x^2) : GauseCosine
+         * sinc(pi * x / 2) * e^(-2x^2) : GauseLancoze
+         * 
+         */
 
     }
 }
