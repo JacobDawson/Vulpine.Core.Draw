@@ -153,7 +153,53 @@ namespace ImagingTests.SuperSmpl
         }
 
 
+        public static IEnumerable<Point2D> GetPoissonDisk(double delta)
+        {
+            Deque<Point2D> queue = new DequeArray<Point2D>(1024);
 
+            //starts at the origin
+            double u = 0.0;
+            double v = 0.0;
+
+            //starts at the origin
+            Point2D can = new Point2D(u, v);
+            queue.PushBack(can);
+            yield return can;
+
+            int i = 0;
+            int t = 0;
+
+            double max_r = 1.0 - delta;
+
+            while ((t < 12) && (i < 10000000))
+            {
+                //generates a random canidate point
+                u = rng.RandDouble(-1.0, 1.0);
+                v = rng.RandDouble(-1.0, 1.0);
+                can = new Point2D(u, v);
+                bool pass = true;
+
+                //ignores points outside the unit disk
+                if (can.Radius > max_r) continue;
+
+                t++; i++;
+
+                //checks that the canidate is not too close
+                foreach (Point2D p in queue)
+                {
+                    pass = (can.Dist(p) > delta);
+                    if (!pass) break;
+                }
+
+                //includes the point only if it passes
+                if (pass)
+                {
+                    queue.PushBack(can);
+                    t = 0;
+                    yield return can;
+                }
+            }
+        }
 
     }
 }

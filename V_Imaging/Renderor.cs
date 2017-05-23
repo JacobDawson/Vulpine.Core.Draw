@@ -57,8 +57,17 @@ namespace Vulpine.Core.Draw
         private int num_samples;
 
 
+
+        //determins how the texture should be scaled to fit
         private Scaling scale = Scaling.Vertical;
-        private Window win = Window.Box;
+
+        //determins if anti-ailising should be preformed
+        private bool aa_flag = true;
+
+        //paramaters that describe the anti-ailising
+        private Window win = Window.Lanczos;
+        private double sup = 1.0;
+
 
         /// <summary>
         /// Creates a basic, no-frills renderor that dosent provide any
@@ -135,7 +144,7 @@ namespace Vulpine.Core.Draw
         #region Class Properties...
 
         /// <summary>
-        /// Represents the curent AntiAliasing method in use by the Renderor.
+        /// DEPRECATED
         /// </summary>
         public AntiAilis Method
         {
@@ -149,6 +158,58 @@ namespace Vulpine.Core.Draw
         public int Samples
         {
             get { return num_samples; }
+        }
+
+
+        /// <summary>
+        /// Determins weather or not the renderor should preform anti-ailising
+        /// on the rendered texture. The nature of the anti-ailising tenique
+        /// used, is determined by the other properties.
+        /// </summary>
+        public bool AitiAilising
+        {
+            get { return aa_flag; }
+            set { aa_flag = value; }
+        }
+
+
+        /// <summary>
+        /// Determins how the source texture should be scaled, or streched, to
+        /// fit the target image. See the Scaling enumeration for more details.
+        /// </summary>
+        public Scaling Scaling
+        {
+            get { return scale; }
+            set { scale = value; }
+        }
+
+        /// <summary>
+        /// Selects the windowing function used to determin the weights of each
+        /// sub-sample, when computing the final color value for a given pixel.
+        /// This property has no effect if anti-ailising is disabled.
+        /// </summary>
+        public Window Window
+        {
+            get { return win; }
+            set { win = value; }
+        }
+
+        /// <summary>
+        /// Indicates the diamater of the sampeling area, measured in pixels.
+        /// Higher numbers produce smoother edges, but blurier images overall.
+        /// This has no effect if anti-ailising is disabled.
+        /// </summary>
+        public double Support
+        {
+            get 
+            { 
+                return sup; 
+            }
+            set 
+            {
+                if (value < 1.0) sup = 1.0;
+                else sup = value;
+            }
         }
 
         #endregion ////////////////////////////////////////////////////////////////
@@ -411,6 +472,20 @@ namespace Vulpine.Core.Draw
         #endregion ////////////////////////////////////////////////////////////////
 
 
+        /// <summary>
+        /// Generates the color of a single pixel in the target image, given the 
+        /// texture to render, the locaiton of the pixel, and the dimentions of 
+        /// the target image. It dose this by generating multiple samples around
+        /// the centr of the pixel, and computing a weighted average based on some
+        /// windowing function. This method could be considered the core of the
+        /// rendor class.
+        /// </summary>
+        /// <param name="t">Texture to be rencered</param>
+        /// <param name="x">X cordinate of the pixel to render</param>
+        /// <param name="y">Y cordinate of the pixel to render</param>
+        /// <param name="w">Width of the target image</param>
+        /// <param name="h">Height of the target image</param>
+        /// <returns>The final color of the given pixel in the rendered image</returns>
         private Color RenderPixel(Texture t, double x, double y, double w, double h)
         {
             if (method == AntiAilis.None)
@@ -422,15 +497,15 @@ namespace Vulpine.Core.Draw
 
             //generates the sub-samples for the pixel
             var samples = GenSamples();
-            double weight = 0.0;
 
+            //used in computing the pixel's color
             Vector sum = new Vector(4);
+            double range = sup * 0.5;
+            double weight = 0.0;
 
             foreach (Point2D sample in samples)
             {
-                double range = 1.50;
-
-                //range = 0.5
+                range = 1.5;
                 double dx = (sample.X * range) + x;
                 double dy = (sample.Y * range) + y;
                 double dw = sample.Radius;
@@ -453,6 +528,15 @@ namespace Vulpine.Core.Draw
             return Color.FromRGB(sum / weight);
         }
 
+        /// <summary>
+        /// Converts pixel and sub-pixel cordinates to UV texture cordinates,
+        /// using the scaling method prefered by the curent renderor.
+        /// </summary>
+        /// <param name="x">X cordinate of the Pixel</param>
+        /// <param name="y">Y cordinate of the Pixel</param>
+        /// <param name="w">Width of the render target</param>
+        /// <param name="h">Height of the render target</param>
+        /// <returns>The corisponding UV texture cordinates</returns>
         private Point2D ToTexture(double x, double y, double w, double h)
         {
             //determins the scaling factor in the X and Y direction
@@ -466,6 +550,13 @@ namespace Vulpine.Core.Draw
             return new Point2D(u, -v);
         }
 
+        /// <summary>
+        /// Calculates the weight for a given sample, given its distance from 
+        /// the center of the sample set. It uses the curently selected window
+        /// function to calculate the weights.
+        /// </summary>
+        /// <param name="rad">Distance from the center</param>
+        /// <returns>The weight of the given sample</returns>
         private double CalWeight(double rad)
         {
             //calculates the weight based on the window function
@@ -486,8 +577,8 @@ namespace Vulpine.Core.Draw
                     return temp * temp;
             }
 
-            //defaults to the box window
-            return 1.0;
+            //only the windowing funcitos above are suported
+            throw new NotSupportedException();
         }
 
         #region Sample Gemeration...
@@ -521,6 +612,9 @@ namespace Vulpine.Core.Draw
 
             double rc = Math.Ceiling(Math.Sqrt(num_samples));
             double inv = 1.0 / rc;
+
+            ////TEST: Predetermined samples
+            //rng.Reset();
 
             //selects a random point inside each cell
             for (int i = 0; i < rc; i++)

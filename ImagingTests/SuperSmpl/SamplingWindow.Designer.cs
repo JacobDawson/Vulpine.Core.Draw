@@ -43,6 +43,8 @@
             this.btnA = new System.Windows.Forms.Button();
             this.btnB = new System.Windows.Forms.Button();
             this.lblSample = new System.Windows.Forms.Label();
+            this.txtDelta = new System.Windows.Forms.TextBox();
+            this.lblDelta = new System.Windows.Forms.Label();
             this.pnlBorder.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -71,7 +73,8 @@
             "Random",
             "Jittred",
             "PoissonA",
-            "PoissonB"});
+            "PoissonB",
+            "PoissonDisk*"});
             this.cboMethod.Location = new System.Drawing.Point(13, 33);
             this.cboMethod.Name = "cboMethod";
             this.cboMethod.Size = new System.Drawing.Size(230, 21);
@@ -189,10 +192,29 @@
             this.lblSample.TabIndex = 14;
             this.lblSample.Text = "Samples Generated:  0";
             // 
+            // txtDelta
+            // 
+            this.txtDelta.Location = new System.Drawing.Point(67, 131);
+            this.txtDelta.Name = "txtDelta";
+            this.txtDelta.Size = new System.Drawing.Size(92, 20);
+            this.txtDelta.TabIndex = 16;
+            this.txtDelta.Text = "4";
+            // 
+            // lblDelta
+            // 
+            this.lblDelta.AutoSize = true;
+            this.lblDelta.Location = new System.Drawing.Point(16, 134);
+            this.lblDelta.Name = "lblDelta";
+            this.lblDelta.Size = new System.Drawing.Size(27, 13);
+            this.lblDelta.TabIndex = 15;
+            this.lblDelta.Text = "D = ";
+            // 
             // SamplingWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.Controls.Add(this.txtDelta);
+            this.Controls.Add(this.lblDelta);
             this.Controls.Add(this.lblSample);
             this.Controls.Add(this.btnB);
             this.Controls.Add(this.btnA);
@@ -232,5 +254,7 @@
         private System.Windows.Forms.Button btnA;
         private System.Windows.Forms.Button btnB;
         private System.Windows.Forms.Label lblSample;
+        private System.Windows.Forms.TextBox txtDelta;
+        private System.Windows.Forms.Label lblDelta;
     }
 }

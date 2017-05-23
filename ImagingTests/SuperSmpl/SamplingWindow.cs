@@ -34,12 +34,18 @@ namespace ImagingTests.SuperSmpl
             int index = cboMethod.SelectedIndex;
             int n = 10;
             int k = 6;
+            
+            double delta = 2.0;
 
             bool test = Int32.TryParse(txtN.Text, out n);
             if (!test) n = 10;
 
             test = Int32.TryParse(txtK.Text, out k);
             if (!test) k = 6;
+
+            test = Double.TryParse(txtDelta.Text, out delta);
+            if (!test) delta = 2.0;
+
 
             switch (index)
             {
@@ -51,6 +57,8 @@ namespace ImagingTests.SuperSmpl
                     return SampleProvider.GetPoissonA(n * n);
                 case 3:
                     return SampleProvider.GetPoissonB(n * n, k);
+                case 4:
+                    return SampleProvider.GetPoissonDisk(1.0 / delta);
                 default:
                     return SampleProvider.GetRandom(n * n);
             }

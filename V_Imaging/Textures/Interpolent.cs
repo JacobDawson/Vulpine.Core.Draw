@@ -361,6 +361,9 @@ namespace Vulpine.Core.Draw.Textures
             }
             else
             {
+                //NOTE: Consider using a cosine window, while not a true Lancozos window,
+                //it should give comparable quality, while being faster to compute.
+
                 double temp = x * Math.PI;
                 temp = VMath.Sinc(temp) * VMath.Sinc(temp / 3.0);
                 return temp;
