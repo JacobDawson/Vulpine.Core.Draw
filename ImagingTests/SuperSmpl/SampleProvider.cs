@@ -201,5 +201,44 @@ namespace ImagingTests.SuperSmpl
             }
         }
 
+        
+
+
+        public static IEnumerable<Point2D> GetHex(int n)
+        {
+            //n = n / 2;
+
+            //double a = 2.0 / ((2.0 * n) + 1.0);
+            double a = 1.0 / n;
+            double b = a * 0.86602540378443864676;
+
+            int m = (int)Math.Floor(1.0 / b);
+            double x, y;
+
+            for (int j = -m; j <= m; j++)
+            {
+                for (int i = -n; i <= n; i++)
+                {
+                    x = a * i;
+                    y = b * j;
+
+                    //shifts by half for odd rows
+                    if (j % 2 != 0) x += a / 2.0;
+
+                    ////jitters each point
+                    //x += rng.RandGauss(0.0, a / 6.0);
+                    //y += rng.RandGauss(0.0, a / 6.0);
+
+                    double x0 = (x + 1.0) * 0.5;
+                    double y0 = (y + 1.0) * 0.5;
+
+                    //yield return new Point2D(x, y);
+
+                    Point2D p = new Point2D(x, y);
+                    if (p.Radius < 1.0) yield return new Point2D(x0, y0);
+                }
+            }
+        }
+
     }
 }

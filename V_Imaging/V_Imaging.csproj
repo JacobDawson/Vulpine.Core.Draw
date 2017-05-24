@@ -43,6 +43,7 @@
     <Compile Include="Exceptions\ImagingException.cs" />
     <Compile Include="Image.cs" />
     <Compile Include="Images\ImageBitmap.cs" />
+    <Compile Include="RenderEventArgs.cs" />
     <Compile Include="Textures\CmplxMap.cs" />
     <Compile Include="Textures\ColorWheel.cs" />
     <Compile Include="Textures\Interpolent.cs" />

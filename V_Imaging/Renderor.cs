@@ -22,7 +22,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-using Vulpine.Core.Data.Exceptions;
 using Vulpine.Core.Calc;
 using Vulpine.Core.Calc.Geometry;
 using Vulpine.Core.Calc.Matrices;
@@ -30,33 +29,21 @@ using Vulpine.Core.Calc.RandGen;
 
 namespace Vulpine.Core.Draw
 {
-
     /// <summary>
     /// The purpous of Rendering is to convert a continious texture into a rasterised
-    /// image of pixels. This is nessary, for instance, to print out textures or
+    /// image of pixels. This is nessary, for instance, to save textures to disk or
     /// display them to the screen. Rendering works on a pixel by pixel basis, and
-    /// may imploy anti-alising teniques inorder to acheve a more acurate value for
-    /// each pixel. This is in contrast to Rasterisation, which operates on a perimitive
-    /// by perimitive basis, and requires a more detailed description.
+    /// may imploy anti-alising teniques inorder to acheve a more realistic value for
+    /// each pixel. Furthermore, a scaling mehtod must be provided to determin how
+    /// the texture should be scaled (or streched) to fit the target image.
     /// </summary>
-    /// <remarks>Last Update: 2016-02-14</remarks>
+    /// <remarks>Last Update: 2017-05-24</remarks>
     public class Renderor
     {
         #region Class Definitons...
 
-
-        //IMPORTANT: I still need to update the various AA methods to use the new
-        //texture cordinate system. Curently only AA.None works as intended.
-
-
         //uses a PRNG for anti-aliasing
         private VRandom rng;
-
-        //refrences the subsampeling method used
-        private AntiAilis method;
-        private int num_samples;
-
-
 
         //determins how the texture should be scaled to fit
         private Scaling scale = Scaling.Vertical;
@@ -65,9 +52,13 @@ namespace Vulpine.Core.Draw
         private bool aa_flag = true;
 
         //paramaters that describe the anti-ailising
-        private Window win = Window.Lanczos;
-        private double sup = 1.0;
+        private Window win = Window.Gausian;
+        private double sup = VMath.R2;
+        private bool jitter = true;
+        private int nsamp = 4;
 
+        //stores the delegate to handel render events
+        private EventHandler<RenderEventArgs> render_event;
 
         /// <summary>
         /// Creates a basic, no-frills renderor that dosent provide any
@@ -75,91 +66,51 @@ namespace Vulpine.Core.Draw
         /// </summary>
         public Renderor()
         {
-            rng = new RandXOR();
-            method = AntiAilis.None;
-            num_samples = 4;
-        }
-
-        /// <summary>
-        /// Creates a new renderor utilising the desired Anti-Aliasing method,
-        /// with the desired number of samples. A generic PRNG is provided
-        /// for the generation of sub-samples.
-        /// </summary>
-        /// <param name="meth">Anti-Aliasing  method to use</param>
-        /// <param name="samp">Number of sub-samples per pixel</param>
-        /// <exception cref="ArgRangeExp">If the number of samples is 
-        /// less than four</exception>
-        public Renderor(AntiAilis meth, int samp)
-        {
-            //checks that our sample size is apropriate
-            ArgRangeExcp.Atleast("samp", samp, 4);
-
             this.rng = new RandXOR();
-            this.method = meth;
-            this.num_samples = samp;
+            this.aa_flag = false;
         }
 
         /// <summary>
-        /// Creates a new renderor utilising the desired Anti-Aliasing method,
-        /// with the desired number of samples. A generic PRNG is intialised
-        /// with the given seed for generating sub-samples.
+        /// Creates a new renderor using the given aporximate number of 
+        /// sample points per pixel. A generic PRNG is provided for 
+        /// generating sample points.
         /// </summary>
-        /// <param name="meth">Anti-Aliasing  method to use</param>
-        /// <param name="samp">Number of sub-samples per pixel</param>
-        /// <param name="seed">Seed of the internal PRNG</param>
-        /// <exception cref="ArgRangeExp">If the number of samples is 
-        /// less than four</exception>
-        public Renderor(AntiAilis meth, int samp, int seed)
+        /// <param name="sample">Aprox number of sub-samples</param>
+        public Renderor(int sample)
         {
-            //checks that our sample size is apropriate
-            ArgRangeExcp.Atleast("samp", samp, 4);
+            this.rng = new RandXOR();
+            this.nsamp = Math.Max(sample, 4);
+        }
 
+        /// <summary>
+        /// Creates a new renderor using the given aproximate number of
+        /// sample points per pixel. The internal PRNG is initialised
+        /// with the given seed for generating sample points.
+        /// </summary>
+        /// <param name="sample">Aprox number of sub-samples</param>
+        /// <param name="seed">Seed for sample generation</param>
+        public Renderor(int sample, int seed)
+        {
             this.rng = new RandXOR(seed);
-            this.method = meth;
-            this.num_samples = samp;
+            this.nsamp = Math.Max(sample, 4);
         }
 
         /// <summary>
-        /// Creates a new renderor utilising the desired Anti-Aliasing method,
-        /// with the desired number of samples. The PRNG used to generate
-        /// sub-samples is given by the invoker.
+        /// Creates a new renderor using the given aproximate number of
+        /// sample points per pixel. The provided PRNG is used for the
+        /// generation of sample points.
         /// </summary>
-        /// <param name="meth">Anti-Aliasing  method to use</param>
-        /// <param name="samp">Number of sub-samples per pixel</param>
-        /// <param name="rng">Reference to the internal PRNG</param>
-        /// <exception cref="ArgRangeExp">If the number of samples is 
-        /// less than four</exception>
-        public Renderor(AntiAilis meth, int samp, VRandom rng)
+        /// <param name="sample">Aprox number of sub-samples</param>
+        /// <param name="rng">Generator for sub-samples</param>
+        public Renderor(int sample, VRandom rng)
         {
-            //checks that our sample size is apropriate
-            ArgRangeExcp.Atleast("samp", samp, 4);
-
-            this.rng = rng;
-            this.method = meth;
-            this.num_samples = samp;
+            this.rng = rng; //clone this!
+            this.nsamp = Math.Max(sample, 4);
         }
 
         #endregion ////////////////////////////////////////////////////////////////
 
         #region Class Properties...
-
-        /// <summary>
-        /// DEPRECATED
-        /// </summary>
-        public AntiAilis Method
-        {
-            get { return method; }
-        }
-
-        /// <summary>
-        /// Represents the ideal number of sub-samples to generate per pixel.
-        /// The actual number of sub-samples generated may be less.
-        /// </summary>
-        public int Samples
-        {
-            get { return num_samples; }
-        }
-
 
         /// <summary>
         /// Determins weather or not the renderor should preform anti-ailising
@@ -172,7 +123,6 @@ namespace Vulpine.Core.Draw
             set { aa_flag = value; }
         }
 
-
         /// <summary>
         /// Determins how the source texture should be scaled, or streched, to
         /// fit the target image. See the Scaling enumeration for more details.
@@ -183,6 +133,17 @@ namespace Vulpine.Core.Draw
             set { scale = value; }
         }
 
+        /// <summary>
+        /// Determins the aporximate number of samples to generate per pixel.
+        /// The more samples generated, the smoother the image, but the longer
+        /// the render time. This has no effect if anti-ailising is disabled.
+        /// </summary>
+        public int Samples
+        {
+            get { return nsamp; }
+            set { nsamp = Math.Max(value, 4); }
+        }
+       
         /// <summary>
         /// Selects the windowing function used to determin the weights of each
         /// sub-sample, when computing the final color value for a given pixel.
@@ -195,21 +156,47 @@ namespace Vulpine.Core.Draw
         }
 
         /// <summary>
-        /// Indicates the diamater of the sampeling area, measured in pixels.
-        /// Higher numbers produce smoother edges, but blurier images overall.
-        /// This has no effect if anti-ailising is disabled.
+        /// Indicates the radius of the sampeling area, measured in pixels. 
+        /// For instance, a radius of 0.5 would be completly contained inside 
+        /// the pixel. Higher numbers produce smoother edges, but blurier 
+        /// images overall. This has no effect if anti-ailising is disabled.
         /// </summary>
         public double Support
         {
-            get 
-            { 
-                return sup; 
-            }
-            set 
-            {
-                if (value < 1.0) sup = 1.0;
-                else sup = value;
-            }
+            get { return sup; }
+            set { sup = Math.Abs(value); }
+        }
+
+        /// <summary>
+        /// Enables jittering by adding a tiny displacment to each sample 
+        /// point. This helps prevent Moire paterns from appearing, but can 
+        /// cause flickering when animating. This has no effect if 
+        /// anti-ailising is disabled.
+        /// </summary>
+        public bool Jitter
+        {
+            get { return jitter; }
+            set { jitter = value; }
+        }
+
+        /// <summary>
+        /// The seed of the internal random number generator. This determins
+        /// how the datapoints are jitterd when jittering is enabled.
+        /// </summary>
+        public int Seed
+        {
+            get { return rng.Seed; }
+        }
+
+        /// <summary>
+        /// The render event is envoked after each pixel is rendered. This
+        /// can be used to show a progress bar, or display the results of
+        /// the render thus far.
+        /// </summary>
+        public event EventHandler<RenderEventArgs> RenderEvent
+        {
+            add { render_event += value; }
+            remove { render_event -= value; }
         }
 
         #endregion ////////////////////////////////////////////////////////////////
@@ -231,11 +218,21 @@ namespace Vulpine.Core.Draw
 
             double w = output.Width;
             double h = output.Height;
+            bool halt = false;
+
+            int total = output.Size;
+            int count = 0;
 
             for (int y = 0; y < output.Height; y++)
             {
                 for (int x = 0; x < output.Width; x++)
-                output[x, y] = RenderPixel(t, x, y, w, h);
+                {
+                    count = y * output.Width + x;
+                    output[x, y] = RenderPixel(t, x, y, w, h);
+                    halt = OnRender(total, count, output);
+
+                    if (halt) return;
+                }
             }
         }
 
@@ -245,16 +242,16 @@ namespace Vulpine.Core.Draw
         /// progress on long running renders.
         /// </summary>
         /// <param name="t">Texture to be rendered</param>
-        /// <param name="width">Widht of the output image</param>
+        /// <param name="width">Width of the output image</param>
         /// <param name="height">Height of the output image</param>
         /// <returns>Each pixel in the image</returns>
         /// <exception cref="ArgRangeExcp">If either the width or the
         /// height is less than one</exception>
         public IEnumerable<Color> Render(Texture t, int width, int height)
         {
-            //checks that the dementions are positive
-            ArgRangeExcp.Atleast("width", width, 1);
-            ArgRangeExcp.Atleast("height", height, 1);
+            ////checks that the dementions are positive
+            //ArgRangeExcp.Atleast("width", width, 1);
+            //ArgRangeExcp.Atleast("height", height, 1);
 
             for (int y = 0; y < height; y++)
             {
@@ -263,224 +260,29 @@ namespace Vulpine.Core.Draw
             }
         }
 
-        #endregion ////////////////////////////////////////////////////////////////
-
-        #region Sub-Sampeling...
-
-        /// <summary>
-        /// Generates sub-samples, per the anti-ailising method of the renderor,
-        /// and returns theire average value as the color of the pixel.
-        /// </summary>
-        /// <param name="t">Texture to sample</param>
-        /// <param name="w">Width of the render target</param>
-        /// <param name="h">Height of the render target</param>
-        /// <param name="x">X cordinate of the pixel</param>
-        /// <param name="y">Y cordinate of the pixel</param>
-        /// <returns>The average color</returns>
-        private Color GetSampled(Texture t, double w, double h, int x, int y)
+        private bool OnRender(int total, int count, Image img)
         {
-            switch (method)
-            {
-                case AntiAilis.None:
-                    return GetCenter(t, w, h, x, y);
-                case AntiAilis.Random:
-                    return GetRandom(t, w, h, x, y);
-                case AntiAilis.Jittred:
-                    return GetJittred(t, w, h, x, y);
-                case AntiAilis.Poisson:
-                    return GetPoisson(t, w, h, x, y);
-                default:
-                    throw new NotSupportedException();
-            }
-        }
+            //checks that we actualy have someone listening
+            if (render_event == null) return false;
 
-        /// <summary>
-        /// Maps each pixel in the image to it's center
-        /// </summary>
-        /// <param name="t">Texture to sample</param>
-        /// <param name="w">Width of the render target</param>
-        /// <param name="h">Height of the render target</param>
-        /// <param name="x">X cordinate of the pixel</param>
-        /// <param name="y">Y cordinate of the pixel</param>
-        /// <returns>The average color</returns>
-        private Color GetCenter(Texture t, double w, double h, int x, int y)
-        {
-            //double u = (x + 0.5) / w;
-            //double v = (y + 0.5) / h;
-
-            Point2D p = ToTexture(x + 0.5, y + 0.5, w, h);
-            return t.Sample(p.X, p.Y);
-        }
-
-        /// <summary>
-        /// Generates subsamples at random and returns the average color
-        /// for the given pixel
-        /// </summary>
-        /// <param name="t">Texture to sample</param>
-        /// <param name="w">Width of the render target</param>
-        /// <param name="h">Height of the render target</param>
-        /// <param name="x">X cordinate of the pixel</param>
-        /// <param name="y">Y cordinate of the pixel</param>
-        /// <returns>The average color</returns>
-        private Color GetRandom(Texture t, double w, double h, int x, int y)
-        {
-            ////grabs the boundries of the pixel
-            //double u0 = x / w;
-            //double v0 = y / h;
-            //double u1 = (x + 1.0) / w;
-            //double v1 = (y + 1.0) / h;
-
-            //grabs the boundries of the pixel
-            Point2D p0 = ToTexture(x, y, w, h);
-            Point2D p1 = ToTexture(x + 1, y + 1, w, h);
-
-            Vector temp = new Vector(4);
-
-            //takes the sum of all the random points
-            for (int i = 0; i < num_samples; i++)
-            {
-                double u = rng.RandDouble(p0.X, p1.X);
-                double v = rng.RandDouble(p0.Y, p1.Y);
-                temp += t.Sample(u, v);
-            }
-
-            //returns the 'average' color
-            return Color.FromRGB(temp / num_samples);
-        }
-
-        /// <summary>
-        /// Generates subsamples in a jittred pattern, and returns the
-        /// average color for the given pixel
-        /// </summary>
-        /// <param name="t">Texture to sample</param>
-        /// <param name="w">Width of the render target</param>
-        /// <param name="h">Height of the render target</param>
-        /// <param name="x">X cordinate of the pixel</param>
-        /// <param name="y">Y cordinate of the pixel</param>
-        /// <returns>The average color</returns>
-        private Color GetJittred(Texture t, double w, double h, int x, int y)
-        {
-            Vector temp = new Vector(4);
-            int rc = (int)Math.Ceiling(Math.Sqrt(num_samples));
-
-            //TEST: Make all pixels use the same samples:
-            rng.Reset();
-
-            //calcualtes the width and height of each cell
-            double us = 1.0 / (w * rc);
-            double vs = 1.0 / (h * rc);
-
-            //selects a random point inside each cell
-            for (int i = 0; i < rc; i++)
-            {
-                for (int j = 0; j < rc; j++)
-                {
-                    double u0 = (x + ((double)i / rc));  // w;
-                    double v0 = (y + ((double)j / rc));  // h;
-
-                    Point2D p0 = ToTexture(u0, v0, w, h);
-
-                    double u = rng.RandDouble(p0.X, p0.X + us);
-                    double v = rng.RandDouble(p0.Y, p0.Y + vs);
-                    temp += t.Sample(u, v);
-                }
-            }
-
-            //for (int i = 0; i < rc; i++)
-            //{
-            //    for (int j = 0; j < rc; j++)
-            //    {
-            //        double u0 = (double)i / rc;
-            //        double u1 = (double)(i + 1) / rc;
-
-            //        double v0 = (double)j / rc;
-            //        double v1 = (double)(j + 1) / rc;
-
-            //        u = rng.RandDouble(u0, u1);
-            //        v = rng.RandDouble(v0, v1);
-            //        yield return new Point2D(u, v);
-            //    }
-            //}
-
-
-            //returns the 'average' color
-            return Color.FromRGB(temp / (rc * rc));
-        }
-
-        /// <summary>
-        /// Generates subsamples in a poisson distribution, and returns the
-        /// average color for the given pixel.
-        /// </summary>
-        /// <param name="t">Texture to sample</param>
-        /// <param name="w">Width of the render target</param>
-        /// <param name="h">Height of the render target</param>
-        /// <param name="x">X cordinate of the pixel</param>
-        /// <param name="y">Y cordinate of the pixel</param>
-        /// <returns>The average color</returns>
-        private Color GetPoisson(Texture t, double w, double h, int x, int y)
-        {
-            Point2D[] points = new Point2D[num_samples];
-            double mindist = 0.75 / Math.Sqrt(num_samples);
-
-            //generates a random point to start with
-            double u = rng.NextDouble();
-            double v = rng.NextDouble();
-            points[0] = new Point2D(u, v);
-
-            int i = 1;
-            int z = 0;
-
-            while ((i < num_samples) && (z < 100))
-            {
-                //generates a random canidate point
-                u = rng.NextDouble();
-                v = rng.NextDouble();
-                Point2D can = new Point2D(u, v);
-                bool pass = true;
-
-                z++;
-
-                //checks that the canidate is not too close
-                for (int k = 0; k < i; k++)
-                {
-                    pass = (can.Dist(points[k]) > mindist);
-                    if (!pass) break;
-                }
-
-                //includes the point only if it passes
-                if (pass)
-                {
-                    points[i] = can;
-                    i++; z = 0;
-                }
-            }
-
-            Vector temp = new Vector(4);
-
-            //converts each point to the range we need after the fact
-            for (int k = 0; k < i; k++)
-            {
-                u = (points[k].X + x) / w;
-                v = (points[k].Y + y) / h;
-                temp += t.Sample(u, v);
-            }
-
-            //returns the 'average' color
-            return Color.FromRGB(temp / i);
+            //creates new event args and invokes the event
+            var args = new RenderEventArgs(total, count, img);
+            render_event(this, args); return args.Halt;
         }
 
         #endregion ////////////////////////////////////////////////////////////////
 
+        #region Sub-Sampeling
 
         /// <summary>
         /// Generates the color of a single pixel in the target image, given the 
         /// texture to render, the locaiton of the pixel, and the dimentions of 
         /// the target image. It dose this by generating multiple samples around
-        /// the centr of the pixel, and computing a weighted average based on some
+        /// the center of the pixel, and computing a weighted average based on some
         /// windowing function. This method could be considered the core of the
         /// rendor class.
         /// </summary>
-        /// <param name="t">Texture to be rencered</param>
+        /// <param name="t">Texture to be rendered</param>
         /// <param name="x">X cordinate of the pixel to render</param>
         /// <param name="y">Y cordinate of the pixel to render</param>
         /// <param name="w">Width of the target image</param>
@@ -488,7 +290,7 @@ namespace Vulpine.Core.Draw
         /// <returns>The final color of the given pixel in the rendered image</returns>
         private Color RenderPixel(Texture t, double x, double y, double w, double h)
         {
-            if (method == AntiAilis.None)
+            if (!aa_flag)
             {
                 //samples only the center of the pixel
                 Point2D p = ToTexture(x, y, w, h);
@@ -496,18 +298,17 @@ namespace Vulpine.Core.Draw
             }
 
             //generates the sub-samples for the pixel
-            var samples = GenSamples();
+            double a = 1.903476229 / Math.Sqrt(nsamp);
+            var samples = GetSamples(a);
 
             //used in computing the pixel's color
             Vector sum = new Vector(4);
-            double range = sup * 0.5;
             double weight = 0.0;
 
             foreach (Point2D sample in samples)
             {
-                range = 1.5;
-                double dx = (sample.X * range) + x;
-                double dy = (sample.Y * range) + y;
+                double dx = (sample.X * sup) + x;
+                double dy = (sample.Y * sup) + y;
                 double dw = sample.Radius;
 
                 //only consider samples within the unit disk
@@ -515,7 +316,6 @@ namespace Vulpine.Core.Draw
 
                 //computes the weight from the windowing funciton
                 dw = CalWeight(dw);
-
 
                 Point2D p = ToTexture(dx, dy, w, h);
                 Vector temp = (Vector)t.Sample(p.X, p.Y);
@@ -577,80 +377,46 @@ namespace Vulpine.Core.Draw
                     return temp * temp;
             }
 
-            //only the windowing funcitos above are suported
+            //only the windowing functions above are suported
             throw new NotSupportedException();
         }
 
-        #region Sample Gemeration...
-
-        private IEnumerable<Point2D> GenSamples()
+        /// <summary>
+        /// Generates sample points in a hexoginal lattus, filling the
+        /// unit square. It optionaly jitters the points if enabled.
+        /// </summary>
+        /// <param name="a">Distance between samples</param>
+        /// <returns>A listing of all sample points</returns>
+        private IEnumerable<Point2D> GetSamples(double a)
         {
-            switch (method)
+            double b = a * 0.86602540378443864676;
+            double x, y;
+
+            int n = (int)Math.Floor(1.0 / a);
+            int m = (int)Math.Floor(1.0 / b);
+
+            for (int j = -m; j <= m; j++)
             {
-                case AntiAilis.Random: return RandomPoints();
-                case AntiAilis.Jittred: return JittredPoints();          
-            }
-
-            //defaults to using random points
-            return RandomPoints();
-        }
-
-
-        private IEnumerable<Point2D> RandomPoints()
-        {
-            for (int i = 0; i < num_samples; i++)
-            {
-                double u = rng.RandDouble(-1.0, 1.0);
-                double v = rng.RandDouble(-1.0, 1.0);
-                yield return new Point2D(u, v);
-            }
-        }
-
-        private IEnumerable<Point2D> JittredPoints()
-        {
-            double u, v;
-
-            double rc = Math.Ceiling(Math.Sqrt(num_samples));
-            double inv = 1.0 / rc;
-
-            ////TEST: Predetermined samples
-            //rng.Reset();
-
-            //selects a random point inside each cell
-            for (int i = 0; i < rc; i++)
-            {
-                for (int j = 0; j < rc; j++)
+                for (int i = -n; i <= n; i++)
                 {
-                    double u0 = (double)i / rc;
-                    double v0 = (double)j / rc;
+                    x = a * i;
+                    y = b * j;
 
-                    u = rng.RandDouble(u0, u0 + inv);
-                    v = rng.RandDouble(v0, v0 + inv);
+                    //shifts by half for odd rows
+                    if (j % 2 != 0) x += a / 2.0;
 
-                    u = (u * 2.0) - 1.0;
-                    v = (v * 2.0) - 1.0;
+                    //jitters each point
+                    if (jitter)
+                    {
+                        x += rng.RandGauss(0.0, a / 4.0);
+                        y += rng.RandGauss(0.0, a / 4.0);
+                    }
 
-                    yield return new Point2D(u, v);
+                    yield return new Point2D(x, y);
                 }
             }
         }
 
         #endregion ////////////////////////////////////////////////////////////////
-
-
-        /*
-         * Consider the windowed sinc functions:
-         * 
-         * Sinc Functions [0 .. 3]
-         * sinc(pi * x / 3) * sinc(pi * x) : Lancaoze 
-         * e^(-1/4 * x^2) * sinc(pi * x) : Gausian
-         * cos(pi * x / 6) * sinc(pi * x) : Cosine
-         * 
-         * Gause Funcitons [0 .. 2]
-         * cos(pi * x / 4) * e^(-2x^2) : GauseCosine
-         * sinc(pi * x / 2) * e^(-2x^2) : GauseLancoze
-         * 
-         */
-
     }
 }

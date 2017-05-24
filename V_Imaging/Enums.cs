@@ -69,42 +69,6 @@ namespace Vulpine.Core.Draw
     }
 
     /// <summary>
-    /// Represnets the various methods of anti-ailising that can be utilised
-    /// in pixel-based rendering.
-    /// </summary>
-    public enum AntiAilis
-    {
-        /// <summary>
-        /// No Anti-Aliasing is used. Instead a single sample is calculated per pixel
-        /// and used to color the entire pixel. This is the fastest rendering method
-        /// but alising artifacts are clearly visible.
-        /// </summary>
-        None = 0,
-
-        /// <summary>
-        /// Takes a random set of samples and computes there average to color each
-        /// pixel. While better than using no Anti-Alising at all, the non-uniformity
-        /// of the samples can lead to undesirabale results.
-        /// </summary>
-        Random = 1,
-
-        /// <summary>
-        /// Divides each pixel into sub-pixels and selects a single random sample
-        /// per sub-pixel. The samples are then averaged to get the color of the
-        /// whole pixel. This provides a somewhat uniform distribution of samples
-        /// while still runing fairly quickly.
-        /// </summary>
-        Jittred = 2,
-
-        /// <summary>
-        /// Generates a uniform distribution of random samples to calculate the
-        /// color of each pixel. This method produces the most acurate results,
-        /// but at the cost of running slower than the other methods.
-        /// </summary>
-        Poisson = 3,
-    }
-
-    /// <summary>
     /// There are multiple ways to convert a color image to a grayscale image,
     /// all depending on what effect the end user wishes to produce. This enum
     /// lists all sutch methods suported by the engine.

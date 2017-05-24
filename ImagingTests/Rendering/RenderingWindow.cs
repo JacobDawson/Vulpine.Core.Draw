@@ -69,29 +69,39 @@ namespace ImagingTests.Rendering
 
         private Renderor GetRenderor()
         {
-            AntiAilis meth = AntiAilis.None;
+            //AntiAilis meth = AntiAilis.None;
+            Window win = Window.Box;
+            bool aa = chkAA.Checked;
+            bool jit = cboJit.Checked;
             int n = 4;
+            double s = 1.5;
+            bool pass = false;
 
-            bool pass = Int32.TryParse(txtN.Text, out n);
+            pass = Int32.TryParse(txtSamp.Text, out n);
             if (!pass) n = 4;
 
-            switch (cboAA.SelectedIndex)
+            pass = Double.TryParse(txtSup.Text, out s);
+            if (!pass) s = 1.5;
+
+            switch (cboWin.SelectedIndex)
             {
-                case 0:
-                    meth = AntiAilis.None;
-                    break;
-                case 1:
-                    meth = AntiAilis.Random;
-                    break;
-                case 2:
-                    meth = AntiAilis.Jittred;
-                    break;
-                case 3:
-                    meth = AntiAilis.Poisson;
-                    break;
+                case 0: win = Window.Box; break;
+                case 1: win = Window.Tent; break;
+                case 3: win = Window.Cosine; break;
+                case 4: win = Window.Gausian; break;
+                case 5: win = Window.Sinc; break;
+                case 6: win = Window.Lanczos; break;
             }
 
-            return new Renderor(meth, n);
+            Renderor ren = new Renderor(n);
+            ren.AitiAilising = aa;
+            ren.Window = win;
+            ren.Jitter = jit;
+            ren.Samples = n;
+            ren.Support = s;
+
+            return ren;
+
         }
 
         private void RenderImage()
@@ -216,42 +226,62 @@ namespace ImagingTests.Rendering
             thread.Start(data);
         }
 
+        DateTime time_last;
+        DateTime time_start;
+
         private void RenderImageThread(object data)
         {
             object[] paramaters = (object[])data;
             Texture t = (Texture)paramaters[0];
             Renderor r = (Renderor)paramaters[1];
 
-            DateTime last = DateTime.Now;
-            DateTime start = last;
-            
+            time_last = DateTime.Now;
+            time_start = time_last;
 
-            int x = 0;
-            int y = 0;
+            r.RenderEvent += new EventHandler<RenderEventArgs>(r_RenderEvent);
+            r.Render(t, myimage);
 
-            foreach (VColor pixel in r.Render(t, 500, 500))
-            {
-                SetPixel(x, y, pixel);
-                x++;
+            //int x = 0;
+            //int y = 0;
 
-                if (x >= 500)
-                {
-                    x = 0; y++;
-                    TimeSpan check = DateTime.Now - last;
-                    IncrementBar();
+            //foreach (VColor pixel in r.Render(t, 500, 500))
+            //{
+            //    SetPixel(x, y, pixel);
+            //    x++;
 
-                    if (check.TotalMilliseconds > 250.0)
-                    {
-                        DrawMyImage();
-                        last = DateTime.Now;
-                    }
-                }
-            }
+            //    if (x >= 500)
+            //    {
+            //        x = 0; y++;
+            //        TimeSpan check = DateTime.Now - last;
+            //        IncrementBar();
+
+            //        if (check.TotalMilliseconds > 250.0)
+            //        {
+            //            DrawMyImage();
+            //            last = DateTime.Now;
+            //        }
+            //    }
+            //}
 
             //draws the final image
-            TimeSpan total = DateTime.Now - start;
+            TimeSpan total = DateTime.Now - time_start;
             DrawMyImage();
             AppendText(total);
+        }
+
+        void r_RenderEvent(object sender, RenderEventArgs e)
+        {
+            if (e.Count % 500 == 0)
+            {
+                TimeSpan check = DateTime.Now - time_last;
+                IncrementBar();
+
+                if (check.TotalMilliseconds > 250.0)
+                {
+                    DrawMyImage();
+                    time_last = DateTime.Now;
+                }
+            }
         }
 
         private void btnGo_Click(object sender, EventArgs e)

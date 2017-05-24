@@ -41,14 +41,22 @@ namespace Vulpine.Core.Draw
         #region Class Properties...
 
         /// <summary>
-        /// The width of the current image.
+        /// The width of the current image in pixels.
         /// </summary>
         public abstract int Width { get; }
 
         /// <summary>
-        /// The height of the current image.
+        /// The height of the current image in pixels.
         /// </summary>
         public abstract int Height { get; }
+
+        /// <summary>
+        /// The total size of the image in pixles.
+        /// </summary>
+        public virtual int Size
+        {
+            get { return Width * Height; }
+        }
 
         /// <summary>
         /// Returns true if one can only read the image, and false 

@@ -30,17 +30,20 @@
         {
             this.pnlBorder = new System.Windows.Forms.Panel();
             this.pnlCanvas = new System.Windows.Forms.Panel();
-            this.cboAA = new System.Windows.Forms.ComboBox();
-            this.lblAA = new System.Windows.Forms.Label();
-            this.lblN = new System.Windows.Forms.Label();
-            this.txtN = new System.Windows.Forms.TextBox();
-            this.btnGo = new System.Windows.Forms.Button();
+            this.lblSamp = new System.Windows.Forms.Label();
+            this.txtSamp = new System.Windows.Forms.TextBox();
             this.barProgress = new System.Windows.Forms.ProgressBar();
             this.btnLong = new System.Windows.Forms.Button();
             this.btnSave = new System.Windows.Forms.Button();
             this.lblTime = new System.Windows.Forms.Label();
             this.lblPattern = new System.Windows.Forms.Label();
             this.cboPattern = new System.Windows.Forms.ComboBox();
+            this.chkAA = new System.Windows.Forms.CheckBox();
+            this.txtSup = new System.Windows.Forms.TextBox();
+            this.lblSup = new System.Windows.Forms.Label();
+            this.cboJit = new System.Windows.Forms.CheckBox();
+            this.lblWin = new System.Windows.Forms.Label();
+            this.cboWin = new System.Windows.Forms.ComboBox();
             this.pnlBorder.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -62,54 +65,22 @@
             this.pnlCanvas.Size = new System.Drawing.Size(496, 496);
             this.pnlCanvas.TabIndex = 0;
             // 
-            // cboAA
+            // lblSamp
             // 
-            this.cboAA.FormattingEnabled = true;
-            this.cboAA.Items.AddRange(new object[] {
-            "None",
-            "Random",
-            "Jittred",
-            "Poisson"});
-            this.cboAA.Location = new System.Drawing.Point(3, 86);
-            this.cboAA.Name = "cboAA";
-            this.cboAA.Size = new System.Drawing.Size(240, 21);
-            this.cboAA.TabIndex = 1;
+            this.lblSamp.AutoSize = true;
+            this.lblSamp.Location = new System.Drawing.Point(15, 172);
+            this.lblSamp.Name = "lblSamp";
+            this.lblSamp.Size = new System.Drawing.Size(62, 13);
+            this.lblSamp.TabIndex = 3;
+            this.lblSamp.Text = "Samples =  ";
             // 
-            // lblAA
+            // txtSamp
             // 
-            this.lblAA.AutoSize = true;
-            this.lblAA.Location = new System.Drawing.Point(13, 70);
-            this.lblAA.Name = "lblAA";
-            this.lblAA.Size = new System.Drawing.Size(102, 13);
-            this.lblAA.TabIndex = 2;
-            this.lblAA.Text = "Anti-Ailising Method:";
-            // 
-            // lblN
-            // 
-            this.lblN.AutoSize = true;
-            this.lblN.Location = new System.Drawing.Point(13, 137);
-            this.lblN.Name = "lblN";
-            this.lblN.Size = new System.Drawing.Size(30, 13);
-            this.lblN.TabIndex = 3;
-            this.lblN.Text = "N =  ";
-            // 
-            // txtN
-            // 
-            this.txtN.Location = new System.Drawing.Point(49, 134);
-            this.txtN.Name = "txtN";
-            this.txtN.Size = new System.Drawing.Size(66, 20);
-            this.txtN.TabIndex = 4;
-            this.txtN.Text = "4";
-            // 
-            // btnGo
-            // 
-            this.btnGo.Location = new System.Drawing.Point(148, 127);
-            this.btnGo.Name = "btnGo";
-            this.btnGo.Size = new System.Drawing.Size(75, 33);
-            this.btnGo.TabIndex = 5;
-            this.btnGo.Text = "GO!";
-            this.btnGo.UseVisualStyleBackColor = true;
-            this.btnGo.Click += new System.EventHandler(this.btnGo_Click);
+            this.txtSamp.Location = new System.Drawing.Point(92, 169);
+            this.txtSamp.Name = "txtSamp";
+            this.txtSamp.Size = new System.Drawing.Size(151, 20);
+            this.txtSamp.TabIndex = 4;
+            this.txtSamp.Text = "4";
             // 
             // barProgress
             // 
@@ -121,21 +92,21 @@
             // 
             // btnLong
             // 
-            this.btnLong.Location = new System.Drawing.Point(5, 195);
+            this.btnLong.Location = new System.Drawing.Point(5, 237);
             this.btnLong.Name = "btnLong";
-            this.btnLong.Size = new System.Drawing.Size(240, 23);
+            this.btnLong.Size = new System.Drawing.Size(112, 23);
             this.btnLong.TabIndex = 8;
-            this.btnLong.Text = "Long Render";
+            this.btnLong.Text = "Render";
             this.btnLong.UseVisualStyleBackColor = true;
             this.btnLong.Click += new System.EventHandler(this.btnLong_Click);
             // 
             // btnSave
             // 
-            this.btnSave.Location = new System.Drawing.Point(5, 224);
+            this.btnSave.Location = new System.Drawing.Point(123, 237);
             this.btnSave.Name = "btnSave";
-            this.btnSave.Size = new System.Drawing.Size(240, 23);
+            this.btnSave.Size = new System.Drawing.Size(112, 23);
             this.btnSave.TabIndex = 9;
-            this.btnSave.Text = "Save Output";
+            this.btnSave.Text = "Save";
             this.btnSave.UseVisualStyleBackColor = true;
             this.btnSave.Click += new System.EventHandler(this.btnSave_Click);
             // 
@@ -168,24 +139,92 @@
             "Panorama B"});
             this.cboPattern.Location = new System.Drawing.Point(5, 33);
             this.cboPattern.Name = "cboPattern";
-            this.cboPattern.Size = new System.Drawing.Size(240, 21);
+            this.cboPattern.Size = new System.Drawing.Size(238, 21);
             this.cboPattern.TabIndex = 13;
+            // 
+            // chkAA
+            // 
+            this.chkAA.CheckAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.chkAA.Checked = true;
+            this.chkAA.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.chkAA.Location = new System.Drawing.Point(16, 102);
+            this.chkAA.Name = "chkAA";
+            this.chkAA.Size = new System.Drawing.Size(215, 24);
+            this.chkAA.TabIndex = 15;
+            this.chkAA.Text = "Anti-Ailising:";
+            this.chkAA.UseVisualStyleBackColor = true;
+            // 
+            // txtSup
+            // 
+            this.txtSup.Location = new System.Drawing.Point(92, 195);
+            this.txtSup.Name = "txtSup";
+            this.txtSup.Size = new System.Drawing.Size(151, 20);
+            this.txtSup.TabIndex = 16;
+            this.txtSup.Text = "1.5";
+            // 
+            // lblSup
+            // 
+            this.lblSup.AutoSize = true;
+            this.lblSup.Location = new System.Drawing.Point(15, 198);
+            this.lblSup.Name = "lblSup";
+            this.lblSup.Size = new System.Drawing.Size(59, 13);
+            this.lblSup.TabIndex = 17;
+            this.lblSup.Text = "Support =  ";
+            // 
+            // cboJit
+            // 
+            this.cboJit.CheckAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.cboJit.Checked = true;
+            this.cboJit.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.cboJit.Location = new System.Drawing.Point(16, 132);
+            this.cboJit.Name = "cboJit";
+            this.cboJit.Size = new System.Drawing.Size(215, 24);
+            this.cboJit.TabIndex = 18;
+            this.cboJit.Text = "Jitter Samples:";
+            this.cboJit.UseVisualStyleBackColor = true;
+            // 
+            // lblWin
+            // 
+            this.lblWin.AutoSize = true;
+            this.lblWin.Location = new System.Drawing.Point(15, 59);
+            this.lblWin.Name = "lblWin";
+            this.lblWin.Size = new System.Drawing.Size(102, 13);
+            this.lblWin.TabIndex = 20;
+            this.lblWin.Text = "Weighting Function:";
+            // 
+            // cboWin
+            // 
+            this.cboWin.FormattingEnabled = true;
+            this.cboWin.Items.AddRange(new object[] {
+            "Box",
+            "Tent",
+            "Cosine",
+            "Gausian",
+            "Sinc",
+            "Lanczos"});
+            this.cboWin.Location = new System.Drawing.Point(5, 75);
+            this.cboWin.Name = "cboWin";
+            this.cboWin.Size = new System.Drawing.Size(238, 21);
+            this.cboWin.TabIndex = 19;
             // 
             // RenderingWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.Controls.Add(this.lblWin);
+            this.Controls.Add(this.cboWin);
+            this.Controls.Add(this.cboJit);
+            this.Controls.Add(this.lblSup);
+            this.Controls.Add(this.txtSup);
+            this.Controls.Add(this.chkAA);
             this.Controls.Add(this.lblPattern);
             this.Controls.Add(this.cboPattern);
             this.Controls.Add(this.lblTime);
             this.Controls.Add(this.btnSave);
             this.Controls.Add(this.btnLong);
             this.Controls.Add(this.barProgress);
-            this.Controls.Add(this.btnGo);
-            this.Controls.Add(this.txtN);
-            this.Controls.Add(this.lblN);
-            this.Controls.Add(this.lblAA);
-            this.Controls.Add(this.cboAA);
+            this.Controls.Add(this.txtSamp);
+            this.Controls.Add(this.lblSamp);
             this.Controls.Add(this.pnlBorder);
             this.Name = "RenderingWindow";
             this.Size = new System.Drawing.Size(770, 550);
@@ -199,16 +238,19 @@
 
         private System.Windows.Forms.Panel pnlBorder;
         private System.Windows.Forms.Panel pnlCanvas;
-        private System.Windows.Forms.ComboBox cboAA;
-        private System.Windows.Forms.Label lblAA;
-        private System.Windows.Forms.Label lblN;
-        private System.Windows.Forms.TextBox txtN;
-        private System.Windows.Forms.Button btnGo;
+        private System.Windows.Forms.Label lblSamp;
+        private System.Windows.Forms.TextBox txtSamp;
         private System.Windows.Forms.ProgressBar barProgress;
         private System.Windows.Forms.Button btnLong;
         private System.Windows.Forms.Button btnSave;
         private System.Windows.Forms.Label lblTime;
         private System.Windows.Forms.Label lblPattern;
         private System.Windows.Forms.ComboBox cboPattern;
+        private System.Windows.Forms.CheckBox chkAA;
+        private System.Windows.Forms.TextBox txtSup;
+        private System.Windows.Forms.Label lblSup;
+        private System.Windows.Forms.CheckBox cboJit;
+        private System.Windows.Forms.Label lblWin;
+        private System.Windows.Forms.ComboBox cboWin;
     }
 }
