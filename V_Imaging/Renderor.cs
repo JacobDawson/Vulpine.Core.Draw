@@ -58,7 +58,10 @@ namespace Vulpine.Core.Draw
         private int nsamp = 4;
 
         //stores the delegate to handel render events
-        private EventHandler<RenderEventArgs> render_event;
+        private EventHandler<RenderEventArgs> e_render;
+
+        private EventHandler e_start;
+        private EventHandler e_finish;
 
         /// <summary>
         /// Creates a basic, no-frills renderor that dosent provide any
@@ -195,8 +198,20 @@ namespace Vulpine.Core.Draw
         /// </summary>
         public event EventHandler<RenderEventArgs> RenderEvent
         {
-            add { render_event += value; }
-            remove { render_event -= value; }
+            add { e_render += value; }
+            remove { e_render -= value; }
+        }
+
+        public event EventHandler StartEvent
+        {
+            add { e_start += value; }
+            remove { e_start -= value; }
+        }
+
+        public event EventHandler FinishEvent
+        {
+            add { e_finish += value; }
+            remove { e_finish -= value; }
         }
 
         #endregion ////////////////////////////////////////////////////////////////
@@ -223,6 +238,8 @@ namespace Vulpine.Core.Draw
             int total = output.Size;
             int count = 0;
 
+            OnStart();
+
             for (int y = 0; y < output.Height; y++)
             {
                 for (int x = 0; x < output.Width; x++)
@@ -234,6 +251,8 @@ namespace Vulpine.Core.Draw
                     if (halt) return;
                 }
             }
+
+            OnFinish();
         }
 
         /// <summary>
@@ -263,11 +282,34 @@ namespace Vulpine.Core.Draw
         private bool OnRender(int total, int count, Image img)
         {
             //checks that we actualy have someone listening
-            if (render_event == null) return false;
+            if (e_render == null) return false;
 
             //creates new event args and invokes the event
             var args = new RenderEventArgs(total, count, img);
-            render_event(this, args); return args.Halt;
+            e_render(this, args); return args.Halt;
+        }
+
+        private void OnStart()
+        {
+            //invokes any finishing events that are regesterd
+            if (e_start != null) e_start(this, EventArgs.Empty);
+        }
+
+        private void OnFinish()
+        {
+            //invokes any finishing events that are regesterd
+            if (e_finish != null) e_finish(this, EventArgs.Empty);
+        }
+
+
+        private IEnumerable<Color> Something(Texture t, int width, int height)
+        {
+            var rendering = 
+                from x in ParallelEnumerable.Range(0, width)
+                from y in ParallelEnumerable.Range(0, height)
+                select RenderPixel(t, x, y, width, height);
+
+            return rendering;
         }
 
         #endregion ////////////////////////////////////////////////////////////////

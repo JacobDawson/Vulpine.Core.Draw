@@ -41,7 +41,7 @@
             this.chkAA = new System.Windows.Forms.CheckBox();
             this.txtSup = new System.Windows.Forms.TextBox();
             this.lblSup = new System.Windows.Forms.Label();
-            this.cboJit = new System.Windows.Forms.CheckBox();
+            this.chkJit = new System.Windows.Forms.CheckBox();
             this.lblWin = new System.Windows.Forms.Label();
             this.cboWin = new System.Windows.Forms.ComboBox();
             this.pnlBorder.SuspendLayout();
@@ -171,17 +171,17 @@
             this.lblSup.TabIndex = 17;
             this.lblSup.Text = "Support =  ";
             // 
-            // cboJit
+            // chkJit
             // 
-            this.cboJit.CheckAlign = System.Drawing.ContentAlignment.MiddleRight;
-            this.cboJit.Checked = true;
-            this.cboJit.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.cboJit.Location = new System.Drawing.Point(16, 132);
-            this.cboJit.Name = "cboJit";
-            this.cboJit.Size = new System.Drawing.Size(215, 24);
-            this.cboJit.TabIndex = 18;
-            this.cboJit.Text = "Jitter Samples:";
-            this.cboJit.UseVisualStyleBackColor = true;
+            this.chkJit.CheckAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.chkJit.Checked = true;
+            this.chkJit.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.chkJit.Location = new System.Drawing.Point(16, 132);
+            this.chkJit.Name = "chkJit";
+            this.chkJit.Size = new System.Drawing.Size(215, 24);
+            this.chkJit.TabIndex = 18;
+            this.chkJit.Text = "Jitter Samples:";
+            this.chkJit.UseVisualStyleBackColor = true;
             // 
             // lblWin
             // 
@@ -213,7 +213,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.Controls.Add(this.lblWin);
             this.Controls.Add(this.cboWin);
-            this.Controls.Add(this.cboJit);
+            this.Controls.Add(this.chkJit);
             this.Controls.Add(this.lblSup);
             this.Controls.Add(this.txtSup);
             this.Controls.Add(this.chkAA);
@@ -249,7 +249,7 @@
         private System.Windows.Forms.CheckBox chkAA;
         private System.Windows.Forms.TextBox txtSup;
         private System.Windows.Forms.Label lblSup;
-        private System.Windows.Forms.CheckBox cboJit;
+        private System.Windows.Forms.CheckBox chkJit;
         private System.Windows.Forms.Label lblWin;
         private System.Windows.Forms.ComboBox cboWin;
     }

@@ -16,24 +16,37 @@ namespace ImagingTests
         //stores the internal bitmap
         private Bitmap bmp;
 
+        private object key;
+        private int width;
+        private int height;
+
         public ImageSys(Bitmap bmp)
         {
             this.bmp = bmp;
+
+            key = new object();
+            width = bmp.Width;
+            height = bmp.Height;
         }
 
         public override int Width
         {
-            get { return bmp.Width; }
+            get { return width; }
         }
 
         public override int Height
         {
-            get { return bmp.Height; }
+            get { return height; }
         }
 
         protected override VColor GetPixelInternal(int col, int row)
         {
-            SColor sc = bmp.GetPixel(col, row);
+            SColor sc;
+
+            lock (key)
+            {
+                sc = bmp.GetPixel(col, row);
+            }
 
             double r = sc.R / 255.0;
             double g = sc.G / 255.0;
@@ -48,9 +61,12 @@ namespace ImagingTests
             byte g = (byte)Math.Floor((vc.Green * 255.0) + 0.5);
             byte b = (byte)Math.Floor((vc.Blue * 255.0) + 0.5);
 
-
             SColor sc = SColor.FromArgb(r, g, b);
-            bmp.SetPixel(col, row, sc);
+
+            lock (key)
+            {
+                bmp.SetPixel(col, row, sc);
+            }
         }
 
         public static implicit operator ImageSys(Bitmap bmp)
