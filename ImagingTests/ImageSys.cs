@@ -39,6 +39,11 @@ namespace ImagingTests
             get { return height; }
         }
 
+        public object Key
+        {
+            get { return key; }
+        }
+
         protected override VColor GetPixelInternal(int col, int row)
         {
             SColor sc;
@@ -47,6 +52,8 @@ namespace ImagingTests
             {
                 sc = bmp.GetPixel(col, row);
             }
+
+            //sc = bmp.GetPixel(col, row);
 
             double r = sc.R / 255.0;
             double g = sc.G / 255.0;

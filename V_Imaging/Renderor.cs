@@ -191,6 +191,10 @@ namespace Vulpine.Core.Draw
             get { return rng.Seed; }
         }
 
+        #endregion ////////////////////////////////////////////////////////////////
+
+        #region Object Events...
+
         /// <summary>
         /// The render event is envoked after each pixel is rendered. This
         /// can be used to show a progress bar, or display the results of
@@ -208,6 +212,11 @@ namespace Vulpine.Core.Draw
             remove { e_start -= value; }
         }
 
+        /// <summary>
+        /// The finish event is envoked once the render is complete. This
+        /// allows the end user to prefrom any post processing, like 
+        /// displaying the rendered image, or saving it to disk.
+        /// </summary>
         public event EventHandler FinishEvent
         {
             add { e_finish += value; }
@@ -234,8 +243,6 @@ namespace Vulpine.Core.Draw
             double w = output.Width;
             double h = output.Height;
             bool halt = false;
-
-            int total = output.Size;
             int count = 0;
 
             OnStart();
@@ -246,13 +253,14 @@ namespace Vulpine.Core.Draw
                 {
                     count = y * output.Width + x;
                     output[x, y] = RenderPixel(t, x, y, w, h);
-                    halt = OnRender(total, count, output);
+                    halt = OnRender(count, output);
 
                     if (halt) return;
                 }
             }
 
-            OnFinish();
+            //invokes any finishing events that are regesterd
+            if (e_finish != null) e_finish(this, EventArgs.Empty);
         }
 
         /// <summary>
@@ -266,26 +274,35 @@ namespace Vulpine.Core.Draw
         /// <returns>Each pixel in the image</returns>
         /// <exception cref="ArgRangeExcp">If either the width or the
         /// height is less than one</exception>
-        public IEnumerable<Color> Render(Texture t, int width, int height)
+        public IEnumerable<Pixel> Render(Texture t, int width, int height)
         {
-            ////checks that the dementions are positive
-            //ArgRangeExcp.Atleast("width", width, 1);
-            //ArgRangeExcp.Atleast("height", height, 1);
+            int w = Math.Max(width, 16);
+            int h = Math.Max(height, 16);
+            //bool halt = false;
 
-            for (int y = 0; y < height; y++)
+            for (int y = 0; y < w; y++)
             {
-                for (int x = 0; x < width; x++)
-                yield return RenderPixel(t, x, y, width, height);
+                for (int x = 0; x < h; x++)
+                {
+                    Color c = RenderPixel(t, x, y, w, h);
+                    yield return new Pixel(x, y, c);
+
+                    //halt = OnRender(y * w + x, null);
+                    //if (halt) yield break;
+                }
             }
+
+            ////invokes any finishing events that are regesterd
+            //if (e_finish != null) e_finish(this, EventArgs.Empty);
         }
 
-        private bool OnRender(int total, int count, Image img)
+        private bool OnRender(int count, Image img)
         {
             //checks that we actualy have someone listening
             if (e_render == null) return false;
 
             //creates new event args and invokes the event
-            var args = new RenderEventArgs(total, count, img);
+            var args = new RenderEventArgs(0, count, img);
             e_render(this, args); return args.Halt;
         }
 
@@ -295,21 +312,62 @@ namespace Vulpine.Core.Draw
             if (e_start != null) e_start(this, EventArgs.Empty);
         }
 
-        private void OnFinish()
-        {
-            //invokes any finishing events that are regesterd
-            if (e_finish != null) e_finish(this, EventArgs.Empty);
-        }
 
-
-        private IEnumerable<Color> Something(Texture t, int width, int height)
+        /**
+         *  Atempt to make a threaded renderor. This works! It also runs faster for
+         *  purly computaitonal renderers. I suspect that this is because bitmaps
+         *  can only be accessed by one thread at a time.
+         */
+        public IEnumerable<Pixel> RenderParallel(Texture t, int width, int height)
         {
-            var rendering = 
+            //var rendering =
+            //    from x in ParallelEnumerable.Range(0, width)
+            //    from y in ParallelEnumerable.Range(0, height)
+            //    select new { x, y, c = RenderPixel(t, x, y, width, height) };
+
+            //foreach (var item in rendering)
+            //{
+            //    yield return new Pixel(item.x, item.y, item.c);
+            //}
+
+            var rendering =
                 from x in ParallelEnumerable.Range(0, width)
                 from y in ParallelEnumerable.Range(0, height)
-                select RenderPixel(t, x, y, width, height);
+                select new Pixel(x, y, RenderPixel(t, x, y, width, height));
 
-            return rendering;
+            return rendering.AsEnumerable();
+        }
+
+        /**
+         *  This sort-of works, but it actualy runs slower than the single threaded
+         *  version, and I don't know why! Multi-threading is weird. 
+         */
+        public void RenderParallel(Texture t, Image output)
+        {
+            int count = 0;
+            int w = output.Width;
+            int h = output.Height;   
+            bool halt = false; 
+
+            var rendering =
+                from x in ParallelEnumerable.Range(0, w)
+                from y in ParallelEnumerable.Range(0, h)
+                select new Pixel(x, y, RenderPixel(t, x, y, w, h));    
+
+            foreach (var pixel in rendering)
+            {
+                int x = pixel.X;
+                int y = pixel.Y;
+                Color c = pixel.Color;
+
+                output.SetPixel(x, y, c);
+                halt = OnRender(count, output);
+
+                if (halt) break;
+            }
+
+            //invokes any finishing events that are regesterd
+            if (e_finish != null) e_finish(this, EventArgs.Empty);
         }
 
         #endregion ////////////////////////////////////////////////////////////////
@@ -320,9 +378,8 @@ namespace Vulpine.Core.Draw
         /// Generates the color of a single pixel in the target image, given the 
         /// texture to render, the locaiton of the pixel, and the dimentions of 
         /// the target image. It dose this by generating multiple samples around
-        /// the center of the pixel, and computing a weighted average based on some
-        /// windowing function. This method could be considered the core of the
-        /// rendor class.
+        /// the center of the pixel, and computing a weighted average based on the
+        /// current windowing function.
         /// </summary>
         /// <param name="t">Texture to be rendered</param>
         /// <param name="x">X cordinate of the pixel to render</param>

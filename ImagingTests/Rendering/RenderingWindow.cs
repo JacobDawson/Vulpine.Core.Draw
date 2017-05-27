@@ -23,7 +23,7 @@ namespace ImagingTests.Rendering
         Renderor ren;
 
         private EventHandler<RenderEventArgs> render_event;
-        private EventHandler render_start;
+        //private EventHandler render_start;
         private EventHandler render_finish;
 
         public RenderingWindow()
@@ -39,8 +39,8 @@ namespace ImagingTests.Rendering
             render_event = ren_RenderEvent;
             ren.RenderEvent += render_event;
 
-            render_start = ren_StartEvent;
-            ren.StartEvent += render_start;
+            //render_start = ren_StartEvent;
+            //ren.StartEvent += render_start;
 
             render_finish = ren_FinishEvent;
             ren.FinishEvent += render_finish;
@@ -82,47 +82,10 @@ namespace ImagingTests.Rendering
             return t;
         }
 
-        private Renderor GetRenderor()
-        {
-            //AntiAilis meth = AntiAilis.None;
-            Window win = Window.Box;
-            bool aa = chkAA.Checked;
-            bool jit = chkJit.Checked;
-            int n = 4;
-            double s = 1.5;
-            bool pass = false;
-
-            pass = Int32.TryParse(txtSamp.Text, out n);
-            if (!pass) n = 4;
-
-            pass = Double.TryParse(txtSup.Text, out s);
-            if (!pass) s = 1.5;
-
-            switch (cboWin.SelectedIndex)
-            {
-                case 0: win = Window.Box; break;
-                case 1: win = Window.Tent; break;
-                case 3: win = Window.Cosine; break;
-                case 4: win = Window.Gausian; break;
-                case 5: win = Window.Sinc; break;
-                case 6: win = Window.Lanczos; break;
-            }
-
-            Renderor ren = new Renderor(n);
-            ren.AitiAilising = aa;
-            ren.Window = win;
-            ren.Jitter = jit;
-            ren.Samples = n;
-            ren.Support = s;
-
-            return ren;
-
-        }
-
         private void SetRenderor()
         {
             ren.AitiAilising = chkAA.Checked;
-            ren.Jitter = chkJit.Checked; 
+            ren.Jitter = chkJit.Checked;
 
             bool pass = false;
             double s = 1.5;
@@ -144,23 +107,6 @@ namespace ImagingTests.Rendering
                 case 6: ren.Window = Window.Lanczos; break;
             }
 
-        }
-
-        private void RenderImage()
-        {
-            lock (myimage)
-            {
-                Texture t = GetTestPatern();
-                Renderor r = GetRenderor();
-
-                r.Render(t, myimage);
-
-                Graphics gfx = pnlCanvas.CreateGraphics();
-                //gfx.Clear(System.Drawing.Color.White);
-                gfx.DrawImage((Bitmap)myimage, 0, 0);
-
-                gfx.Dispose();
-            }
         }
 
         #region Thread Safe Methods
@@ -204,7 +150,7 @@ namespace ImagingTests.Rendering
             }
             else
             {
-                lock (myimage)
+                lock (myimage.Key)
                 {
                     Graphics gfx = pnlCanvas.CreateGraphics();
                     gfx.DrawImage((Bitmap)myimage, 0, 0);
@@ -235,20 +181,87 @@ namespace ImagingTests.Rendering
             }
         }
 
-        private void SetPixel(int x, int y, VColor c)
-        {
-            lock (myimage)
-            {
-                myimage.SetPixel(x, y, c);
-            }
-        }
-
         #endregion
+
+        #region Itererator Based Connection 
 
         private void RenderImageThreadStart()
         {
             //clears the image of all data
-            lock (myimage)
+            lock (myimage.Key)
+            {
+                for (int x = 0; x < 500; x++)
+                {
+                    for (int y = 0; y < 500; y++)
+                    myimage.SetPixel(x, y, new VColor());
+                }
+            }
+
+            DrawMyImage();
+            SetRenderor();
+            barProgress.Value = 0;
+            barProgress.Refresh();
+
+            Texture t = GetTestPatern();
+            ThreadStart ts = () => RenderImageThread(t);
+            Thread thread = new Thread(ts);
+
+            thread.Start();
+        }
+
+        private void RenderImageThread(Texture t)
+        {
+            DateTime last = DateTime.Now;
+            DateTime start = last;
+
+            int count = 0;
+
+            foreach (Pixel pix in ren.Render(t, 500, 500))
+            {
+                VColor c = pix.Color;
+                int x = pix.X;
+                int y = pix.Y;
+
+                myimage.SetPixel(x, y, c);
+
+                if (count % 500 == 0)
+                {
+                    TimeSpan check = DateTime.Now - last;
+                    IncrementBar();
+
+                    if (check.TotalMilliseconds > 250.0)
+                    {
+                        DrawMyImage();
+                        last = DateTime.Now;
+                    }
+                }
+
+                count++;
+            }
+
+            //draws the final image
+            TimeSpan total = DateTime.Now - start;
+            DrawMyImage();
+            AppendText(total);
+        }
+
+        #endregion
+
+        #region Event Based Connection
+
+        DateTime time_last;
+        DateTime time_start;
+
+        private void RenderImageThreadStart2()
+        {
+            SetRenderor();
+
+            Texture t = GetTestPatern();
+            time_last = DateTime.Now;
+            time_start = time_last;
+
+            //clears the image of all data
+            lock (myimage.Key)
             {
                 for (int x = 0; x < 500; x++)
                 {
@@ -261,115 +274,37 @@ namespace ImagingTests.Rendering
 
             barProgress.Value = 0;
             barProgress.Refresh();
-            Texture t = GetTestPatern();
-            Renderor r = GetRenderor();
-            object[] data = { t, r };
 
-
-            ////kicks off the new threaded process
-            //Thread thread = new Thread(new ParameterizedThreadStart(RenderImageThread));
-            //thread.IsBackground = true;
-            //thread.Start(data);
-
-            //ThreadStart s = delegate() { ren.Render(t, myimage); };
             ThreadStart s = () => ren.Render(t, myimage);
             Thread thread = new Thread(s);
-            thread.Start();
+            thread.Start(); 
         }
 
-        DateTime time_last;
-        DateTime time_start;
-
-        private void RenderImageThread(object data)
-        {
-            object[] paramaters = (object[])data;
-            Texture t = (Texture)paramaters[0];
-            Renderor r = (Renderor)paramaters[1];
-
-            time_last = DateTime.Now;
-            time_start = time_last;
-
-            ren.Render(t, myimage);
-
-            ////r.RenderEvent += new EventHandler<RenderEventArgs>(r_RenderEvent);
-            ////r.Render(t, myimage);
-
-            //int x = 0;
-            //int y = 0;
-
-            //foreach (VColor pixel in r.Render(t, 500, 500))
-            //{
-            //    SetPixel(x, y, pixel);
-            //    x++;
-
-            //    if (x >= 500)
-            //    {
-            //        x = 0; y++;
-            //        TimeSpan check = DateTime.Now - time_last;
-            //        IncrementBar();
-
-            //        if (check.TotalMilliseconds > 250.0)
-            //        {
-            //            DrawMyImage();
-            //            time_last = DateTime.Now;
-            //        }
-            //    }
-            //}
-
-            ////draws the final image
-            //TimeSpan total = DateTime.Now - time_start;
-            //DrawMyImage();
-            //AppendText(total);
-        }
-
-        
-
-        //private void btnGo_Click(object sender, EventArgs e)
+        //void ren_StartEvent(object sender, EventArgs e)
         //{
-        //    RenderImage();
+        //    if (this.InvokeRequired)
+        //    {
+        //        //must invoke the delegate to be thread safe
+        //        this.Invoke(render_start, sender, e);
+        //    }
+        //    else
+        //    {
+        //        //clears the image of all data
+        //        lock (myimage)
+        //        {
+        //            for (int x = 0; x < 500; x++)
+        //            {
+        //                for (int y = 0; y < 500; y++)
+        //                    myimage.SetPixel(x, y, new VColor());
+        //            }
+        //        }
 
+        //        DrawMyImage();
+
+        //        barProgress.Value = 0;
+        //        barProgress.Refresh();
+        //    }
         //}
-
-        private void btnLong_Click(object sender, EventArgs e)
-        {
-            //RenderImageThreadStart();
-
-            SetRenderor();
-
-            Texture t = GetTestPatern();
-            time_last = DateTime.Now;
-            time_start = time_last;
-
-            ThreadStart s = () => ren.Render(t, myimage);
-            Thread thread = new Thread(s);
-            thread.Start();         
-        }
-
-        void ren_StartEvent(object sender, EventArgs e)
-        {
-            if (this.InvokeRequired)
-            {
-                //must invoke the delegate to be thread safe
-                this.Invoke(render_start, sender, e);
-            }
-            else
-            {
-                //clears the image of all data
-                lock (myimage)
-                {
-                    for (int x = 0; x < 500; x++)
-                    {
-                        for (int y = 0; y < 500; y++)
-                        myimage.SetPixel(x, y, new VColor());
-                    }
-                }
-
-                DrawMyImage();
-
-                barProgress.Value = 0;
-                barProgress.Refresh();
-            }
-        }
 
         private void ren_RenderEvent(object sender, RenderEventArgs e)
         {
@@ -396,7 +331,7 @@ namespace ImagingTests.Rendering
             }
         }
 
-        void ren_FinishEvent(object sender, EventArgs e)
+        private void ren_FinishEvent(object sender, EventArgs e)
         {
             if (this.InvokeRequired)
             {
@@ -406,9 +341,20 @@ namespace ImagingTests.Rendering
             else
             {
                 TimeSpan total = DateTime.Now - time_start;
+                lblTime.Text = String.Format("Time:  {0}", total);
+                lblTime.Refresh();
+
                 DrawMyImage();
-                AppendText(total);
             }
+        }
+
+        #endregion 
+
+        
+        private void btnLong_Click(object sender, EventArgs e)
+        {
+            //select thread start (2 or 1)
+            RenderImageThreadStart2();       
         }
 
         private void btnSave_Click(object sender, EventArgs e)
@@ -416,7 +362,7 @@ namespace ImagingTests.Rendering
             SaveFileDialog sfd = new SaveFileDialog();
             sfd.ShowDialog();
 
-            lock (myimage)
+            lock (myimage.Key)
             {
                 Bitmap bmp = (Bitmap)myimage;
                 bmp.Save(sfd.FileName);

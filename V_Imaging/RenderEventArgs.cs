@@ -35,7 +35,7 @@ namespace Vulpine.Core.Draw
     public class RenderEventArgs : EventArgs
     {
         //information about the render process
-        private int total;
+        private int frame;
         private int count;
 
         //a refrence to the image being rendered
@@ -48,12 +48,12 @@ namespace Vulpine.Core.Draw
         /// Creates a new collection of render event arguments, containing
         /// the given arguments passed in to the constructor.
         /// </summary>
-        /// <param name="total">Number of pixels in target</param>
+        /// <param name="frame">Number of frames rendered</param>
         /// <param name="count">Number of pixels rendered</param>
         /// <param name="img">The target image</param>
-        internal RenderEventArgs(int total, int count, Image img)
+        internal RenderEventArgs(int frame, int count, Image img)
         {
-            this.total = total;
+            this.frame = frame;
             this.count = count;
 
             buffer = img;
@@ -61,15 +61,18 @@ namespace Vulpine.Core.Draw
         }
 
         /// <summary>
-        /// The total number of pixels in the target image.
+        /// Represents the total number of complete frames rendered. 
+        /// Used only when rendering animations.
         /// </summary>
-        public int Total
+        public int Frame
         {
-            get { return total; }
+            get { return frame; }
         }
 
         /// <summary>
-        /// The number of pixels rendered thus far.
+        /// Represents the total number of pixels rendered for the 
+        /// curent frame. For single images, this is just the total 
+        /// number of pixels rendered. 
         /// </summary>
         public int Count
         {
@@ -77,7 +80,8 @@ namespace Vulpine.Core.Draw
         }
 
         /// <summary>
-        /// A reference to the target image.
+        /// A reference to the target image being rendered, or the
+        /// frame buffer for animations.
         /// </summary>
         public Image Buffer
         {
