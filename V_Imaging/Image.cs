@@ -51,7 +51,7 @@ namespace Vulpine.Core.Draw
         public abstract int Height { get; }
 
         /// <summary>
-        /// The total size of the image in pixles.
+        /// The total number of pixels in the image.
         /// </summary>
         public virtual int Size
         {
@@ -184,26 +184,76 @@ namespace Vulpine.Core.Draw
 
         #endregion //////////////////////////////////////////////////////////////
 
-        
-
-
-        private Color GetExPanorama(int x, int y)
+        public void SetPixel(Pixel pix)
         {
-            int xmax = this.Width;
-            int ymax = 2 * this.Height;
+            int col = pix.Col;
+            int row = pix.Row;
 
-            int dx = ((x % xmax) + xmax) % xmax;
-            int dy = ((y % ymax) + ymax) % ymax;
-
-            if (dy >= this.Height)
-            {
-                dy = ymax - dy - 1;
-                dx = (dx + (xmax / 2)) % xmax;
-            }
-
-            //queries the abstract method
-            return GetPixelInternal(dx, dy);
+            SetPixel(col, row, pix.Color);
         }
+
+        /**
+         *  This scans over the entire input data, even if it dosen't
+         *  fit in the image. It also fails for infinite iterators.
+         */
+        public void FillData(IEnumerable<Pixel> data)
+        {
+            foreach (Pixel p in data)
+            {
+                int col = p.Col;
+                int row = p.Row;
+
+                if (p.Col < Width && p.Row < Height)
+                {
+                    SetPixel(p);
+                }
+            }
+        }
+
+        /**
+         *  This is better than the itterator method, as it only considers
+         *  the intersection of the two images.
+         */
+        public void FillData(Image data)
+        {
+            //checks that the image is wrightable
+            if (this.IsReadOnly) throw new InvalidOperationException();
+
+            //computes the intersection of both images
+            int w = Math.Min(this.Width, data.Width);
+            int h = Math.Min(this.Height, data.Height);
+
+            //fills the image with new data
+            for (int i = 0; i < w; i++)
+            {
+                for (int j = 0; j < h; j++)
+                {
+                    Color c = data.GetPixel(i, j);
+                    this.SetPixel(i, j, c);
+                }
+            }
+        }
+
+
+
+
+        //private Color GetExPanorama(int x, int y)
+        //{
+        //    int xmax = this.Width;
+        //    int ymax = 2 * this.Height;
+
+        //    int dx = ((x % xmax) + xmax) % xmax;
+        //    int dy = ((y % ymax) + ymax) % ymax;
+
+        //    if (dy >= this.Height)
+        //    {
+        //        dy = ymax - dy - 1;
+        //        dx = (dx + (xmax / 2)) % xmax;
+        //    }
+
+        //    //queries the abstract method
+        //    return GetPixelInternal(dx, dy);
+        //}
 
     }
 

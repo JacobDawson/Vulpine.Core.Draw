@@ -22,10 +22,6 @@ namespace ImagingTests.Rendering
         ImageSys myimage;
         Renderor ren;
 
-        private EventHandler<RenderEventArgs> render_event;
-        //private EventHandler render_start;
-        private EventHandler render_finish;
-
         public RenderingWindow()
         {
             InitializeComponent();
@@ -36,14 +32,8 @@ namespace ImagingTests.Rendering
             DrawMyImageDelegate = (this.DrawMyImage);
             AppendTextDelegate = (this.AppendText);
 
-            render_event = ren_RenderEvent;
-            ren.RenderEvent += render_event;
-
-            //render_start = ren_StartEvent;
-            //ren.StartEvent += render_start;
-
-            render_finish = ren_FinishEvent;
-            ren.FinishEvent += render_finish;
+            ren.RenderEvent += ren_RenderEvent;
+            ren.FinishEvent += ren_FinishEvent;
         }
 
         private Texture GetTestPatern()
@@ -77,6 +67,9 @@ namespace ImagingTests.Rendering
                     ipo = new Interpolent(pano, Intpol.BiLiniar);
                     t = new Stereograph(ipo);
                     break;
+                case 5:
+                    t = new NewtonFractal();
+                    break;
             }
 
             return t;
@@ -94,8 +87,8 @@ namespace ImagingTests.Rendering
             pass = Int32.TryParse(txtSamp.Text, out n);
             ren.Samples = pass ? n : 4;
 
-            pass = Double.TryParse(txtSup.Text, out s);
-            ren.Support = pass ? s : 1.5;
+            pass = Double.TryParse(txtRad.Text, out s);
+            ren.Radius = pass ? s : 1.5;
 
             switch (cboWin.SelectedIndex)
             {
@@ -110,29 +103,6 @@ namespace ImagingTests.Rendering
         }
 
         #region Thread Safe Methods
-
-        private delegate void DelegateIncrementBar();
-        private DelegateIncrementBar IncrementBarDelegate;
-
-        /**
-         *  This allows the process to report on its progress
-         *  by updateing the progress bar each time it completes
-         *  a row of the rendered image.
-         */
-        private void IncrementBar()
-        {
-            if (this.InvokeRequired)
-            {
-                //must invoke the delegate to be thread safe
-                this.Invoke(IncrementBarDelegate);
-            }
-            else
-            {
-                //we are safe, increment the bar
-                barProgress.Increment(1);
-                barProgress.Refresh();
-            }
-        }
 
         private delegate void DelegateDrawMyImage();
         private DelegateDrawMyImage DrawMyImageDelegate;
@@ -156,6 +126,29 @@ namespace ImagingTests.Rendering
                     gfx.DrawImage((Bitmap)myimage, 0, 0);
                     gfx.Dispose();
                 }
+            }
+        }
+
+        private delegate void DelegateIncrementBar();
+        private DelegateIncrementBar IncrementBarDelegate;
+
+        /**
+         *  This allows the process to report on its progress
+         *  by updateing the progress bar each time it completes
+         *  a row of the rendered image.
+         */
+        private void IncrementBar()
+        {
+            if (this.InvokeRequired)
+            {
+                //must invoke the delegate to be thread safe
+                this.Invoke(IncrementBarDelegate);
+            }
+            else
+            {
+                //we are safe, increment the bar
+                barProgress.Increment(1);
+                barProgress.Refresh();
             }
         }
 
@@ -183,76 +176,12 @@ namespace ImagingTests.Rendering
 
         #endregion
 
-        #region Itererator Based Connection 
-
-        private void RenderImageThreadStart()
-        {
-            //clears the image of all data
-            lock (myimage.Key)
-            {
-                for (int x = 0; x < 500; x++)
-                {
-                    for (int y = 0; y < 500; y++)
-                    myimage.SetPixel(x, y, new VColor());
-                }
-            }
-
-            DrawMyImage();
-            SetRenderor();
-            barProgress.Value = 0;
-            barProgress.Refresh();
-
-            Texture t = GetTestPatern();
-            ThreadStart ts = () => RenderImageThread(t);
-            Thread thread = new Thread(ts);
-
-            thread.Start();
-        }
-
-        private void RenderImageThread(Texture t)
-        {
-            DateTime last = DateTime.Now;
-            DateTime start = last;
-
-            int count = 0;
-
-            foreach (Pixel pix in ren.Render(t, 500, 500))
-            {
-                VColor c = pix.Color;
-                int x = pix.X;
-                int y = pix.Y;
-
-                myimage.SetPixel(x, y, c);
-
-                if (count % 500 == 0)
-                {
-                    TimeSpan check = DateTime.Now - last;
-                    IncrementBar();
-
-                    if (check.TotalMilliseconds > 250.0)
-                    {
-                        DrawMyImage();
-                        last = DateTime.Now;
-                    }
-                }
-
-                count++;
-            }
-
-            //draws the final image
-            TimeSpan total = DateTime.Now - start;
-            DrawMyImage();
-            AppendText(total);
-        }
-
-        #endregion
-
         #region Event Based Connection
 
         DateTime time_last;
         DateTime time_start;
 
-        private void RenderImageThreadStart2()
+        private void RenderImageThreadStart()
         {
             SetRenderor();
 
@@ -280,72 +209,26 @@ namespace ImagingTests.Rendering
             thread.Start(); 
         }
 
-        //void ren_StartEvent(object sender, EventArgs e)
-        //{
-        //    if (this.InvokeRequired)
-        //    {
-        //        //must invoke the delegate to be thread safe
-        //        this.Invoke(render_start, sender, e);
-        //    }
-        //    else
-        //    {
-        //        //clears the image of all data
-        //        lock (myimage)
-        //        {
-        //            for (int x = 0; x < 500; x++)
-        //            {
-        //                for (int y = 0; y < 500; y++)
-        //                    myimage.SetPixel(x, y, new VColor());
-        //            }
-        //        }
-
-        //        DrawMyImage();
-
-        //        barProgress.Value = 0;
-        //        barProgress.Refresh();
-        //    }
-        //}
-
         private void ren_RenderEvent(object sender, RenderEventArgs e)
         {
             if (e.Count % 500 == 0)
             {
-                if (this.InvokeRequired)
-                {
-                    //must invoke the delegate to be thread safe
-                    this.Invoke(render_event, sender, e);
-                }
-                else
-                {
-                    barProgress.Increment(1);
-                    barProgress.Refresh();
+                TimeSpan check = DateTime.Now - time_last;
+                IncrementBar();
 
-                    TimeSpan check = DateTime.Now - time_last;
-
-                    if (check.TotalMilliseconds > 250.0)
-                    {
-                        DrawMyImage();
-                        time_last = DateTime.Now;
-                    }
+                if (check.TotalMilliseconds > 250.0)
+                {
+                    DrawMyImage();
+                    time_last = DateTime.Now;
                 }
             }
         }
 
         private void ren_FinishEvent(object sender, EventArgs e)
         {
-            if (this.InvokeRequired)
-            {
-                //must invoke the delegate to be thread safe
-                this.Invoke(render_finish, sender, e);
-            }
-            else
-            {
-                TimeSpan total = DateTime.Now - time_start;
-                lblTime.Text = String.Format("Time:  {0}", total);
-                lblTime.Refresh();
-
-                DrawMyImage();
-            }
+            TimeSpan total = DateTime.Now - time_start;
+            DrawMyImage();
+            AppendText(total);
         }
 
         #endregion 
@@ -353,8 +236,7 @@ namespace ImagingTests.Rendering
         
         private void btnLong_Click(object sender, EventArgs e)
         {
-            //select thread start (2 or 1)
-            RenderImageThreadStart2();       
+            RenderImageThreadStart();       
         }
 
         private void btnSave_Click(object sender, EventArgs e)

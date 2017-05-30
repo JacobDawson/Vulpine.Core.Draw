@@ -53,13 +53,14 @@ namespace Vulpine.Core.Draw
 
         //paramaters that describe the anti-ailising
         private Window win = Window.Gausian;
-        private double sup = VMath.R2;
+        private double sup = VMath.R2 / 2.0;
         private bool jitter = true;
-        private int nsamp = 4;
+        private int nsamp = 16;
 
         //stores the delegate to handel render events
         private EventHandler<RenderEventArgs> e_render;
 
+        //stores the start and finish events
         private EventHandler e_start;
         private EventHandler e_finish;
 
@@ -164,7 +165,7 @@ namespace Vulpine.Core.Draw
         /// the pixel. Higher numbers produce smoother edges, but blurier 
         /// images overall. This has no effect if anti-ailising is disabled.
         /// </summary>
-        public double Support
+        public double Radius
         {
             get { return sup; }
             set { sup = Math.Abs(value); }
@@ -206,6 +207,11 @@ namespace Vulpine.Core.Draw
             remove { e_render -= value; }
         }
 
+        /// <summary>
+        /// The start event is envoked as soon as the rendering starts,
+        /// before anything else happens. It's mostly included for sake of
+        /// completness, but may be useful in a multi-threaded enviroment.
+        /// </summary>
         public event EventHandler StartEvent
         {
             add { e_start += value; }
@@ -228,24 +234,27 @@ namespace Vulpine.Core.Draw
         #region Rendering...
 
         /// <summary>
-        /// Renders the texture to the output image, overwriting any data in
-        /// the output image in the process. 
+        /// Renders the texture to the output image, overwriting any data 
+        /// the output image may be storing in the process. This is the 
+        /// primary method by which textures are rendered. It calls the 
+        /// events registered with the curent renderer.
         /// </summary>
         /// <param name="t">Texture to be rendered</param>
         /// <param name="output">Output image to hold the rendering</param>
-        /// <exception cref="ReadOnlyExcp">If the output image is
-        /// marked as read-only</exception>
+        /// <exception cref="InvalidOperationException">If the output image
+        /// is read-only, or otherwise cannot store the data</exception>
         public void Render(Texture t, Image output)
         {
             //checks that the image is wrightable
-            if (output.IsReadOnly) throw new Exception();
+            if (output.IsReadOnly) throw new InvalidOperationException();
 
             double w = output.Width;
             double h = output.Height;
             bool halt = false;
             int count = 0;
 
-            OnStart();
+            //invokes any starting events that are regesterd
+            if (e_start != null) e_start(this, EventArgs.Empty);
 
             for (int y = 0; y < output.Height; y++)
             {
@@ -264,21 +273,24 @@ namespace Vulpine.Core.Draw
         }
 
         /// <summary>
-        /// Renders the texture one pixel at a time, in a top-down fassion. This
-        /// allows for aditional processing to occor, sutch as reporting the
-        /// progress on long running renders.
+        /// Renders the texture one pixel at a time, providing a continious 
+        /// stream of pixel data. This allows the end user to take a more 
+        /// manual approach to the rendering process. This can prove to be 
+        /// a more effecent option in certain cercomstances. It also calls 
+        /// the events registered with the curent renderer.
         /// </summary>
         /// <param name="t">Texture to be rendered</param>
         /// <param name="width">Width of the output image</param>
         /// <param name="height">Height of the output image</param>
-        /// <returns>Each pixel in the image</returns>
-        /// <exception cref="ArgRangeExcp">If either the width or the
-        /// height is less than one</exception>
-        public IEnumerable<Pixel> Render(Texture t, int width, int height)
+        /// <returns>A stream of pixel data</returns>
+        public IEnumerable<Pixel> RenderStream(Texture t, int width, int height)
         {
             int w = Math.Max(width, 16);
             int h = Math.Max(height, 16);
-            //bool halt = false;
+            bool halt = false;
+
+            //invokes any starting events that are regesterd
+            if (e_start != null) e_start(this, EventArgs.Empty);
 
             for (int y = 0; y < w; y++)
             {
@@ -287,15 +299,69 @@ namespace Vulpine.Core.Draw
                     Color c = RenderPixel(t, x, y, w, h);
                     yield return new Pixel(x, y, c);
 
-                    //halt = OnRender(y * w + x, null);
-                    //if (halt) yield break;
+                    halt = OnRender(y * w + x, null);
+                    if (halt) yield break;
                 }
             }
 
-            ////invokes any finishing events that are regesterd
-            //if (e_finish != null) e_finish(this, EventArgs.Empty);
+            //invokes any finishing events that are regesterd
+            if (e_finish != null) e_finish(this, EventArgs.Empty);
         }
 
+        /// <summary>
+        /// This is a purly experemental version of the render function.
+        /// It is designed to split up the workload of rendering an image
+        /// to multiple threads that can run in parallel. Use with caution!
+        /// </summary>
+        /// <param name="t">Texture to be rendered</param>
+        /// <param name="output">Output image to hold the rendering</param>
+        /// <exception cref="InvalidOperationException">If the output image
+        /// is read-only, or otherwise cannot store the data</exception>
+        public void RenderParallel(Texture t, Image output)
+        {
+            //checks that the image is wrightable
+            if (output.IsReadOnly) throw new InvalidOperationException();
+
+            int w = output.Width;
+            int h = output.Height;
+            bool halt = false;
+            int count = 0;
+
+            //invokes any starting events that are regesterd
+            if (e_start != null) e_start(this, EventArgs.Empty);
+
+            var rendering =
+                from x in ParallelEnumerable.Range(0, w)
+                from y in ParallelEnumerable.Range(0, h)
+                select new { x, y, c = RenderPixel(t, x, y, w, h) };
+
+            //used in canceling the other threads (if nessary)
+            var cts = new System.Threading.CancellationTokenSource();
+
+            foreach (var pix in rendering.WithCancellation(cts.Token))
+            {
+                output.SetPixel(pix.x, pix.y, pix.c);
+                halt = OnRender(count, output);
+
+                count++;
+
+                if (halt) break;
+            }
+
+            //cancles the threads if a halt was requested
+            if (halt) cts.Cancel();
+
+            //invokes any finishing events that are regesterd
+            if (e_finish != null) e_finish(this, EventArgs.Empty);
+        }
+
+        /// <summary>
+        /// Raises the render event and informs all listners. It returns true if
+        /// any of the listners indicate that the rendering should stop.
+        /// </summary>
+        /// <param name="count">Pixels rendered so far</param>
+        /// <param name="img">Link to output image</param>
+        /// <returns>True if the rendering should stop</returns>
         private bool OnRender(int count, Image img)
         {
             //checks that we actualy have someone listening
@@ -304,70 +370,6 @@ namespace Vulpine.Core.Draw
             //creates new event args and invokes the event
             var args = new RenderEventArgs(0, count, img);
             e_render(this, args); return args.Halt;
-        }
-
-        private void OnStart()
-        {
-            //invokes any finishing events that are regesterd
-            if (e_start != null) e_start(this, EventArgs.Empty);
-        }
-
-
-        /**
-         *  Atempt to make a threaded renderor. This works! It also runs faster for
-         *  purly computaitonal renderers. I suspect that this is because bitmaps
-         *  can only be accessed by one thread at a time.
-         */
-        public IEnumerable<Pixel> RenderParallel(Texture t, int width, int height)
-        {
-            //var rendering =
-            //    from x in ParallelEnumerable.Range(0, width)
-            //    from y in ParallelEnumerable.Range(0, height)
-            //    select new { x, y, c = RenderPixel(t, x, y, width, height) };
-
-            //foreach (var item in rendering)
-            //{
-            //    yield return new Pixel(item.x, item.y, item.c);
-            //}
-
-            var rendering =
-                from x in ParallelEnumerable.Range(0, width)
-                from y in ParallelEnumerable.Range(0, height)
-                select new Pixel(x, y, RenderPixel(t, x, y, width, height));
-
-            return rendering.AsEnumerable();
-        }
-
-        /**
-         *  This sort-of works, but it actualy runs slower than the single threaded
-         *  version, and I don't know why! Multi-threading is weird. 
-         */
-        public void RenderParallel(Texture t, Image output)
-        {
-            int count = 0;
-            int w = output.Width;
-            int h = output.Height;   
-            bool halt = false; 
-
-            var rendering =
-                from x in ParallelEnumerable.Range(0, w)
-                from y in ParallelEnumerable.Range(0, h)
-                select new Pixel(x, y, RenderPixel(t, x, y, w, h));    
-
-            foreach (var pixel in rendering)
-            {
-                int x = pixel.X;
-                int y = pixel.Y;
-                Color c = pixel.Color;
-
-                output.SetPixel(x, y, c);
-                halt = OnRender(count, output);
-
-                if (halt) break;
-            }
-
-            //invokes any finishing events that are regesterd
-            if (e_finish != null) e_finish(this, EventArgs.Empty);
         }
 
         #endregion ////////////////////////////////////////////////////////////////

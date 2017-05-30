@@ -266,12 +266,12 @@ namespace Vulpine.Core.Draw
             double t = val * (1.0 - (1.0 - temp) * sat);
 
             //sets the components based on the current sector
-            if (sec <= 1.0) return new Color(val, t, p, 1.0);
-            if (sec <= 2.0) return new Color(q, val, p, 1.0);
-            if (sec <= 3.0) return new Color(p, val, t, 1.0);
-            if (sec <= 4.0) return new Color(p, q, val, 1.0);
-            if (sec <= 5.0) return new Color(t, p, val, 1.0);
-            if (sec <= 6.0) return new Color(val, p, q, 1.0);
+            if (sec < 1.0) return new Color(val, t, p, 1.0);
+            if (sec < 2.0) return new Color(q, val, p, 1.0);
+            if (sec < 3.0) return new Color(p, val, t, 1.0);
+            if (sec < 4.0) return new Color(p, q, val, 1.0);
+            if (sec < 5.0) return new Color(t, p, val, 1.0);
+            if (sec < 6.0) return new Color(val, p, q, 1.0);
 
             //we should never reach this part of the code
             return new Color(0.5, 0.5, 0.5);

@@ -39,8 +39,8 @@
             this.lblPattern = new System.Windows.Forms.Label();
             this.cboPattern = new System.Windows.Forms.ComboBox();
             this.chkAA = new System.Windows.Forms.CheckBox();
-            this.txtSup = new System.Windows.Forms.TextBox();
-            this.lblSup = new System.Windows.Forms.Label();
+            this.txtRad = new System.Windows.Forms.TextBox();
+            this.lblRad = new System.Windows.Forms.Label();
             this.chkJit = new System.Windows.Forms.CheckBox();
             this.lblWin = new System.Windows.Forms.Label();
             this.cboWin = new System.Windows.Forms.ComboBox();
@@ -80,7 +80,7 @@
             this.txtSamp.Name = "txtSamp";
             this.txtSamp.Size = new System.Drawing.Size(151, 20);
             this.txtSamp.TabIndex = 4;
-            this.txtSamp.Text = "4";
+            this.txtSamp.Text = "16";
             // 
             // barProgress
             // 
@@ -136,7 +136,8 @@
             "Inverse Sine",
             "Color Wheel",
             "Panorama A",
-            "Panorama B"});
+            "Panorama B",
+            "Newton Fractal"});
             this.cboPattern.Location = new System.Drawing.Point(5, 33);
             this.cboPattern.Name = "cboPattern";
             this.cboPattern.Size = new System.Drawing.Size(238, 21);
@@ -154,22 +155,22 @@
             this.chkAA.Text = "Anti-Ailising:";
             this.chkAA.UseVisualStyleBackColor = true;
             // 
-            // txtSup
+            // txtRad
             // 
-            this.txtSup.Location = new System.Drawing.Point(92, 195);
-            this.txtSup.Name = "txtSup";
-            this.txtSup.Size = new System.Drawing.Size(151, 20);
-            this.txtSup.TabIndex = 16;
-            this.txtSup.Text = "1.5";
+            this.txtRad.Location = new System.Drawing.Point(92, 195);
+            this.txtRad.Name = "txtRad";
+            this.txtRad.Size = new System.Drawing.Size(151, 20);
+            this.txtRad.TabIndex = 16;
+            this.txtRad.Text = "1.5";
             // 
-            // lblSup
+            // lblRad
             // 
-            this.lblSup.AutoSize = true;
-            this.lblSup.Location = new System.Drawing.Point(15, 198);
-            this.lblSup.Name = "lblSup";
-            this.lblSup.Size = new System.Drawing.Size(59, 13);
-            this.lblSup.TabIndex = 17;
-            this.lblSup.Text = "Support =  ";
+            this.lblRad.AutoSize = true;
+            this.lblRad.Location = new System.Drawing.Point(15, 198);
+            this.lblRad.Name = "lblRad";
+            this.lblRad.Size = new System.Drawing.Size(55, 13);
+            this.lblRad.TabIndex = 17;
+            this.lblRad.Text = "Radius =  ";
             // 
             // chkJit
             // 
@@ -214,8 +215,8 @@
             this.Controls.Add(this.lblWin);
             this.Controls.Add(this.cboWin);
             this.Controls.Add(this.chkJit);
-            this.Controls.Add(this.lblSup);
-            this.Controls.Add(this.txtSup);
+            this.Controls.Add(this.lblRad);
+            this.Controls.Add(this.txtRad);
             this.Controls.Add(this.chkAA);
             this.Controls.Add(this.lblPattern);
             this.Controls.Add(this.cboPattern);
@@ -247,8 +248,8 @@
         private System.Windows.Forms.Label lblPattern;
         private System.Windows.Forms.ComboBox cboPattern;
         private System.Windows.Forms.CheckBox chkAA;
-        private System.Windows.Forms.TextBox txtSup;
-        private System.Windows.Forms.Label lblSup;
+        private System.Windows.Forms.TextBox txtRad;
+        private System.Windows.Forms.Label lblRad;
         private System.Windows.Forms.CheckBox chkJit;
         private System.Windows.Forms.Label lblWin;
         private System.Windows.Forms.ComboBox cboWin;

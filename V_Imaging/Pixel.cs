@@ -26,12 +26,12 @@ namespace Vulpine.Core.Draw
             get { return color; }
         }
 
-        public int X
+        public int Col
         {
             get { return posx; }
         }
 
-        public int Y
+        public int Row
         {
             get { return posy; }
         }

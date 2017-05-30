@@ -248,18 +248,18 @@ namespace ImagingTests.Resampeling
             DateTime last = DateTime.Now;
             DateTime start = last;
 
-            foreach (Pixel pix in r.Render(t, 512, 512))
+            foreach (Pixel pix in r.RenderStream(t, 512, 512))
             {
                 VColor c = pix.Color;
-                int x = pix.X;
-                int y = pix.Y;
+                int x = pix.Col;
+                int y = pix.Row;
                 
                 lock (myimage)
                 {
                     myimage.SetPixel(x, y, c);
                 }
 
-                if (pix.X == 0)
+                if (pix.Col == 0)
                 {
                     TimeSpan check = DateTime.Now - last;
                     IncrementBar();
@@ -277,6 +277,7 @@ namespace ImagingTests.Resampeling
             DrawMyImage();
             AppendText(total);
         }
+
 
         private void btnGo_Click(object sender, EventArgs e)
         {
