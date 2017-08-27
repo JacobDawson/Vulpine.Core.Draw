@@ -70,6 +70,9 @@ namespace ImagingTests.Rendering
                 case 5:
                     t = new NewtonFractal();
                     break;
+                case 6:
+                    t = new NewtonFractal2();
+                    break;
             }
 
             return t;

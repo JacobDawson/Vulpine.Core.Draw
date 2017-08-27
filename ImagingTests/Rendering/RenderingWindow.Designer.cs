@@ -137,7 +137,8 @@
             "Color Wheel",
             "Panorama A",
             "Panorama B",
-            "Newton Fractal"});
+            "Newton Fractal",
+            "Secant Fractal"});
             this.cboPattern.Location = new System.Drawing.Point(5, 33);
             this.cboPattern.Name = "cboPattern";
             this.cboPattern.Size = new System.Drawing.Size(238, 21);

@@ -58,6 +58,7 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <Compile Include="Rendering\NewtonFractal.cs" />
+    <Compile Include="Rendering\NewtonFractal2.cs" />
     <Compile Include="Resampeling\TextureDouble.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

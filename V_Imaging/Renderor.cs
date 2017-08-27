@@ -490,6 +490,7 @@ namespace Vulpine.Core.Draw
         /// <returns>A listing of all sample points</returns>
         private IEnumerable<Point2D> GetSamples(double a)
         {
+            //b = a * sqrt(3) / 2;
             double b = a * 0.86602540378443864676;
             double x, y;
 
