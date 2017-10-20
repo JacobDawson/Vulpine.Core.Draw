@@ -25,25 +25,26 @@ using System.Text;
 namespace Vulpine.Core.Draw
 {
     /// <summary>
-    /// A Texture describes a continious, two-dimentional image as a function of color. 
-    /// This could be an interpolated image, a rendered scean, a transformation of another 
-    /// texture, or any 2D function that returns a color value. Textures are evaluated 
-    /// laisly, in that no work is done until you sample the texture at a given point. 
-    /// Textures also use there own UV cordinate system, with the origin at the center of
-    /// the texture, and the V axis pointing up. Textures are infinite in scope and do not
-    /// have an absolute scale. Only the relitive scale between textures is important.
-    /// <remarks>Last Update: 2017-05-05</remarks>
+    /// A 3D Texture describes a continious, three-dimentional image as a function of 
+    /// color. It is similar to a regular 2D Texture, except that there is an extra
+    /// input paramater. 3D Testures include animations, where one of the input
+    /// paramaters (usualy t) is taken to represent time. They also inclue true 3D
+    /// images, like MRIs and procedural materials used in 3D modeling.
+    /// <remarks>Last Update: 2017-08-26</remarks>
     /// </summary>
-    public interface Texture
+    public interface Texture3D
     {
         /// <summary>
         /// Samples the texture at a given point, calculating the color of the 
         /// texture at that point. The sample point is provided in UV cordinats
         /// with the origin at the center and the V axis pointing up.
         /// </summary>
+        /// <param name="t">The T texture cordinate</param>
         /// <param name="u">The U texture cordinate</param>
         /// <param name="v">The V texture cordinate</param>
         /// <returns>The color sampled at the given point</returns>
-        Color Sample(double u, double v);
+        Color Sample(double t, double u, double v);
     }
+
+    
 }

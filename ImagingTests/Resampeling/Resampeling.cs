@@ -88,6 +88,12 @@ namespace ImagingTests.Resampeling
                     ipo = new Interpolent(img, Intpol.BiCubic, tile);
                     break;
                 case 3:
+                    ipo = new Interpolent(img, Intpol.Catrom, tile);
+                    break;
+                case 4:
+                    ipo = new Interpolent(img, Intpol.Mitchel, tile);
+                    break;
+                case 5:
                     ipo = new Interpolent(img, Intpol.Sinc3, tile);
                     break;
             }

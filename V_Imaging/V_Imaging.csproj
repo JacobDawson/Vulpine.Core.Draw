@@ -36,6 +36,7 @@
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Animator.cs" />
     <Compile Include="Color.cs" />
     <Compile Include="Colors\ColorHSL.cs" />
     <Compile Include="Colors\ColorYUV.cs" />
@@ -45,6 +46,7 @@
     <Compile Include="Images\ImageBitmap.cs" />
     <Compile Include="Pixel.cs" />
     <Compile Include="RenderEventArgs.cs" />
+    <Compile Include="Texture3D.cs" />
     <Compile Include="Textures\CmplxMap.cs" />
     <Compile Include="Textures\ColorWheel.cs" />
     <Compile Include="Textures\Interpolent.cs" />

@@ -126,9 +126,11 @@
             // 
             this.cboInterp.FormattingEnabled = true;
             this.cboInterp.Items.AddRange(new object[] {
-            "Nearest-Neighbor",
+            "Nearest",
             "Bilenear",
             "Bicubic",
+            "Catrom",
+            "Mitchel",
             "Sinc3"});
             this.cboInterp.Location = new System.Drawing.Point(7, 190);
             this.cboInterp.Name = "cboInterp";

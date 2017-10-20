@@ -46,19 +46,35 @@ namespace Vulpine.Core.Draw
         BiLiniar = 2,
 
         /// <summary>
-        /// Bicubic interpolation considers a larger area than Biliniar 
-        /// interpolation, leading to mutch smoother results. Unfortunatly,
-        /// it is considerably slower.
+        /// This is the most basic form of cubic interpolation. It utilises
+        /// B-Splines in order to interpolate the data. This leads to very
+        /// smooth images which are also very blury. 
         /// </summary>
         BiCubic = 3,
 
         /// <summary>
-        /// Interpolates color using the Sinc3 (Lanczos) resampling function.
-        /// It works by treating the image as a 2D signal, and passing a windoing
-        /// funciton over that signal. Usualy this produces very good results,
-        /// but the method has been known to cause ringing artifacts.
+        /// This form of cubic interpolation uses Catmull–Rom Splines to
+        /// interpolate the data. This leads to very sharp images, but can
+        /// cause unwanted ringing or halo artifacts.
         /// </summary>
-        Sinc3 = 4,
+        Catrom = 4,
+
+        /// <summary>
+        /// Mitchell-Netravali interpolation atempts to combine the weights
+        /// of the generic and Catmull-Rom interpolation, inorder to reduce
+        /// the artifacts of both, for an ideal result.
+        /// </summary>
+        Mitchel = 5,
+
+        /// <summary>
+        /// The Sinc3 or Lancoze resampling funciton is based on ideas from signal
+        /// analisis, allowing it to reconstruct the original image given a high
+        /// enough sample rate. This can lead to very sharp images, but unforntnatly
+        /// it suffers from the same problem as Catrom Interpolation. It samples
+        /// from a wider area than the other funcitons, making it the most precice
+        /// resampling funciton avaliable.
+        /// </summary>
+        Sinc3 = 6,
 
         /// <summary>
         /// The default method to be used when the user dosen't care how an
