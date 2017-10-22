@@ -44,7 +44,7 @@ namespace ImagingTests
             get { return key; }
         }
 
-        protected override VColor GetPixelInternal(int col, int row)
+        protected override VColor GetPixelInit(int col, int row)
         {
             SColor sc;
 
@@ -62,7 +62,7 @@ namespace ImagingTests
             return VColor.FromRGB(r, g, b);
         }
 
-        protected override void SetPixelInternal(int col, int row, VColor vc)
+        protected override void SetPixelInit(int col, int row, VColor vc)
         {
             byte r = (byte)Math.Floor((vc.Red * 255.0) + 0.5);
             byte g = (byte)Math.Floor((vc.Green * 255.0) + 0.5);

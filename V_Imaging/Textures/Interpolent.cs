@@ -33,9 +33,12 @@ namespace Vulpine.Core.Draw.Textures
     /// Texture. This is how simple Images are able to be treated as Textures whenever
     /// sub-pixel precision is required.
     /// </summary>
-    /// <remarks>Last Update: 2016-02-16</remarks>
+    /// <remarks>Last Update: 2017-10-20</remarks>
     public class Interpolent : Texture
     {
+        //NOTE: I should add an option to mask the texture, as well as 
+        //an option to do gamma corrected interpolaiton.
+
         #region Class Definitions...
 
         //stores the image to be interpolated
@@ -408,32 +411,6 @@ namespace Vulpine.Core.Draw.Textures
                 p = (p * abs) - 60.0;
                 p = (p * abs) + 32.0;
                 return p / 18.0;
-            }
-            else
-            {
-                return 0.0;
-            }
-        }
-
-        private double Custom(double x, double b, double c)
-        {
-            double abs = Math.Abs(x);
-
-            if (abs < 1.0)
-            {
-                double p = 12.0 - (9.0 * b) - (6.0 * c);
-                p = (p * abs) - 18.0 + (12.0 * b) + (6.0 * c);
-                p = (p * abs * abs) + 6.0 - (2.0 * b);
-                return p / 6.0;
-
-            }
-            else if (abs < 2.0)
-            {
-                double p = -b + (6.0 * c);
-                p = (p * abs) + (6.0 * b) + (30.0 * c);
-                p = (p * abs) - (12.0 * b) - (48.0 * c);
-                p = (p * abs) + (8.0 * b) + (24.0 * c);
-                return p / 6.0;
             }
             else
             {

@@ -18,6 +18,7 @@
  */
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -36,7 +37,7 @@ namespace Vulpine.Core.Draw
     /// maniulate images iregardless of where or how they are stored.
     /// <remarks>Last Update: 2015-10-08</remarks>
     /// </summary>
-    public abstract class Image
+    public abstract class Image : IEnumerable<Pixel>
     {
         #region Class Properties...
 
@@ -85,67 +86,87 @@ namespace Vulpine.Core.Draw
         #region Pixel Axcess...
 
         /// <summary>
-        /// Selects a given pixel in the current image.
+        /// Selects a given pixel in the current image. It allows indexing
+        /// outside the given bounds by tiling the image.  
         /// </summary>
         /// <param name="col">Column from the left</param>
         /// <param name="row">Row from the top</param>
-        /// <exception cref="ArgRangeExcp">If the column
-        /// or row falls outside the bounds of the image</exception>
         /// <returns>The color of the desired pixel</returns>
         public Color GetPixel(int col, int row)
         {
-            //checks for a valid column and row
-            ArgRangeExcp.Check("col", col, Width - 1);
-            ArgRangeExcp.Check("row", row, Height - 1);
+            //obtains the widht and height
+            int dw = Width;
+            int dh = Height;
+
+            //computes the true modulous of the width and height
+            int dx = ((col % dw) + dw) % dw;
+            int dy = ((row % dh) + dh) % dh;
 
             //queries the abstract method
-            return GetPixelInternal(col, row);
+            return GetPixelInit(dx, dy);
         }
 
         /// <summary>
-        /// Updates a given pixel in the current image.
+        /// Updates a given pixel in the current image. It allows indexing
+        /// outside the given bounds by tiling the image. 
         /// </summary>
         /// <param name="col">Column from the left</param>
         /// <param name="row">Row from the top</param>
         /// <param name="color">New color of the pixel</param>
-        /// <exception cref="ArgRangeExcp">If the column
-        /// or row falls outside the bounds of the image</exception>
-        /// <exception cref="ReadOnlyExcp">If the current
+        /// <exception cref="InvalidOperationException">If the current
         /// image is marked as read-only</exception>
         public void SetPixel(int col, int row, Color color)
         {
             //checks that the image is wrightable
             if (this.IsReadOnly) throw new InvalidOperationException();
 
-            //checks for a valid column and row
-            ArgRangeExcp.Check("col", col, Width - 1);
-            ArgRangeExcp.Check("row", row, Height - 1);
+            //obtains the widht and height
+            int dw = Width;
+            int dh = Height;
+
+            //computes the true modulous of the width and height
+            int dx = ((col % dw) + dw) % dw;
+            int dy = ((row % dh) + dh) % dh;
 
             //queries the abstract method
-            SetPixelInternal(col, row, color);
+            SetPixelInit(dx, dy, color);
         }
 
         /// <summary>
-        /// Allows access to pixels outside the bounds of the image by mirroring
-        /// the image across the X and Y axies. This is important for interpolation
-        /// and filtering, and generlay offers the best results.
+        /// Reads all of the image data as a continious stream of pixels.
+        /// Normaly image data is read from right to left and from top to bottom.
         /// </summary>
-        /// <param name="col">Column from the left</param>
-        /// <param name="row">Row from the top</param>
-        /// <returns>The color of the desired pixel</returns>
-        public Color GetExtended(int col, int row)
+        /// <returns>An enumeration of the pixel data</returns>
+        public IEnumerator<Pixel> GetEnumerator()
         {
-            //mirrors across the X axis
-            int dw = Width + Width;
-            int dx = ((col % dw) + dw) % dw;
-            if (dx >= Width) dx = dw - dx - 1;
+            for (int y = 0; y < Height; y++)
+            {
+                for (int x = 0; x < Width; x++)
+                {
+                    Color c = GetPixelInit(x, y);
+                    yield return new Pixel(x, y, c);
+                }
+            }
+        }
 
-            //mirrors across the Y axis
-            int dh = Width + Width;
-            int dy = ((row % dh) + dh) % dh;
-            if (dy >= Height) dy = dh - dy - 1;
+        /// <summary>
+        /// Clears the image of all color data, setting every pixel in the 
+        /// image to the given background color. 
+        /// </summary>
+        /// <param name="bg">Background Color</param>
+        /// <exception cref="InvalidOperationException">If the current
+        /// image is marked as read-only</exception>
+        public void Clear(Color bg)
+        {
+            //checks that the image is wrightable
+            if (this.IsReadOnly) throw new InvalidOperationException();
 
-            return GetPixelInternal(dx, dy);
+            //sets each pixel to the background color
+            for (int i = 0; i < Width; i++)
+            {
+                for (int j = 0; j < Height; j++)
+                    this.SetPixelInit(i, j, bg);
+            }
         }
 
         #endregion //////////////////////////////////////////////////////////////
@@ -153,67 +174,75 @@ namespace Vulpine.Core.Draw
         #region Abstract Methods...
 
         /// <summary>
-        /// Provides access to the internal pixel data. It is not required
-        /// to check the validity of it's arguments. 
+        /// Provides access to the internal pixel data. This method should
+        /// only ever be called with bounded indicies.
         /// </summary>
         /// <param name="col">Column from the left</param>
         /// <param name="row">Row from the top</param>
         /// <returns>The color of the desired pixel</returns>
-        protected abstract Color GetPixelInternal(int col, int row);
+        protected abstract Color GetPixelInit(int col, int row);
 
         /// <summary>
-        /// Provides access to the internal pixel data. It is not required
-        /// to check the validity of it's arguments. 
+        /// Provides access to the internal pixel data. This method should
+        /// only ever be called with bounded indicies.
         /// </summary>
         /// <param name="col">Column from the left</param>
         /// <param name="row">Row from the top</param>
         /// <param name="color">New color of the pixel</param>
-        protected abstract void SetPixelInternal(int col, int row, Color color);
+        protected abstract void SetPixelInit(int col, int row, Color color);
 
         /// <summary>
         /// Returns a refrence to the object responcable for the image's internal
-        /// state, or null if no sutch object exists. This is nessary to take full
-        /// advantage of graphics acceleration.
+        /// state, or to itself it the image manages it's own state. This is nessary 
+        /// to take full advantage of graphics acceleration.
         /// </summary>
         /// <returns>A refrence to the image's internal state</returns>
         public virtual Object GetInternalData()
         {
-            //by default, we do not store internal data
-            return null;
+            //by default, we manage our own state
+            return this;
         }     
 
         #endregion //////////////////////////////////////////////////////////////
 
-        public void SetPixel(Pixel pix)
-        {
-            int col = pix.Col;
-            int row = pix.Row;
+        #region Advanced Mehtods...
 
-            SetPixel(col, row, pix.Color);
-        }
-
-        /**
-         *  This scans over the entire input data, even if it dosen't
-         *  fit in the image. It also fails for infinite iterators.
-         */
+        /// <summary>
+        /// Fills the image with pixel data taken from a stream. Any pixels
+        /// that fall outside the bounds of the image are discarded.
+        /// </summary>
+        /// <param name="data">Image data stream</param>
+        /// <exception cref="InvalidOperationException">If the current
+        /// image is marked as read-only</exception>
         public void FillData(IEnumerable<Pixel> data)
         {
+            //checks that the image is wrightable
+            if (this.IsReadOnly) throw new InvalidOperationException();
+
             foreach (Pixel p in data)
             {
+                //obtains the row and column
                 int col = p.Col;
                 int row = p.Row;
 
-                if (p.Col < Width && p.Row < Height)
+                //adds the data if it fits within our image
+                if (col < Width && row < Height)
                 {
-                    SetPixel(p);
+                    Color c = p.Color;
+                    SetPixelInit(col, row, c); 
                 }
             }
         }
 
-        /**
-         *  This is better than the itterator method, as it only considers
-         *  the intersection of the two images.
-         */
+        /// <summary>
+        /// Fills the current image with pixel data obtained from another image.
+        /// Note that only the intersection between the two images is filled.
+        /// Any pixels outside the current image are discarded, while any pixels
+        /// outside the source image are left unchanged.
+        /// </summary>
+        /// <param name="data">Image with pixel data</param>
+        /// <exception cref="InvalidOperationException">If the current
+        /// image is marked as read-only</exception>
         public void FillData(Image data)
         {
             //checks that the image is wrightable
@@ -229,32 +258,15 @@ namespace Vulpine.Core.Draw
                 for (int j = 0; j < h; j++)
                 {
                     Color c = data.GetPixel(i, j);
-                    this.SetPixel(i, j, c);
+                    this.SetPixelInit(i, j, c);
                 }
             }
         }
 
+        #endregion //////////////////////////////////////////////////////////////
 
-
-
-        //private Color GetExPanorama(int x, int y)
-        //{
-        //    int xmax = this.Width;
-        //    int ymax = 2 * this.Height;
-
-        //    int dx = ((x % xmax) + xmax) % xmax;
-        //    int dy = ((y % ymax) + ymax) % ymax;
-
-        //    if (dy >= this.Height)
-        //    {
-        //        dy = ymax - dy - 1;
-        //        dx = (dx + (xmax / 2)) % xmax;
-        //    }
-
-        //    //queries the abstract method
-        //    return GetPixelInternal(dx, dy);
-        //}
-
+        IEnumerator IEnumerable.GetEnumerator()
+        { return GetEnumerator(); }
     }
 
 }

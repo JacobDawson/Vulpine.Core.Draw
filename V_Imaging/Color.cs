@@ -34,13 +34,13 @@ namespace Vulpine.Core.Draw
         #region Class Definitons...
 
         //weights that can be used for caluclating luma
-        private const double WR = 0.299f;
-        private const double WG = 0.587f;
-        private const double WB = 0.114f;
+        private const double WR = 0.299;
+        private const double WG = 0.587;
+        private const double WB = 0.114;
 
         //weights used in converting from YUV
-        private const double IWR = 1.402f;
-        private const double IWB = 1.772f;
+        private const double IWR = 1.402;
+        private const double IWB = 1.772;
 
         //Stores the RGB components of the color
         private double red;
@@ -64,7 +64,7 @@ namespace Vulpine.Core.Draw
             green = VMath.Clamp(g);
             blue = VMath.Clamp(b);
 
-            alpha = 1.0f;
+            alpha = 1.0;
         }
 
         /// <summary>
@@ -127,7 +127,7 @@ namespace Vulpine.Core.Draw
                 double min = VMath.Min(red, green, blue);
 
                 //if we are a grey value, then we have no hue
-                if (max == min) return 0.0f;
+                if (max == min) return 0.0;
 
                 //computes the croma
                 double croma = max - min;
@@ -156,7 +156,7 @@ namespace Vulpine.Core.Draw
                 double min = VMath.Min(red, green, blue);
 
                 //if we are a grey value, then we have no saturation
-                if (max == min) return 0.0f;
+                if (max == min) return 0.0;
 
                 //calculates the croma and the saturation
                 double croma = max - min;
@@ -256,7 +256,7 @@ namespace Vulpine.Core.Draw
             val = VMath.Clamp(val);
 
             //computes the sector and temporary variable
-            double sec = hue / 60.0f;
+            double sec = hue / 60.0;
             double temp = Math.Floor(sec);
             temp = sec - temp;
 
@@ -535,23 +535,20 @@ namespace Vulpine.Core.Draw
         /// Converts the curent color to a corisponding grey value, using
         /// the desired method. See GreyMethod for more detales.
         /// </summary>
-        /// <param name="gm">Conversion method to use</param>
+        /// <param name="method">Conversion method to use</param>
         /// <returns>The corisponding grey value</returns>
-        public Color GetGrayscale(Desaturate gm)
+        public Color GetGrayscale(Desaturate method)
         {
             //initialises luminace to an error value
             double lum = -1.0;
 
-            switch (gm)
+            switch (method)
             {
                 case Desaturate.Average:
                     lum = (red + green + blue) / 3.0;
                     break;
                 case Desaturate.Maximum:
                     lum = VMath.Max(red, green, blue);
-                    break;
-                case Desaturate.Minimum:
-                    lum = VMath.Min(red, green, blue);
                     break;
                 case Desaturate.Lumanince:
                     double max = VMath.Max(red, green, blue);

@@ -106,23 +106,16 @@ namespace Vulpine.Core.Draw
         Maximum = 2,
 
         /// <summary>
-        /// Takes the minimum of the red, green and blue channels. This dose
-        /// not corispond to any photometric property, but is included for
-        /// the sake of completness.
-        /// </summary>
-        Minimum = 3,
-
-        /// <summary>
         /// Takes the Luminance value of the HSL color space to be the grey
         /// value. Usefull for image processing that relies on HSL space.
         /// </summary>
-        Lumanince = 4,
+        Lumanince = 3,
 
         /// <summary>
         /// Takes a weighted average of the red, green, and blue channels in
         /// an atempt to produce the most 'visualy similar' grey value possable.
         /// </summary>
-        Natural = 5,
+        Natural = 4,
 
         /// <summary>
         /// The default method to be used when the user dosen't care what

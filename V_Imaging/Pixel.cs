@@ -16,8 +16,8 @@ namespace Vulpine.Core.Draw
 
         public Pixel(int x, int y, Color c)
         {
-            posx = x;
-            posy = y;
+            posx = x > 0 ? x : 0;
+            posy = y > 0 ? y : 0;
             color = c;
         }
 

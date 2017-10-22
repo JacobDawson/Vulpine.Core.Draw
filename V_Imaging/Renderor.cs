@@ -292,9 +292,9 @@ namespace Vulpine.Core.Draw
             //invokes any starting events that are regesterd
             if (e_start != null) e_start(this, EventArgs.Empty);
 
-            for (int y = 0; y < w; y++)
+            for (int y = 0; y < h; y++)
             {
-                for (int x = 0; x < h; x++)
+                for (int x = 0; x < w; x++)
                 {
                     Color c = RenderPixel(t, x, y, w, h);
                     yield return new Pixel(x, y, c);

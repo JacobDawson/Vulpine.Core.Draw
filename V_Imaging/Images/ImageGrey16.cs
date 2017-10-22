@@ -22,28 +22,41 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-using Vulpine.Core.Draw.Colors;
-
 namespace Vulpine.Core.Draw.Images
 {
-    public class ImageBitmap : Image
+    /// <summary>
+    /// This subclass stores a greyscale image utilising 16 bits per pixel. This allows 
+    /// it to contain a total of 65,536 shades of grey, which is mutch more precice than
+    /// most typical monotone images. This is useful when you need precice values for
+    /// each of the pixels, but do not care about the color components.
+    /// </summary>
+    /// <remarks>Last Update: 2017-10-22</remarks>
+    public class ImageGrey16 : Image
     {
+        //weights that can be used for caluclating luma
+        private const double WR = 19595.0;
+        private const double WG = 38469.0;
+        private const double WB =  7471.0;
+
+        //remembers the width and height of the image
         private int width;
         private int height;
 
-        private byte[] red;
-        private byte[] green;
-        private byte[] blue;
+        //stores each channel in a separate array
+        private ushort[] value;
 
-        private ImageBitmap(int width, int height)
+        /// <summary>
+        /// Creates a new image with the given width and height.
+        /// </summary>
+        /// <param name="width">Widht of the image in pixels</param>
+        /// <param name="height">Height of the image in pixels</param>
+        public ImageGrey16(int width, int height)
         {
             this.width = width;
             this.height = height;
 
             int total = width * height;
-            red = new byte[total];
-            green = new byte[total];
-            blue = new byte[total];
+            this.value = new ushort[total];
         }
 
         #region Class Properties...
@@ -51,17 +64,17 @@ namespace Vulpine.Core.Draw.Images
         /// <summary>
         /// The width of the current image. Read-Only
         /// </summary>
-        public override int Width 
+        public override int Width
         {
-            get { return width; } 
+            get { return width; }
         }
 
         /// <summary>
         /// The height of the current image. Read-Only
         /// </summary>
-        public override int Height 
+        public override int Height
         {
-            get { return height; } 
+            get { return height; }
         }
 
         #endregion //////////////////////////////////////////////////////////////
@@ -69,49 +82,47 @@ namespace Vulpine.Core.Draw.Images
         #region Image Implementaiton...
 
         /// <summary>
-        /// Provides access to the internal pixel data. It is not required
-        /// to check the validity of it's arguments. 
+        /// Provides access to the internal pixel data. This method should
+        /// only ever be called with bounded indicies.
         /// </summary>
         /// <param name="col">Column from the left</param>
         /// <param name="row">Row from the top</param>
         /// <returns>The color of the desired pixel</returns>
-        protected override Color GetPixelInternal(int col, int row)
+        protected override Color GetPixelInit(int col, int row)
         {
             //locates the desiered pixel
             int index = (col * height) + row;
 
-            //converts the byte values to floating points
-            double r = red[index] / 255.0;
-            double g = green[index] / 255.0;
-            double b = blue[index] / 255.0;
+            //obtains the value and converts it to double
+            double v = (double)value[index] / 65535.0;
 
-            return new Color(r, g, b, 1.0);
+            //returns the corisponding color
+            return new Color(v, v, v);
         }
 
         /// <summary>
-        /// Provides access to the internal pixel data. It is not required
-        /// to check the validity of it's arguments. 
+        /// Provides access to the internal pixel data. This method should
+        /// only ever be called with bounded indicies.
         /// </summary>
         /// <param name="col">Column from the left</param>
         /// <param name="row">Row from the top</param>
         /// <param name="color">New color of the pixel</param>
-        protected override void SetPixelInternal(int col, int row, Color color)
+        protected override void SetPixelInit(int col, int row, Color color)
         {
             //locates the desiered pixel
             int index = (col * height) + row;
 
-            //descretises the components to be within on byte
-            red[index] = Descritise(color.Red);
-            green[index] = Descritise(color.Green);
-            blue[index] = Descritise(color.Blue);
+            //extracts the three color channels
+            double r = color.Red;
+            double g = color.Green;
+            double b = color.Blue;
+
+            //computes the weighted luiminance
+            double lum = (r * WR) + (g * WG) + (b * WB);
+            value[index] = (ushort)Math.Floor(lum + 0.5);
         }
 
         #endregion //////////////////////////////////////////////////////////////
-
-        private byte Descritise(double value)
-        {
-            return (byte)Math.Floor((value * 255.0) + 0.5);
-        }
 
     }
 }

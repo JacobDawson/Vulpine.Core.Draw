@@ -43,7 +43,9 @@
     <Compile Include="Enums.cs" />
     <Compile Include="Exceptions\ImagingException.cs" />
     <Compile Include="Image.cs" />
-    <Compile Include="Images\ImageBitmap.cs" />
+    <Compile Include="Images\ImageColor64.cs" />
+    <Compile Include="Images\ImageVector.cs" />
+    <Compile Include="Images\ImageGrey16.cs" />
     <Compile Include="Pixel.cs" />
     <Compile Include="RenderEventArgs.cs" />
     <Compile Include="Texture3D.cs" />
