@@ -25,7 +25,7 @@ namespace ImagingTests.Rendering
                 new Cmplx(0.0, 0.0),
                 new Cmplx(u, v));
 
-            if (result.NumSteps < MAX)
+            if (result.Count < MAX)
             {
                 double hue = 0.0;
                 double x = result.Value.CofR;
@@ -42,7 +42,7 @@ namespace ImagingTests.Rendering
                     else hue = 270.0; //purple
                 }
 
-                double val = result.NumSteps / (double)MAX;
+                double val = result.Count / (double)MAX;
                 return Color.FromHSV(hue, 1.0, 1.0 - val);
 
             }
