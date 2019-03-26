@@ -19,6 +19,9 @@ namespace ImagingTests.Rendering
 {
     public partial class RenderingWindow : UserControl
     {
+        //NOTE: This is a test for Github, please ignore
+        //NOTE: Change line 214 to test multithreading
+
         ImageSys myimage;
         Renderor ren;
 
@@ -208,6 +211,7 @@ namespace ImagingTests.Rendering
             barProgress.Refresh();
 
             ThreadStart s = () => ren.Render(t, myimage);
+            //ThreadStart s = () => ren.RenderParallel(t, myimage);
             Thread thread = new Thread(s);
             thread.Start(); 
         }
