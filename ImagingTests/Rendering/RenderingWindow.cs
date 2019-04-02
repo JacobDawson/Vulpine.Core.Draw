@@ -10,6 +10,8 @@ using System.Threading;
 
 using Vulpine.Core.Draw;
 using Vulpine.Core.Draw.Textures;
+using Vulpine.Core.Draw.Images;
+
 using VImage = Vulpine.Core.Draw.Image;
 using VColor = Vulpine.Core.Draw.Color;
 
@@ -43,7 +45,8 @@ namespace ImagingTests.Rendering
         {
             Texture t = new AliasTestPatern();
 
-            ImageSys pano;
+            ImageSystem bmp;
+            ImageColor64 pano;
             Interpolent ipo;
 
 
@@ -60,13 +63,19 @@ namespace ImagingTests.Rendering
                     break;
                 case 3:
                     //pano = Resources.Panorama01;
-                    pano = new Bitmap(Resources.TestSuite + "Panorama01.jpg");
+                    bmp = new Bitmap(Resources.TestSuite + "Panorama01.jpg");
+                    pano = new ImageColor64(bmp.Width, bmp.Height);
+                    pano.FillData(bmp);
+
                     ipo = new Interpolent(pano, Intpol.BiLiniar);
                     t = new Stereograph(ipo);
                     break;
                 case 4:
                     //pano = Resources.Panorama02;
-                    pano = new Bitmap(Resources.TestSuite + "Panorama02.jpg");
+                    bmp = new Bitmap(Resources.TestSuite + "Panorama02.jpg");
+                    pano = new ImageColor64(bmp.Width, bmp.Height);
+                    pano.FillData(bmp);
+
                     ipo = new Interpolent(pano, Intpol.BiLiniar);
                     t = new Stereograph(ipo);
                     break;
@@ -210,8 +219,8 @@ namespace ImagingTests.Rendering
             barProgress.Value = 0;
             barProgress.Refresh();
 
-            ThreadStart s = () => ren.Render(t, myimage);
-            //ThreadStart s = () => ren.RenderParallel(t, myimage);
+            //ThreadStart s = () => ren.Render(t, myimage);
+            ThreadStart s = () => ren.RenderParallel(t, myimage);
             Thread thread = new Thread(s);
             thread.Start(); 
         }

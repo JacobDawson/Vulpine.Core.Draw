@@ -378,7 +378,7 @@ namespace Vulpine.Core.Draw
 
         #endregion ////////////////////////////////////////////////////////////////
 
-        #region Sub-Sampeling
+        #region Sub-Sampeling...
 
         /// <summary>
         /// Generates the color of a single pixel in the target image, given the 

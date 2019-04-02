@@ -29,6 +29,7 @@ using System.Text;
 
 using Vulpine.Core.Data.Exceptions;
 using Vulpine.Core.Draw.Colors;
+using Vulpine.Core.Draw.Images;
 
 namespace Vulpine.Core.Draw
 {
@@ -266,6 +267,17 @@ namespace Vulpine.Core.Draw
                 }
             }
         }
+
+        public void FillData(System.Drawing.Bitmap data)
+        {
+            //checks that the image is wrightable
+            if (this.IsReadOnly) throw new InvalidOperationException();
+
+            //wraps the bitmap in an image class to call the other method
+            Image temp = new ImageSystem(data);
+            this.FillData(temp);
+        }
+        
 
         #endregion //////////////////////////////////////////////////////////////
 
