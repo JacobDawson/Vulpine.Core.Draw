@@ -46,7 +46,7 @@
     <Compile Include="Exceptions\ImagingException.cs" />
     <Compile Include="Image.cs" />
     <Compile Include="Images\ImageColor64.cs" />
-    <Compile Include="Images\ImageDefault.cs" />
+    <Compile Include="Images\ImageBasic.cs" />
     <Compile Include="Images\ImageSystem.cs" />
     <Compile Include="Images\ImageVector.cs" />
     <Compile Include="Images\ImageGrey16.cs" />

@@ -184,6 +184,20 @@ namespace Vulpine.Core.Draw
         }
 
         /// <summary>
+        /// Computes the luminance of the current color, or how bright the color
+        /// appears, by taking a weighted average of the three channels, based
+        /// on the aparent brightness of the three primaries. 
+        /// </summary>
+        public double Luminance
+        {
+            get
+            {
+                //computes the waited average based on aparent brightness
+                return (red * WR) + (green * WG) + (blue * WB);
+            }
+        }
+
+        /// <summary>
         /// Represents the opacity of the current color, ranging from zero
         /// (fully transparent) to one (fully opaque).
         /// </summary>

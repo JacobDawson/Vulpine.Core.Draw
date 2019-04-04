@@ -10,6 +10,7 @@ using System.Threading;
 
 using Vulpine.Core.Draw;
 using Vulpine.Core.Draw.Textures;
+using Vulpine.Core.Draw.Images;
 using VImage = Vulpine.Core.Draw.Image;
 using VColor = Vulpine.Core.Draw.Color;
 
@@ -19,19 +20,22 @@ namespace ImagingTests.Resampeling
 {
     public partial class Resampeling : UserControl
     {
-        ImageSys myimage;
+        public const PixelFormat Format = PixelFormat.Rgba32;
+
+        ImageSystem myimage;
 
         public Resampeling()
         {
             InitializeComponent();
             myimage = new Bitmap(512, 512);
+            //myimage = new ImageBasic(512, 512, Format);
 
             IncrementBarDelegate = (this.IncrementBar);
             DrawMyImageDelegate = (this.DrawMyImage);
             AppendTextDelegate = (this.AppendText);
         }
 
-        private Bitmap GetImage()
+        private Bitmap GetBitmap()
         {
             string file = "Checkerboard.png";
             //Bitmap img = Resources.Checkerboard;
@@ -72,7 +76,11 @@ namespace ImagingTests.Resampeling
         private Texture GetInterpolent(Bitmap bmp)
         {
             bool tile = cboTileable.Checked;
-            ImageSys img = new ImageSys(bmp);
+            //ImageSys img = new ImageSys(bmp);
+
+            ImageBasic img = new ImageBasic(bmp.Width, bmp.Height, Format);
+            img.FillData(bmp);
+
             Interpolent ipo = new Interpolent(img, Intpol.Default, tile);
             
 
@@ -115,7 +123,7 @@ namespace ImagingTests.Resampeling
 
         private void RenderThumbnail()
         {
-            Bitmap thumb = GetImage();
+            Bitmap thumb = GetBitmap();
             Graphics gfx = pnlOriginal.CreateGraphics();
             gfx.DrawImage(thumb, 0, 0, thumb.Width, thumb.Height);
             gfx.Dispose();
@@ -123,7 +131,7 @@ namespace ImagingTests.Resampeling
 
         private void RenderImage()
         {
-            Bitmap bmp = GetImage();
+            Bitmap bmp = GetBitmap();
             Texture t = GetInterpolent(bmp);
             Renderor r = GetRenderor();
 
@@ -233,7 +241,7 @@ namespace ImagingTests.Resampeling
 
             barProgress.Value = 0;
             barProgress.Refresh();
-            Bitmap bmp = GetImage();
+            Bitmap bmp = GetBitmap();
             Texture t = GetInterpolent(bmp);
             Renderor r = GetRenderor();
             object[] data = { t, r };
