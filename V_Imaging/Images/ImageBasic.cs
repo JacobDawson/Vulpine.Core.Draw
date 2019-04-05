@@ -38,7 +38,7 @@ namespace Vulpine.Core.Draw.Images
         private int bite_size;
 
         //stores the pixel format
-        private PixelFormat format;
+        private PixelFormat2 format;
 
         //stores the image data as a single bite array
         private byte[] data;
@@ -49,18 +49,18 @@ namespace Vulpine.Core.Draw.Images
             this.height = height;
 
             bite_size = 4;
-            format = PixelFormat.Rgba32;
+            format = PixelFormat2.Rgba32;
 
             data = new byte[width * height * bite_size];
         }
 
 
-        public ImageBasic(int width, int height, PixelFormat format)
+        public ImageBasic(int width, int height, PixelFormat2 format)
         {
             this.width = width;
             this.height = height;
 
-            bite_size = format.GetNumBites();
+            bite_size = format.BitLength / 8;
             this.format = format;
 
             data = new byte[width * height * bite_size];
@@ -87,7 +87,7 @@ namespace Vulpine.Core.Draw.Images
         /// <summary>
         /// Determins the format used to store the pixel data.
         /// </summary>
-        public PixelFormat Format
+        public PixelFormat2 Format
         {
             get { return format; }
         }
@@ -108,7 +108,7 @@ namespace Vulpine.Core.Draw.Images
         /// </summary>
         public int NumChanels
         {
-            get { return format.GetNumChanels(); }
+            get { return format.NumChanels; }
         }
 
         #endregion //////////////////////////////////////////////////////////////
@@ -127,25 +127,27 @@ namespace Vulpine.Core.Draw.Images
             //locates the desiered pixel
             int index = GetStartIndex(col, row);
 
-            switch (format)
-            {
-                case PixelFormat.Rgba16: return GetRgba16(index);
-                case PixelFormat.Rgba32: return GetRgba32(index);
-                case PixelFormat.Rgba64: return GetRgba64(index);
+            return format.DecodeColor(data, index);
 
-                case PixelFormat.Rgb15: return GetRgb15(index);
-                case PixelFormat.Rgb24: return GetRgb24(index);
-                case PixelFormat.Rgb48: return GetRgb48(index);
+            //switch (format)
+            //{
+            //    case PixelFormat.Rgba16: return GetRgba16(index);
+            //    case PixelFormat.Rgba32: return GetRgba32(index);
+            //    case PixelFormat.Rgba64: return GetRgba64(index);
 
-                case PixelFormat.Rc16: return GetRc16(index);
-                case PixelFormat.Rc32: return GetRc32(index);
+            //    case PixelFormat.Rgb15: return GetRgb15(index);
+            //    case PixelFormat.Rgb24: return GetRgb24(index);
+            //    case PixelFormat.Rgb48: return GetRgb48(index);
 
-                case PixelFormat.Grey8: return GetGrey8(index);
-                case PixelFormat.Grey16: return GetGrey16(index);
-            }
+            //    case PixelFormat.Rc16: return GetRc16(index);
+            //    case PixelFormat.Rc32: return GetRc32(index);
 
-            //we are unable to determin the pixel format
-            throw new NotSupportedException();
+            //    case PixelFormat.Grey8: return GetGrey8(index);
+            //    case PixelFormat.Grey16: return GetGrey16(index);
+            //}
+
+            ////we are unable to determin the pixel format
+            //throw new NotSupportedException();
         }
 
         /// <summary>
@@ -160,25 +162,27 @@ namespace Vulpine.Core.Draw.Images
             //locates the desiered pixel
             int index = GetStartIndex(col, row);
 
-            switch (format)
-            {
-                case PixelFormat.Rgba16: SetRgba16(index, color); return;
-                case PixelFormat.Rgba32: SetRgba32(index, color); return;
-                case PixelFormat.Rgba64: SetRgba64(index, color); return;
+            format.EncodeColor(data, index, color);
 
-                case PixelFormat.Rgb15: SetRgb15(index, color); return;
-                case PixelFormat.Rgb24: SetRgb24(index, color); return;
-                case PixelFormat.Rgb48: SetRgb48(index, color); return;
+            //switch (format)
+            //{
+            //    case PixelFormat.Rgba16: SetRgba16(index, color); return;
+            //    case PixelFormat.Rgba32: SetRgba32(index, color); return;
+            //    case PixelFormat.Rgba64: SetRgba64(index, color); return;
 
-                case PixelFormat.Rc16: SetRc16(index, color); return;
-                case PixelFormat.Rc32: SetRc32(index, color); return;
+            //    case PixelFormat.Rgb15: SetRgb15(index, color); return;
+            //    case PixelFormat.Rgb24: SetRgb24(index, color); return;
+            //    case PixelFormat.Rgb48: SetRgb48(index, color); return;
 
-                case PixelFormat.Grey8: SetGrey8(index, color); return;
-                case PixelFormat.Grey16: SetGrey16(index, color); return;
-            }
+            //    case PixelFormat.Rc16: SetRc16(index, color); return;
+            //    case PixelFormat.Rc32: SetRc32(index, color); return;
 
-            //we are unable to determin the pixel format
-            throw new NotSupportedException();
+            //    case PixelFormat.Grey8: SetGrey8(index, color); return;
+            //    case PixelFormat.Grey16: SetGrey16(index, color); return;
+            //}
+
+            ////we are unable to determin the pixel format
+            //throw new NotSupportedException();
         }
 
 

@@ -27,9 +27,11 @@ using System.Linq;
 using System.Text;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.Runtime.InteropServices;
 
 using VColor = Vulpine.Core.Draw.Color;
 using SColor = System.Drawing.Color;
+using SPixel = System.Drawing.Imaging.PixelFormat;
 
 namespace Vulpine.Core.Draw.Images
 {
@@ -74,7 +76,7 @@ namespace Vulpine.Core.Draw.Images
         /// <param name="height">Height of the bitmap in pixels</param>
         public ImageSystem(int width, int height)
         {
-            bmp = new Bitmap(width, height);
+            bmp = new Bitmap(width, height, SPixel.Format32bppArgb);
             key = new object();
 
             this.width = width;
@@ -212,6 +214,105 @@ namespace Vulpine.Core.Draw.Images
         {
             //disposes of the internal object
             bmp.Dispose();
+        }
+
+        #endregion //////////////////////////////////////////////////////////////
+
+        #region Advanced Mehtods...
+
+        //NOTE: I still need to test if the specialised FillData methods are 
+        //actualy faster than the default implementation.
+
+        /// <summary>
+        /// Fills the image with pixel data taken from a stream. Any pixels
+        /// that fall outside the bounds of the image are discarded.
+        /// </summary>
+        /// <param name="data">Image data stream</param>
+        /// <exception cref="InvalidOperationException">If the internal bitmap
+        /// format is not 32-bits per pixle</exception>
+        public override void FillData(IEnumerable<Pixel> data)
+        {
+            if (bmp.PixelFormat != SPixel.Format32bppArgb)
+                throw new InvalidOperationException("Format Not Suported");
+
+            //creates a bit array to hold our data
+            int size = width * height * 4;
+            byte[] bits = new byte[size];
+
+            //copies the data into the temporary bit array
+            foreach (Pixel pix in data)
+            {
+                int index = ((pix.Row * height) + pix.Col) * 4;
+                if (index + 3 >= bits.Length) continue;
+
+                bits[index + 0] = (byte)(pix.Color.Blue * 255.0);
+                bits[index + 1] = (byte)(pix.Color.Green * 255.0);
+                bits[index + 2] = (byte)(pix.Color.Red * 255.0);
+                bits[index + 3] = (byte)(pix.Color.Alpha * 255.0);
+            }
+
+            //moves all the data into the bitmap in one step
+            lock (key)
+            {
+                Rectangle rect = new Rectangle(0, 0, width, height);
+                BitmapData bdata = bmp.LockBits(rect, ImageLockMode.WriteOnly, bmp.PixelFormat);
+
+                Marshal.Copy(bits, 0, bdata.Scan0, bits.Length);
+                bmp.UnlockBits(bdata);
+            }
+
+            //base.FillData(data);
+        }
+
+        /// <summary>
+        /// Fills the current image with pixel data obtained from another image.
+        /// Note that only the intersection between the two images is filled.
+        /// Any pixels outside the current image are discarded, while any pixels
+        /// outside the source image are left unchanged.
+        /// </summary>
+        /// <param name="data">Image with pixel data</param>
+        /// <exception cref="InvalidOperationException">If the current
+        /// image is marked as read-only</exception>
+        public override void FillData(Image data)
+        {
+            if (bmp.PixelFormat != SPixel.Format32bppArgb)
+                throw new InvalidOperationException("Format Not Suported");
+
+            //creates a bit array to hold our data
+            int size = width * height * 4;
+            byte[] bits = new byte[size];
+
+            //computes the intersection of both images
+            int w = Math.Min(this.Width, data.Width);
+            int h = Math.Min(this.Height, data.Height);
+
+            //fills the temproary array with new data
+            for (int row = 0; row < h; row++)
+            {
+                for (int col = 0; col < w; col++)
+                {
+                    Color c = data.GetPixel(col, row);
+                    int index = ((row * height) + col) * 4;
+                    if (index + 3 >= bits.Length) continue;
+
+                    bits[index + 0] = (byte)(c.Blue * 255.0);
+                    bits[index + 1] = (byte)(c.Green * 255.0);
+                    bits[index + 2] = (byte)(c.Red * 255.0);
+                    bits[index + 3] = (byte)(c.Alpha * 255.0);
+                }
+            }
+
+            //moves all the data into the bitmap in one step
+            lock (key)
+            {
+                Rectangle rect = new Rectangle(0, 0, width, height);
+                BitmapData bdata = bmp.LockBits(rect, ImageLockMode.WriteOnly, bmp.PixelFormat);
+
+                Marshal.Copy(bits, 0, bdata.Scan0, bits.Length);
+                bmp.UnlockBits(bdata);
+            }
+
+            //base.FillData(data);
         }
 
         #endregion //////////////////////////////////////////////////////////////

@@ -20,7 +20,9 @@ namespace ImagingTests.Resampeling
 {
     public partial class Resampeling : UserControl
     {
-        public const PixelFormat Format = PixelFormat.Rgba32;
+        //public const PixelFormat Format = PixelFormat.Rc32;
+
+        public readonly PixelFormat2 Format = PixelFormat2.Rgba64;
 
         ImageSystem myimage;
 
@@ -79,7 +81,10 @@ namespace ImagingTests.Resampeling
             //ImageSys img = new ImageSys(bmp);
 
             ImageBasic img = new ImageBasic(bmp.Width, bmp.Height, Format);
-            img.FillData(bmp);
+            img.FillData((ImageSystem)bmp);
+
+            //ImageSystem img = new ImageSystem(bmp.Width, bmp.Height);
+            //img.FillData((ImageSystem)bmp);
 
             Interpolent ipo = new Interpolent(img, Intpol.Default, tile);
             

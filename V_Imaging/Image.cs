@@ -219,7 +219,7 @@ namespace Vulpine.Core.Draw
         /// <param name="data">Image data stream</param>
         /// <exception cref="InvalidOperationException">If the current
         /// image is marked as read-only</exception>
-        public void FillData(IEnumerable<Pixel> data)
+        public virtual void FillData(IEnumerable<Pixel> data)
         {
             //checks that the image is wrightable
             if (this.IsReadOnly) throw new InvalidOperationException();
@@ -248,7 +248,7 @@ namespace Vulpine.Core.Draw
         /// <param name="data">Image with pixel data</param>
         /// <exception cref="InvalidOperationException">If the current
         /// image is marked as read-only</exception>
-        public void FillData(Image data)
+        public virtual void FillData(Image data)
         {
             //checks that the image is wrightable
             if (this.IsReadOnly) throw new InvalidOperationException();
@@ -268,15 +268,15 @@ namespace Vulpine.Core.Draw
             }
         }
 
-        public void FillData(System.Drawing.Bitmap data)
-        {
-            //checks that the image is wrightable
-            if (this.IsReadOnly) throw new InvalidOperationException();
+        //public virtual void FillData(System.Drawing.Bitmap data)
+        //{
+        //    //checks that the image is wrightable
+        //    if (this.IsReadOnly) throw new InvalidOperationException();
 
-            //wraps the bitmap in an image class to call the other method
-            Image temp = new ImageSystem(data);
-            this.FillData(temp);
-        }
+        //    //wraps the bitmap in an image class to call the other method
+        //    Image temp = new ImageSystem(data);
+        //    this.FillData(temp);
+        //}
         
 
         #endregion //////////////////////////////////////////////////////////////
