@@ -391,7 +391,7 @@ namespace Vulpine.Core.Draw
                     avg += 0.1250 * (Vector)source[x2 + 1, y2 + 2];
                     avg += 0.0625 * (Vector)source[x2 + 2, y2 + 2];
 
-                    target[x, y] = Color.FromRGB(avg);
+                    target[x, y] = Color.FromRGBA(avg);
                 }
             }
         }

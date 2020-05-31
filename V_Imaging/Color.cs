@@ -33,6 +33,20 @@ using Vulpine.Core.Data.Exceptions;
 
 namespace Vulpine.Core.Draw
 {
+    /// <summary>
+    /// Represents a color as a four dimentional vector with a red, green and blue
+    /// component that determin the color and an alpha component which determins
+    /// it's opacity. These components are stored as floating point values clamped
+    /// to be within 0.0 and 1.0, inclusive. This is mostly done to make computation
+    /// easier, and mitigate round-off error. The values themselves may be liniar, or
+    /// not, and the alphal values may be pre-multiplied, or not. To change between
+    /// these states one can use the SetGamma, PreMultiply, and PostDeivide methods.
+    /// Although, care must be taken not to gamma-correct a color that was already
+    /// corrected, or pre-multiply a color that was already pre-multiplied. By default,
+    /// colors are asumed to be pre-multiplied, with a gamma of 2.2, unless otherwise
+    /// stated. We do not imply a fixed standard for the color struct in order to
+    /// enshure maximum flexability.
+    /// </summary>
     public struct Color
     {
         #region Class Definitons...
@@ -45,6 +59,34 @@ namespace Vulpine.Core.Draw
         //weights used in converting from YUV
         private const double IWR = 1.402;
         private const double IWB = 1.772;
+
+        //stores the matrix values for conversion from XYZ space
+        private static readonly double[] MX =
+        {
+             3.2406,
+            -1.5372,
+            -0.4986,
+            -0.9689,
+             1.8758,
+             0.0415,
+             0.0557,
+            -0.2040,
+             1.0570,
+        };
+
+        //stores the matrix values for conversion to XYZ space
+        private static readonly double[] IMX =
+        {
+            0.4123955890,
+            0.3575834308,
+            0.1804926474,
+            0.2125862308,
+            0.7151703037,
+            0.0722004986,
+            0.0192972155,
+            0.1191838646,
+            0.9504971251,
+        };
 
         //Stores the RGB components of the color
         private double red;
@@ -233,7 +275,7 @@ namespace Vulpine.Core.Draw
         /// <param name="b">Blue chanel ranging from zero to one</param>
         /// <param name="a">The opacity of the color</param>
         /// <returns>The new color</returns>
-        public static Color FromRGB(double r, double g, double b, double a)
+        public static Color FromRGBA(double r, double g, double b, double a)
         {
             //creates the color as specified
             return new Color(r, g, b, a);
@@ -244,17 +286,17 @@ namespace Vulpine.Core.Draw
         /// are clamped to be within the range of zero to one.
         /// </summary>
         /// <param name="rgb">A vector containing the RGB cordinates</param>
-        /// <exception cref="VectorLengthExcp">If the size of the vector is 
-        /// invalid for either RGB or RGBA color cordinates</exception>
         /// <returns>The new color</returns>
-        public static Color FromRGB(Vector rgb)
+        public static Color FromRGBA(Vector rgb)
         {
-            //makes shure the vector is an aproprate length
-            VectorLengthExcp.Check(rgb, 3, 4);
+            //extracts the color components that are available
+            double r = rgb.GetExtended(0, 0.0);
+            double g = rgb.GetExtended(1, 0.0);
+            double b = rgb.GetExtended(2, 0.0);
+            double a = rgb.GetExtended(3, 1.0);
 
-            //creates the color based on the length of the vector
-            if (rgb.Length == 3) return new Color(rgb[0], rgb[1], rgb[2]);
-            else return new Color(rgb[0], rgb[1], rgb[2], rgb[3]);
+            //creates the color as specified
+            return new Color(r, g, b, a);
         }
 
         /// <summary>
@@ -275,8 +317,7 @@ namespace Vulpine.Core.Draw
 
             //computes the sector and temporary variable
             double sec = hue / 60.0;
-            double temp = Math.Floor(sec);
-            temp = sec - temp;
+            double temp = sec - Math.Floor(sec);
 
             //computes potential values for Red, Blue, and Green
             double p = val * (1.0 - sat);
@@ -296,13 +337,31 @@ namespace Vulpine.Core.Draw
         }
 
         /// <summary>
+        /// Constructs a new color given it's HSV color cordinates, where value ranges
+        /// from black to full intencity. Both the saturation and the value are clamped 
+        /// to the range of zero to one.
+        /// </summary>
+        /// <param name="hsv">A vector containing the HSV cordinates</param>
+        /// <returns>The new color</returns>
+        public static Color FromHSV(Vector hsv)
+        {
+            //extracts the color components that are available
+            double hue = hsv.GetExtended(0);
+            double sat = hsv.GetExtended(1);
+            double val = hsv.GetExtended(2);
+
+            //calls the method above
+            return Color.FromHSV(hue, sat, val);
+        }
+
+        /// <summary>
         /// Constructs a new color given it's HSL space cordinates, where luminance
         /// ranges from black to white. Both the saturation and the luminance are 
         /// clamped to the range of zero to one.
         /// </summary>
         /// <param name="hue">Angular hue, ranging from 0 to 360 degrees</param>
         /// <param name="sat">Saturation ranging from zero to one</param>
-        /// <param name="lum">Luminosity ranging from zero to on</param>
+        /// <param name="lum">Luminosity ranging from zero to one</param>
         /// <returns>The new color</returns>
         public static Color FromHSL(double hue, double sat, double lum)
         {
@@ -341,15 +400,16 @@ namespace Vulpine.Core.Draw
         /// clamped to the range of zero to one.
         /// </summary>
         /// <param name="hsl">A vector containing the HSL cordinates</param>
-        /// <exception cref="VectorLengthExcp">If the vector is not the proper length</exception>
         /// <returns>The new color</returns>
         public static Color FromHSL(Vector hsl)
         {
-            //makes shure the length of the vector is exactly 3
-            VectorLengthExcp.Check(hsl, 3);
+            //extracts the color components that are available
+            double hue = hsl.GetExtended(0);
+            double sat = hsl.GetExtended(1);
+            double lum = hsl.GetExtended(2);
 
             //calls the method above
-            return FromHSL(hsl[0], hsl[1], hsl[2]);
+            return Color.FromHSL(hue, sat, lum);
         }
 
         /// <summary>
@@ -385,15 +445,106 @@ namespace Vulpine.Core.Draw
         /// be within negative one-half to one-half. 
         /// </summary>
         /// <param name="yuv">A vector containing the YUV cordinates</param>
-        /// <exception cref="VectorLengthExcp">If the vector is not the proper length</exception>
         /// <returns>The new color</returns>
         public static Color FromYUV(Vector yuv)
         {
-            //makes shure the length of the vector is exactly 3
-            VectorLengthExcp.Check(yuv, 3);
+            //extracts the color components that are available
+            double y = yuv.GetExtended(0);
+            double u = yuv.GetExtended(1);
+            double v = yuv.GetExtended(2);
 
             //calls the method above
-            return FromYUV(yuv[0], yuv[1], yuv[2]);
+            return Color.FromYUV(y, u, v);
+        }
+
+        public static Color FromXYZ(double x, double y, double z)
+        {
+            //converts from XYZ to liniar RGB
+            double r = MX[0] * x + MX[1] * y + MX[2] * z;
+            double g = MX[3] * x + MX[4] * y + MX[5] * z;
+            double b = MX[6] * x + MX[7] * y + MX[8] * z;
+
+            //applies a gamma curve to the liniar RGB
+            r = InvGamma(r);
+            g = InvGamma(g);
+            b = InvGamma(b);
+
+            //returnes the scaled RGB values
+            return new Color(r, g, b);
+        }
+
+        public static Color FromXYZ(Vector xyz)
+        {
+            //extracts the color components that are available
+            double x = xyz.GetExtended(0);
+            double y = xyz.GetExtended(1);
+            double z = xyz.GetExtended(2);
+
+            //calls the method above
+            return Color.FromXYZ(x, y, z);
+        }
+
+        public static Color FromLAB(double lum, double a, double b)
+        {
+            //used in further calculations
+            double t = (lum + 16.0) / 116.0;
+
+            //computes the CIE XYZ cordinates
+            double x = 0.95047 * LabInvF(t + (a / 500.0));
+            double y = 1.0 * LabInvF(t);
+            double z = 1.08883 * LabInvF(t - (b / 200.0));
+
+            //continues the conversion to RGB
+            return Color.FromXYZ(x, y, z);
+        }
+
+        public static Color FromLAB(Vector lab)
+        {
+            //extracts the color components that are available
+            double l = lab.GetExtended(0);
+            double a = lab.GetExtended(1);
+            double b = lab.GetExtended(2);
+
+            //calls the method above
+            return Color.FromLAB(l, a, b);
+        }
+
+        public static Color FromLUV(double lum, double u, double v)
+        {
+            double up = (u / (13.0 * lum)) + 0.1978398248;
+            double vp = (v / (13.0 * lum)) + 0.4683363029;
+
+            //double y = 0.0;
+
+            //if (lum <= 8.0)
+            //{
+            //    y = lum * 0.001107056460 * 100.0;
+            //}
+            //else
+            //{
+            //    y = (lum + 16.0) / 116.0;
+            //    y = y * y * y * 100.0;
+            //}
+
+            double y = (lum > 8.0) ? (lum + 16.0) / 116.0 : lum;
+            y = (lum > 8.0) ? y * y * y : y * 0.001107056460;
+            //y = 100.0 * y;
+
+            double x = y * ((9.0 * up) / (4.0 * vp));
+            double z = y * ((12.0 - (3.0 * up) - (20.0 * vp)) / (4.0 * vp));
+
+            return Color.FromXYZ(x, y, z);
+        }
+
+        public static Color FromLUV(Vector luv)
+        {
+            //extracts the color components that are available
+            double l = luv.GetExtended(0);
+            double u = luv.GetExtended(1);
+            double v = luv.GetExtended(2);
+
+            //calls the method above
+            return Color.FromLUV(l, u, v);
         }
 
         #endregion //////////////////////////////////////////////////////////////////
@@ -404,7 +555,7 @@ namespace Vulpine.Core.Draw
         /// Generates a representaiton of the color as a vector in the RGB color
         /// space. This is usefull for treating colors as a mathmatical construct.
         /// </summary>
-        /// <returns>The color as a vector</returns>
+        /// <returns>The color as an RGB vector</returns>
         public Vector ToRGB()
         {
             return new Vector(red, green, blue);
@@ -414,10 +565,40 @@ namespace Vulpine.Core.Draw
         /// Generates a representaiton of the color as a vector in the RGBA color
         /// space. This is usefull for treating colors as a mathmatical construct.
         /// </summary>
-        /// <returns>The color as a vector</returns>
+        /// <returns>The color as an RGBA vector</returns>
         public Vector ToRGBA()
         {
             return new Vector(red, green, blue, alpha);
+        }
+
+        /// <summary>
+        /// Generates a representation of the color as a vector in the HSV color
+        /// space. Using this method is more effecient than reading the corisponding
+        /// properties, as it avoids redundent calculation.
+        /// </summary>
+        /// <returns>The color as an HSV vector</returns>
+        public Vector ToHSV()
+        {
+            //finds the maximum and minimum of the chanels
+            double max = VMath.Max(red, green, blue);
+            double min = VMath.Min(red, green, blue);
+
+            //if we are a grey value, then we have only value
+            if (max == min) return new Vector(0.0, 0.0, max);
+
+            //calculates the croma and the saturation
+            double croma = max - min;
+            double sat = croma / max;
+            double hue = 0.0;
+
+            //determins the correct hue
+            if (max == red) hue = ((green - blue) / croma) + 0.0;
+            if (max == green) hue = ((blue - red) / croma) + 2.0;
+            if (max == blue) hue = ((red - green) / croma) + 4.0;
+
+            hue = 60.0 * hue;
+
+            return new Vector(hue, sat, max);
         }
 
         /// <summary>
@@ -425,7 +606,7 @@ namespace Vulpine.Core.Draw
         /// space, not to be confused with the HSV color space. This is usefull 
         /// when one needs a more perceptual definiton of color.
         /// </summary>
-        /// <returns>The color as a vector</returns>
+        /// <returns>The color as an HSL vector</returns>
         public Vector ToHSL()
         {
             //finds the maximum and minimum of the chanels
@@ -459,7 +640,7 @@ namespace Vulpine.Core.Draw
         /// space, seperating the percieved brightness from the color information.
         /// Note that it is a liniar transformation of the RGB color space.
         /// </summary>
-        /// <returns>The color as a vector</returns>
+        /// <returns>The color as a YUV vector</returns>
         public Vector ToYUV()
         {
             //computes the luma and derives the other components
@@ -474,6 +655,69 @@ namespace Vulpine.Core.Draw
             return new Vector(luma, uchan, vchan);
         }
 
+        public Vector ToXYZ()
+        {
+            //converts the scaled RGB vlaues to liniar RGB
+            double rl = Gamma(red);
+            double gl = Gamma(green);
+            double bl = Gamma(blue);
+
+            double x = rl * IMX[0] + gl * IMX[1] + bl * IMX[2];
+            double y = rl * IMX[3] + gl * IMX[4] + bl * IMX[5];
+            double z = rl * IMX[6] + gl * IMX[7] + bl * IMX[8];
+
+            return new Vector(x, y, z);
+        }
+
+        public Vector ToLAB()
+        {
+            //first converts to XYZ space
+            Vector xyz = this.ToXYZ();
+
+            double fx = LabF(xyz[0] / 0.95047);
+            double fy = LabF(xyz[1] / 1.0);
+            double fz = LabF(xyz[2] / 1.08883);
+
+            double l = 116.0 * fy - 16.0;
+            double a = 500.0 * (fx - fy);
+            double b = 200.0 * (fy - fz);
+
+            return new Vector(l, a, b);
+        }
+
+        public Vector ToLUV()
+        {
+            //first converts to XYZ space
+            Vector xyz = this.ToXYZ();
+
+            double x = xyz[0];
+            double y = xyz[1];
+            double z = xyz[2];
+
+            //double yn = xyz[1] / 100.0;
+            double lum = 0.0;
+
+            if (y < 0.008856451679)
+            {
+                lum = 903.2962963 * y;
+            }
+            else
+            {
+                lum = Math.Pow(y, 1.0 / 3.0);
+                lum = 116.0 * lum - 16.0;
+            }
+
+            double temp = x + (15.0 * y) + (3.0 * z);
+            double up = (4.0 * x) / temp;
+            double vp = (9.0 * y) / temp;
+
+            double u = 13.0 * lum * (up - 0.1978398248);
+            double v = 13.0 * lum * (vp - 0.4683363029);
+
+            return new Vector(lum, u, v);
+
+        }
+
         #endregion //////////////////////////////////////////////////////////////////
 
         #region Color Operations...
@@ -484,13 +728,12 @@ namespace Vulpine.Core.Draw
         /// that the transformation is inherently non-liniar.
         /// </summary>
         /// <param name="gamma">The new gamma value</param>
-        /// <exception cref="ArgBoundsException">If the gamma value falls outside
-        /// the range of one-fourth to four</exception>
         /// <returns>The color with corrected gamma</returns>
         public Color SetGamma(double gamma)
         {
-            //checks that the gamma value is within a reasonable range
-            ArgBoundsException.Check("gamma", gamma, 0.25, 4.0);
+            //clips the most extream gamma values
+            if (gamma < 0.001) return new Color(1.0, 1.0, 1.0, alpha);
+            if (gamma > 1000.0) return new Color(0.0, 0.0, 0.0, alpha);
 
             //raises the color components to the gamma level
             double rn = Math.Pow(red, gamma);
@@ -527,7 +770,7 @@ namespace Vulpine.Core.Draw
         public Color PostDivide()
         {
             //avoids potential division by zero
-            if (alpha == 0.0) return this;
+            if (alpha.IsZero()) return this;
 
             //divides the color components by alpha
             double rn = red / alpha;
@@ -641,13 +884,10 @@ namespace Vulpine.Core.Draw
         /// <param name="c1">The first color</param>
         /// <param name="c2">The second color</param>
         /// <param name="x">The interpoland</param>
-        /// <exception cref="ArgBoundsException">If the interpoland falls outside
-        /// the range of zero to one, inclusive</exception>
         /// <returns>The interpolated color</returns>
         public static Color Lerp(Color c1, Color c2, double x)
         {
-            //checks that the interpolent is bracketed correctly
-            //ArgBoundsException.Check("x", x, 0.0, 1.0);
+            //asserts that the interpolent is bracketed correctly
             x = VMath.Clamp(x);
 
             //computes the inverse of x to save time
@@ -665,6 +905,18 @@ namespace Vulpine.Core.Draw
         #endregion //////////////////////////////////////////////////////////////////
 
         #region Helper Methods...
+
+        /// <summary>
+        /// Helper method, used to enshure that angular values lie between zero
+        /// and 360 degrees. Angles outisde this range are wraped around.
+        /// </summary>
+        /// <param name="value">The value to wrap</param>
+        /// <returns>The wraped value</returns>
+        private static double WrapValue(double value)
+        {
+            double sector = Math.Floor(value / 360.0);
+            return value - (360.0 * sector);
+        }
 
         /// <summary>
         /// Helper method, used in the conversion of colors from th HSL color
@@ -690,16 +942,38 @@ namespace Vulpine.Core.Draw
             return temp;
         }
 
-        /// <summary>
-        /// Helper method, used to enshure that angular values lie between zero
-        /// and 360 degrees. Angles outisde this range are wraped around.
-        /// </summary>
-        /// <param name="value">The value to wrap</param>
-        /// <returns>The wraped value</returns>
-        private static double WrapValue(double value)
+        private static double Gamma(double u)
         {
-            double sector = Math.Floor(value / 360.0);
-            return value - (360.0 * sector);
+            if (u < 0.04045)
+            {
+                //uses a liniar function near zero
+                return u / 12.92;
+            }
+            else
+            {
+                //uses the augmented gamma adjustment
+                double temp = (u + 0.055) / 1.055;
+                return Math.Pow(temp, 2.4);
+            }
+        }
+
+        private static double InvGamma(double u)
+        {
+            if (u < 0.003130807283) return 12.92 * u;
+            else return 1.055 * Math.Pow(u, 1.0 / 2.4) - 0.055; 
+        }
+
+
+        private static double LabF(double t)
+        {
+            if (t > 0.008856451679) return Math.Pow(t, 1.0 / 3.0);
+            else return t * 0.1284185493 + 0.1379310345;
+        }
+
+        private static double LabInvF(double t)
+        {
+            if (t > 0.2068965517) return t * t * t;
+            else return 0.1284185493 * (t - 0.1379310344);
         }
 
         #endregion //////////////////////////////////////////////////////////////////
@@ -712,7 +986,7 @@ namespace Vulpine.Core.Draw
 
         //allows explicit conversion from a vector with potential loss of data
         public static explicit operator Color(Vector v)
-        { return Color.FromRGB(v); }
+        { return Color.FromRGBA(v); }
 
         #endregion //////////////////////////////////////////////////////////////////
 

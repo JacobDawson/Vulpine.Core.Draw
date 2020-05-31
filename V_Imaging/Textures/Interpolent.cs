@@ -260,7 +260,7 @@ namespace Vulpine.Core.Draw.Textures
             }
 
             //returns the caluclated color
-            return Color.FromRGB(temp);
+            return Color.FromRGBA(temp);
         }
 
         /// <summary>
@@ -294,7 +294,7 @@ namespace Vulpine.Core.Draw.Textures
             }
 
             //returns the caluclated color
-            return Color.FromRGB(temp);
+            return Color.FromRGBA(temp);
         }
 
         #endregion ///////////////////////////////////////////////////////////////////////

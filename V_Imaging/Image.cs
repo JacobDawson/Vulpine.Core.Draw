@@ -40,8 +40,8 @@ namespace Vulpine.Core.Draw
     /// may be overloaded in other assemblys to refer to images in local memory, or on the GPU, 
     /// or it may refer to the output display itself. By providing this abstraciton, we can
     /// maniulate images iregardless of where or how they are stored.
-    /// <remarks>Last Update: 2015-10-08</remarks>
     /// </summary>
+    /// <remarks>Last Update: 2015-10-08</remarks>
     public abstract class Image : IEnumerable<Pixel>
     {
         #region Class Properties...

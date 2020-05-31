@@ -61,7 +61,7 @@ namespace ImagingTests.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to H:\Zackery3\Programing2\MainProdjects\VPCL\SourceData\.
+        ///   Looks up a localized string similar to H:\Programing\MainProdjects\VPCL\SourceData\.
         /// </summary>
         internal static string TestSuite {
             get {

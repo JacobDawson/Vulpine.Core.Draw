@@ -28,83 +28,36 @@ using System.Text;
 
 namespace Vulpine.Core.Draw.Images
 {
-    public enum PixelFormat
-    {
-        Rgba16,
-        Rgba32,
-        Rgba64,
-
-        Rgb15,
-        Rgb24,
-        Rgb48,
-
-        Rc16,
-        Rc32,
-        
-        Grey8,
-        Grey16,       
-    }
-
-    public static class PixelFormatEx
-    {
-        public static int GetNumBites(this PixelFormat format)
-        {
-            switch (format)
-            {
-                case PixelFormat.Rgba16: return 2;
-                case PixelFormat.Rgba32: return 4;
-                case PixelFormat.Rgba64: return 8;
-
-                case PixelFormat.Rgb15: return 2;
-                case PixelFormat.Rgb24: return 3;
-                case PixelFormat.Rgb48: return 6;
-
-                case PixelFormat.Rc16: return 2;
-                case PixelFormat.Rc32: return 4;
-
-                case PixelFormat.Grey8: return 1;
-                case PixelFormat.Grey16: return 2;
-            }
-
-            //we are unable to determin the pixel format
-            throw new NotSupportedException();
-        }
-
-        public static int GetNumChanels(this PixelFormat format)
-        {
-            switch (format)
-            {
-                case PixelFormat.Rgba16: return 4;
-                case PixelFormat.Rgba32: return 4;
-                case PixelFormat.Rgba64: return 4;
-
-                case PixelFormat.Rgb15: return 3;
-                case PixelFormat.Rgb24: return 3;
-                case PixelFormat.Rgb48: return 3;
-
-                case PixelFormat.Rc16: return 2;
-                case PixelFormat.Rc32: return 2;
-
-                case PixelFormat.Grey8: return 1;
-                case PixelFormat.Grey16: return 1;
-            }
-
-            //we are unable to determin the pixel format
-            throw new NotSupportedException();
-        }
-    }
-
-    public class PixelFormat2
+    /// <summary>
+    /// This class represents a pixel format for use in basic images which store their
+    /// color data as an array of bite values. It contains methods for both encoding
+    /// and decoding colors from an array of bite values, as well as information on
+    /// the format itself, sutch as the number of bits per pixel.
+    /// </summary>
+    /// <remarks>Last Update: 2019-04-04</remarks>
+    public struct PixelFormat
     {
         #region Class Definitions...
 
+        //TODO: refactor hard coded values into constants
+        //TODO: consider making the index values long
+
+        //recordes metrics on the pixel format
         private int bpp;
         private int chan;
 
+        //stores methods that can handel the encoding and decoding
         private DelDecodeColor dec;
         private DelEncodeColor enc;
 
-        private PixelFormat2(int bpp, int chan, DelDecodeColor dec, DelEncodeColor enc)
+        /// <summary>
+        /// Internal constructor for creating instances of pixel format.
+        /// </summary>
+        /// <param name="bpp">Number of bits per pixel</param>
+        /// <param name="chan">Number of chanels suported</param>
+        /// <param name="dec">Delegate for the decoding procedure</param>
+        /// <param name="enc">Delegate for the encoding procedure</param>
+        internal PixelFormat(int bpp, int chan, DelDecodeColor dec, DelEncodeColor enc)
         {
             this.bpp = bpp;
             this.chan = chan;
@@ -112,26 +65,56 @@ namespace Vulpine.Core.Draw.Images
             this.enc = enc;
         }
 
-        public int BitLength
+        /// <summary>
+        /// Determins the number of bits used per pixel in this format. Note that
+        /// there are eight bits in a byte, so this should always be a multiple
+        /// of eight.
+        /// </summary>
+        public int BitDepth
         {
             get { return bpp; }
         }
 
+        /// <summary>
+        /// Determins the number of chanels this format suports. Greyscale images
+        /// need only a single channel, while full color images require three. If
+        /// transparancy informaiton is required, an extra chanel must be added.
+        /// </summary>
         public int NumChanels
         {
             get { return chan; }
         }
 
+        /// <summary>
+        /// Decodes a color value from an array of bytes, assuming the curent format.
+        /// </summary>
+        /// <param name="data">Data array from which to decode</param>
+        /// <param name="index">Starting index of the desired color vlaue</param>
+        /// <returns>The decoded color vlaue</returns>
         public Color DecodeColor(byte[] data, int index)
         {
             return dec.Invoke(data, index);
         }
 
+        /// <summary>
+        /// Encodes a color value and writes it to an array of bytes, 
+        /// using the curent format.
+        /// </summary>
+        /// <param name="data">Data array to contain the encoded values</param>
+        /// <param name="index">Starting index to encode the values</param>
+        /// <param name="c">Color value to encode</param>
         public void EncodeColor(byte[] data, int index, Color c)
         {
             enc.Invoke(data, index, c);
         }
 
+        /// <summary>
+        /// Helper method for converting a continious floating point value, to 
+        /// a descrete range of interger values.
+        /// </summary>
+        /// <param name="value">Continious value to convert</param>
+        /// <param name="max">Maximum output value</param>
+        /// <returns>The descritised value</returns>
         private static int Descritise(double value, double max)
         {
             return (int)Math.Floor((value * max) + 0.5);
@@ -141,8 +124,12 @@ namespace Vulpine.Core.Draw.Images
 
         #region Common Pixel Formats...
 
-
-        public static PixelFormat2 Rgba16
+        /// <summary>
+        /// Uses 16 bits per pixel to encode RGBA values, using 4 bits for each of
+        /// the red, green, and blue channels, plus 4 extra bits for the alpha channel.
+        /// Thus this can be thought of as 12-bit RGB plus Alpha.
+        /// </summary>
+        public static PixelFormat Rgba16
         {
             get
             {
@@ -156,7 +143,7 @@ namespace Vulpine.Core.Draw.Images
                     double b = ((pix & 0x00F0) >> 4) / 15.0;
                     double a = ((pix & 0x000F) >> 0) / 15.0;
 
-                    return Color.FromRGB(r, g, b, a);
+                    return Color.FromRGBA(r, g, b, a);
                 };
 
                 //defines the encoder
@@ -174,11 +161,18 @@ namespace Vulpine.Core.Draw.Images
                     data[index + 1] = bits[1];
                 };
 
-                return new PixelFormat2(16, 4, dec, enc);
+                return new PixelFormat(16, 4, dec, enc);
             }
         }
 
-        public static PixelFormat2 Rgba32
+        /// <summary>
+        /// Uses 32 bits per pixel to encode RGBA values, using 8 bits for each of
+        /// the Red, Green, Blue, and Alpha channels. This is the default format
+        /// for images that include transpanancy, as it is close to the limit of 
+        /// what human beings are able to pecieve. It can be thought of as Truecolor 
+        /// plus Alpha.
+        /// </summary>
+        public static PixelFormat Rgba32
         {
             get
             {
@@ -190,7 +184,7 @@ namespace Vulpine.Core.Draw.Images
                     double b = data[index + 2] / 255.0;
                     double a = data[index + 3] / 255.0;
 
-                    return Color.FromRGB(r, g, b, a);
+                    return Color.FromRGBA(r, g, b, a);
                 };
 
                 //defines the encoder
@@ -202,11 +196,17 @@ namespace Vulpine.Core.Draw.Images
                     data[index + 3] = (byte)Descritise(c.Alpha, 255.0);
                 };
 
-                return new PixelFormat2(32, 4, dec, enc);
+                return new PixelFormat(32, 4, dec, enc);
             }
         }
 
-        public static PixelFormat2 Rgba64
+        /// <summary>
+        /// Uses 64 bits per pixel to encode RGBA values, using 16 bits for each
+        /// of the Red, Green, Blue, and Alpha channels. This is mostly useful for
+        /// intermediate storage to avoid round-off errors, as most human beings
+        /// are incabable of ditinguishing such minute diffrences. 
+        /// </summary>
+        public static PixelFormat Rgba64
         {
             get
             {
@@ -223,7 +223,7 @@ namespace Vulpine.Core.Draw.Images
                     double b = bint / 65535.0;
                     double a = aint / 65535.0;
 
-                    return Color.FromRGB(r, g, b, a);
+                    return Color.FromRGBA(r, g, b, a);
                 };
 
                 //defines the encoder
@@ -253,11 +253,17 @@ namespace Vulpine.Core.Draw.Images
                     data[index + 7] = bits[1];
                 };
 
-                return new PixelFormat2(64, 4, dec, enc);
+                return new PixelFormat(64, 4, dec, enc);
             }
         }
 
-        public static PixelFormat2 Rgb16
+        /// <summary>
+        /// Uses 16 bits per pixel to store RGB values, using 5 bits for each of
+        /// the Red, Green, and Blue channels. The last bit is not used. This is
+        /// commonly refered to as Highcolor, and can be useful where less precision
+        /// than Truecolor is required.
+        /// </summary>
+        public static PixelFormat Rgb16
         {
             get
             {
@@ -291,11 +297,17 @@ namespace Vulpine.Core.Draw.Images
                     data[index + 1] = bits[1];
                 };
 
-                return new PixelFormat2(16, 3, dec, enc);
+                return new PixelFormat(16, 3, dec, enc);
             }
         }
 
-        public static PixelFormat2 Rgb24
+        /// <summary>
+        /// Uses 24 bits per pixel to store RGB values, using 8 bits for each of
+        /// the Red, Green, and Blue channels. This is the default format for images
+        /// that do not include transparancy, as it is close to the limit of what
+        /// human beings are able to pecieve. It is refered to as Truecolor.
+        /// </summary>
+        public static PixelFormat Rgb24
         {
             get
             {
@@ -317,11 +329,17 @@ namespace Vulpine.Core.Draw.Images
                     data[index + 2] = (byte)Descritise(c.Blue, 255.0);
                 };
 
-                return new PixelFormat2(24, 3, dec, enc);
+                return new PixelFormat(24, 3, dec, enc);
             }
         }
 
-        public static PixelFormat2 Rgb48
+        /// <summary>
+        /// Uses 48 bits per pixel to store RGB values, using 16 bits for each of
+        /// the Red, Green, and Blue channels. This is mostly useful for intermediate 
+        /// storage to avoid round-off errors, as most human beings are incabable 
+        /// of ditinguishing such minute diffrences. 
+        /// </summary>
+        public static PixelFormat Rgb48
         {
             get
             {
@@ -361,11 +379,16 @@ namespace Vulpine.Core.Draw.Images
                     data[index + 5] = bits[1];
                 };
 
-                return new PixelFormat2(48, 3, dec, enc);
+                return new PixelFormat(48, 3, dec, enc);
             }
         }
 
-        public static PixelFormat2 Rc16
+        /// <summary>
+        /// This uses 16 bits per pixel to encode both a Red and a Cyan chanel, using
+        /// 8 bits each. This is useful when only two chanels of informaiton need to
+        /// be stored, such as with Anaglyphic images, for example.
+        /// </summary>
+        public static PixelFormat Rc16
         {
             get
             {
@@ -387,11 +410,16 @@ namespace Vulpine.Core.Draw.Images
                     data[index + 1] = (byte)Descritise(mix, 255.0);
                 };
 
-                return new PixelFormat2(16, 2, dec, enc);
+                return new PixelFormat(16, 2, dec, enc);
             }
         }
 
-        public static PixelFormat2 Rc32
+        /// <summary>
+        /// This uses 32 bits per pixel to encode both a Red and a Cyan chanel, using
+        /// 16 bits each. This is useful when only two chanels of informaiton need to
+        /// be stored, such as with Anaglyphic images, for example.
+        /// </summary>
+        public static PixelFormat Rc32
         {
             get
             {
@@ -425,11 +453,16 @@ namespace Vulpine.Core.Draw.Images
                     data[index + 3] = bits[1];
                 };
 
-                return new PixelFormat2(32, 2, dec, enc);
+                return new PixelFormat(32, 2, dec, enc);
             }
         }
 
-        public static PixelFormat2 Grey8
+        /// <summary>
+        /// Uses 8 bits per pixel to store a single greyscale value. This is most useful
+        /// when one is working with greyscale or monotone images, where one only cares
+        /// about the value of each pixel, and not the color.
+        /// </summary>
+        public static PixelFormat Grey8
         {
             get
             {
@@ -446,11 +479,16 @@ namespace Vulpine.Core.Draw.Images
                     data[index] = (byte)Descritise(c.Luminance, 255.0);
                 };
 
-                return new PixelFormat2(8, 1, dec, enc);
+                return new PixelFormat(8, 1, dec, enc);
             }
         }
 
-        public static PixelFormat2 Grey16
+        /// <summary>
+        /// Uses 16 bits per pixel to store a single greyscale value. This is most useful
+        /// when one is working with greyscale or monotone images, where one only cares
+        /// about the value of each pixel, and not the color.
+        /// </summary>
+        public static PixelFormat Grey16
         {
             get
             {
@@ -472,7 +510,7 @@ namespace Vulpine.Core.Draw.Images
                     data[index + 1] = bits[1];
                 };
 
-                return new PixelFormat2(16, 1, dec, enc);
+                return new PixelFormat(16, 1, dec, enc);
             }
         }
 
@@ -481,8 +519,19 @@ namespace Vulpine.Core.Draw.Images
 
     }
 
-
+    /// <summary>
+    /// A delegate for provideing decoder methods for pixel formats.
+    /// </summary>
+    /// <param name="data">Data array from which to decode</param>
+    /// <param name="index">Starting index of the desired color vlaue</param>
+    /// <returns>The decoded color vlaue</returns>
     internal delegate Color DelDecodeColor(byte[] data, int index);
 
+    /// <summary>
+    /// A delegate for providing encoder methods for pixel formats.
+    /// </summary>
+    /// <param name="data">Data array to contain the encoded values</param>
+    /// <param name="index">Starting index to encode the values</param>
+    /// <param name="c">Color value to encode</param>
     internal delegate void DelEncodeColor(byte[] data, int index, Color c);
 }

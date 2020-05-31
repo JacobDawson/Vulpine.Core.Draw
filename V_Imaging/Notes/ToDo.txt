@@ -1,0 +1,23 @@
+﻿
+
+- Implement a gamma correction and a pre-multiply step for the Interpolant class, as well as a gamma corection for
+  the renderor class. The idea being that you can do all the color math in liniar space for better blending and
+  interpolation, and then at the end convert back to logrythmic space for better storage. We can test this idea out 
+  by adding a gamma text box to the resampeling page on the test program.
+
+- I want to implement the XYZ, XYY, LAB, and LUV color spaces from the CIE, and keep the two that fit the best. I
+  also should implement unit tests to make shure that all the color spaces can convert from RGB and back again.
+  I can also make animations of the new spaces like I did for YUV.
+
+- Consider implementing Contrast, saturation, and Temperature.
+
+
+
+=======================================================================================================
+
+- I want to make a palleted image structor, to do that I need a pallet structor, and for the pallet structor
+  I need the more generic KD-Tree.
+
+- To do the former, I need to determin if the Math library should be dependent on the Data Structor library,
+  or vice versa.
+  

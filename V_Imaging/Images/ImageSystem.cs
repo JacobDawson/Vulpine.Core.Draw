@@ -37,12 +37,13 @@ namespace Vulpine.Core.Draw.Images
 {
     /// <summary>
     /// This class provides a wrapper for the System.Drawing.Bitmap class, alowing system 
-    /// bitmaps to be used as Images within the Vulpine Core Lirbary. This is esential in 
-    /// order to save or load image data from disk, as the Vulpine Core Library dose not
-    /// directly suport external image formats. For multi-threaded enviroments, it is
-    /// recomended to use a diffrent image type.
-    /// <remarks>Last Update: 2019-03-26</remarks>
+    /// bitmaps to be used as Images within the Vulpine Core Lirbary. This is esential for
+    /// using images with certain GDI windows compnents, and saving images to universal
+    /// formats such as JPEG and PNG. Note that using GDI calls can be slower in most
+    /// instances, and require thread exclusivity. For this reason this class is best
+    /// used as a bridge between the Vulpine Core Library and other systems.
     /// </summary>
+    /// <remarks>Last Update: 2019-03-26</remarks>
     public class ImageSystem : Vulpine.Core.Draw.Image, IDisposable
     {
         //stores the internal bitmap
@@ -149,7 +150,7 @@ namespace Vulpine.Core.Draw.Images
             double b = sc.B / 255.0;
             double a = sc.A / 255.0;
 
-            return VColor.FromRGB(r, g, b, a);
+            return VColor.FromRGBA(r, g, b, a);
         }
 
         /// <summary>

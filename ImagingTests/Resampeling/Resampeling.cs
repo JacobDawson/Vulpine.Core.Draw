@@ -22,7 +22,7 @@ namespace ImagingTests.Resampeling
     {
         //public const PixelFormat Format = PixelFormat.Rc32;
 
-        public readonly PixelFormat2 Format = PixelFormat2.Rgba64;
+        public readonly PixelFormat Format = PixelFormat.Rgba64;
 
         ImageSystem myimage;
 

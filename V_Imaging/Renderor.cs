@@ -430,7 +430,7 @@ namespace Vulpine.Core.Draw
             }
 
             //returns the 'average' color
-            return Color.FromRGB(sum / weight);
+            return Color.FromRGBA(sum / weight);
         }
 
         /// <summary>

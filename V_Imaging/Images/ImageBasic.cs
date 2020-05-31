@@ -28,6 +28,16 @@ using System.Text;
 
 namespace Vulpine.Core.Draw.Images
 {
+    /// <summary>
+    /// This class provides basic implementaiton of the abstract Image class. 
+    /// Internaly it stores the color information as an array of bytes. How 
+    /// many bites are stored per pixel is detemnined by the precice Pixel 
+    /// Format given. Tipicaly the values stored are signifantly less precice
+    /// than the values given in the Color struct, and so are rounded to the
+    /// closest corisponding color. This is not a disadvantage in practice, 
+    /// as most displays are only capable of displaying 24 bits per pixel anyway.
+    /// </summary>
+    /// <remarks>Last Update: 2019-04-04</remarks>
     public class ImageBasic : Image
     {
         //remembers the width and height of the image
@@ -38,29 +48,41 @@ namespace Vulpine.Core.Draw.Images
         private int bite_size;
 
         //stores the pixel format
-        private PixelFormat2 format;
+        private PixelFormat format;
 
         //stores the image data as a single bite array
         private byte[] data;
 
+        /// <summary>
+        /// Creates a new basic image with the given width and height, using
+        /// the default pixel format, practal for most images.
+        /// </summary>
+        /// <param name="width">Width in pixels</param>
+        /// <param name="height">Height in pixels</param>
         public ImageBasic(int width, int height)
         {
             this.width = width;
             this.height = height;
 
             bite_size = 4;
-            format = PixelFormat2.Rgba32;
+            format = PixelFormat.Rgba32;
 
             data = new byte[width * height * bite_size];
         }
 
-
-        public ImageBasic(int width, int height, PixelFormat2 format)
+        /// <summary>
+        /// Creates a new basic image with the given width and height, using
+        /// the desired pixel format to store the image data.
+        /// </summary>
+        /// <param name="width">Width in pixels</param>
+        /// <param name="height">Height in pixels</param>
+        /// <param name="format">Desired pixel format</param>
+        public ImageBasic(int width, int height, PixelFormat format)
         {
             this.width = width;
             this.height = height;
 
-            bite_size = format.BitLength / 8;
+            bite_size = format.BitDepth / 8;
             this.format = format;
 
             data = new byte[width * height * bite_size];
@@ -87,28 +109,9 @@ namespace Vulpine.Core.Draw.Images
         /// <summary>
         /// Determins the format used to store the pixel data.
         /// </summary>
-        public PixelFormat2 Format
+        public PixelFormat Format
         {
             get { return format; }
-        }
-
-        /// <summary>
-        /// Returns the number of bits used per pixel.
-        /// </summary>
-        public int BitDepth
-        {
-            get { return bite_size * 8; }
-        }
-
-        /// <summary>
-        /// Indicates how many chanels the image can store. Each chanel can be
-        /// thought of as a seperate greyscale image. Greyscale images only need
-        /// a single channel, while full color images need three. If transparancy
-        /// information is included, then four chanels are needed.
-        /// </summary>
-        public int NumChanels
-        {
-            get { return format.NumChanels; }
         }
 
         #endregion //////////////////////////////////////////////////////////////
@@ -125,29 +128,10 @@ namespace Vulpine.Core.Draw.Images
         protected override Color GetPixelInit(int col, int row)
         {
             //locates the desiered pixel
-            int index = GetStartIndex(col, row);
+            int index = ((col * height) + row) * bite_size;
 
+            //uses the format to decode the data
             return format.DecodeColor(data, index);
-
-            //switch (format)
-            //{
-            //    case PixelFormat.Rgba16: return GetRgba16(index);
-            //    case PixelFormat.Rgba32: return GetRgba32(index);
-            //    case PixelFormat.Rgba64: return GetRgba64(index);
-
-            //    case PixelFormat.Rgb15: return GetRgb15(index);
-            //    case PixelFormat.Rgb24: return GetRgb24(index);
-            //    case PixelFormat.Rgb48: return GetRgb48(index);
-
-            //    case PixelFormat.Rc16: return GetRc16(index);
-            //    case PixelFormat.Rc32: return GetRc32(index);
-
-            //    case PixelFormat.Grey8: return GetGrey8(index);
-            //    case PixelFormat.Grey16: return GetGrey16(index);
-            //}
-
-            ////we are unable to determin the pixel format
-            //throw new NotSupportedException();
         }
 
         /// <summary>
@@ -160,296 +144,13 @@ namespace Vulpine.Core.Draw.Images
         protected override void SetPixelInit(int col, int row, Color color)
         {
             //locates the desiered pixel
-            int index = GetStartIndex(col, row);
+            int index = ((col * height) + row) * bite_size;
 
+            //uses the format to encode the data
             format.EncodeColor(data, index, color);
-
-            //switch (format)
-            //{
-            //    case PixelFormat.Rgba16: SetRgba16(index, color); return;
-            //    case PixelFormat.Rgba32: SetRgba32(index, color); return;
-            //    case PixelFormat.Rgba64: SetRgba64(index, color); return;
-
-            //    case PixelFormat.Rgb15: SetRgb15(index, color); return;
-            //    case PixelFormat.Rgb24: SetRgb24(index, color); return;
-            //    case PixelFormat.Rgb48: SetRgb48(index, color); return;
-
-            //    case PixelFormat.Rc16: SetRc16(index, color); return;
-            //    case PixelFormat.Rc32: SetRc32(index, color); return;
-
-            //    case PixelFormat.Grey8: SetGrey8(index, color); return;
-            //    case PixelFormat.Grey16: SetGrey16(index, color); return;
-            //}
-
-            ////we are unable to determin the pixel format
-            //throw new NotSupportedException();
-        }
-
-
-        private static int Descritise(double value, double max)
-        {
-            return (int)Math.Floor((value * max) + 0.5);
-        }
-
-        private int GetStartIndex(int col, int row)
-        {
-            return ((col * height) + row) * bite_size;
         }
 
         #endregion //////////////////////////////////////////////////////////////
-
-
-        #region Color Extraction...
-
-
-
-        private Color GetRgba16(int index)
-        {
-            ushort pix = BitConverter.ToUInt16(data, index);
-
-            double r = ((pix & 0xF000) >> 12) / 15.0;
-            double g = ((pix & 0x0F00) >> 8) / 15.0;
-            double b = ((pix & 0x00F0) >> 4) / 15.0;
-            double a = ((pix & 0x000F) >> 0) / 15.0;
-
-            return Color.FromRGB(r, g, b, a);
-        }
-
-        private Color GetRgba32(int index)
-        {
-            double r = data[index + 0] / 255.0;
-            double g = data[index + 1] / 255.0;
-            double b = data[index + 2] / 255.0;
-            double a = data[index + 3] / 255.0;
-
-            return Color.FromRGB(r, g, b, a);
-        }
-
-        private Color GetRgba64(int index)
-        {
-            int rint = BitConverter.ToUInt16(data, index);
-            int gint = BitConverter.ToUInt16(data, index + 2);
-            int bint = BitConverter.ToUInt16(data, index + 4);
-            int aint = BitConverter.ToUInt16(data, index + 6);
-
-            double r = rint / 65535.0;
-            double g = gint / 65535.0;
-            double b = bint / 65535.0;
-            double a = aint / 65535.0;
-
-            return Color.FromRGB(r, g, b, a);
-        }
-
-
-        private Color GetRgb15(int index)
-        {
-            ushort pix = BitConverter.ToUInt16(data, index);
-
-            uint rint = (pix & 0x7C00u) >> 10;
-            uint gint = (pix & 0x03E0u) >> 5;
-            uint bint = (pix & 0x001Fu) >> 0;
-
-            double r = rint / 31.0;
-            double g = gint / 31.0;
-            double b = bint / 31.0;
-
-            return Color.FromRGB(r, g, b);
-        }
-
-
-        private Color GetRgb24(int index)
-        {
-            double r = data[index + 0] / 255.0;
-            double g = data[index + 1] / 255.0;
-            double b = data[index + 2] / 255.0;
-
-            return Color.FromRGB(r, g, b);
-        }
-
-        private Color GetRgb48(int index)
-        {
-            int rint = BitConverter.ToUInt16(data, index);
-            int gint = BitConverter.ToUInt16(data, index + 2);
-            int bint = BitConverter.ToUInt16(data, index + 4);
-
-            double r = rint / 65535.0;
-            double g = gint / 65535.0;
-            double b = bint / 65535.0;
-
-            return Color.FromRGB(r, g, b);
-        }
-
-        private Color GetRc16(int index)
-        {
-            double r = data[index + 0] / 255.0;
-            double c = data[index + 1] / 255.0;
-
-            return Color.FromRGB(r, c, c);
-        }
-
-        private Color GetRc32(int index)
-        {
-            int rint = BitConverter.ToUInt16(data, index);
-            int cint = BitConverter.ToUInt16(data, index + 2);
-
-            double r = rint / 65535.0;
-            double c = cint / 65535.0;
-
-            return Color.FromRGB(r, c, c);
-        }
-
-        private Color GetGrey8(int index)
-        {
-            double val = data[index] / 256.0;
-            return Color.FromRGB(val, val, val);
-        }
-
-        private Color GetGrey16(int index)
-        {
-            int temp = BitConverter.ToUInt16(data, index);
-            double val = temp / 65535.0;
-            return Color.FromRGB(val, val, val);
-        }
-
-
-        #endregion //////////////////////////////////////////////////////////////
-
-
-        #region Color Insertion...
-
-        private void SetRgba16(int index, Color c)
-        {
-            int rint = Descritise(c.Red, 15.0);
-            int gint = Descritise(c.Green, 15.0);
-            int bint = Descritise(c.Blue, 15.0);
-            int aint = Descritise(c.Alpha, 15.0);
-
-            int pix = (rint << 12) + (gint << 8) + (bint << 4) + aint;
-            byte[] bits = BitConverter.GetBytes((ushort)pix);
-
-            data[index + 0] = bits[0];
-            data[index + 1] = bits[1];
-        }
-
-        private void SetRgba32(int index, Color c)
-        {
-            data[index + 0] = (byte)Descritise(c.Red, 255.0);
-            data[index + 1] = (byte)Descritise(c.Green, 255.0);
-            data[index + 2] = (byte)Descritise(c.Blue, 255.0);
-            data[index + 3] = (byte)Descritise(c.Alpha, 255.0);
-        }
-
-        private void SetRgba64(int index, Color c)
-        {
-            byte[] bits;
-
-            ushort rint = (ushort)Descritise(c.Red, 65535.0);
-            ushort gint = (ushort)Descritise(c.Green, 65535.0);
-            ushort bint = (ushort)Descritise(c.Blue, 65535.0);
-            ushort aint = (ushort)Descritise(c.Alpha, 65535.0);
-
-            bits = BitConverter.GetBytes(rint);
-            data[index + 0] = bits[0];
-            data[index + 1] = bits[1];
-
-            bits = BitConverter.GetBytes(gint);
-            data[index + 2] = bits[0];
-            data[index + 3] = bits[1];
-
-            bits = BitConverter.GetBytes(bint);
-            data[index + 4] = bits[0];
-            data[index + 5] = bits[1];
-
-            bits = BitConverter.GetBytes(aint);
-            data[index + 6] = bits[0];
-            data[index + 7] = bits[1];
-        }
-
-
-        private void SetRgb15(int index, Color c)
-        {
-            int rint = Descritise(c.Red, 31.0);
-            int gint = Descritise(c.Green, 31.0);
-            int bint = Descritise(c.Blue, 31.0);
-
-            int pix = (rint << 10) + (gint << 5) + (bint << 0);
-            byte[] bits = BitConverter.GetBytes((ushort)pix);
-
-            data[index + 0] = bits[0];
-            data[index + 1] = bits[1];
-        }
-
-
-        private void SetRgb24(int index, Color c)
-        {
-            data[index + 0] = (byte)Descritise(c.Red, 255.0);
-            data[index + 1] = (byte)Descritise(c.Green, 255.0);
-            data[index + 2] = (byte)Descritise(c.Blue, 255.0);
-        }
-
-        private void SetRgb48(int index, Color c)
-        {
-            byte[] bits;
-
-            ushort rint = (ushort)Descritise(c.Red, 65535.0);
-            ushort gint = (ushort)Descritise(c.Green, 65535.0);
-            ushort bint = (ushort)Descritise(c.Blue, 65535.0);
-
-            bits = BitConverter.GetBytes(rint);
-            data[index + 0] = bits[0];
-            data[index + 1] = bits[1];
-
-            bits = BitConverter.GetBytes(gint);
-            data[index + 2] = bits[0];
-            data[index + 3] = bits[1];
-
-            bits = BitConverter.GetBytes(bint);
-            data[index + 4] = bits[0];
-            data[index + 5] = bits[1];
-        }
-
-        private void SetRc16(int index, Color c)
-        {
-            double mix = c.Green * 0.83738 + c.Blue * 0.16262;
-
-            data[index + 0] = (byte)Descritise(c.Red, 255.0);
-            data[index + 1] = (byte)Descritise(mix, 255.0);
-        }
-
-        private void SetRc32(int index, Color c)
-        {          
-            byte[] bits;
-
-            double mix = c.Green * 0.83738 + c.Blue * 0.16262;
-            ushort rint = (ushort)Descritise(c.Red, 65535.0);
-            ushort cint = (ushort)Descritise(mix, 65535.0);
-
-            bits = BitConverter.GetBytes(rint);
-            data[index + 0] = bits[0];
-            data[index + 1] = bits[1];
-
-            bits = BitConverter.GetBytes(cint);
-            data[index + 2] = bits[0];
-            data[index + 3] = bits[1];
-        }
-
-        private void SetGrey8(int index, Color c)
-        {
-            data[index] = (byte)Descritise(c.Luminance, 255.0);
-        }
-
-        private void SetGrey16(int index, Color c)
-        {
-            ushort temp = (ushort)Descritise(c.Luminance, 65535.0);
-            byte[] bits = BitConverter.GetBytes(temp);
-
-            data[index + 0] = bits[0];
-            data[index + 1] = bits[1];
-        }
-
-
-        #endregion //////////////////////////////////////////////////////////////
-
 
     }
 }

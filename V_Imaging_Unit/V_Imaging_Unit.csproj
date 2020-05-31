@@ -2,18 +2,20 @@
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{FCDE5554-1553-43C4-9554-C1281484CD84}</ProjectGuid>
-    <OutputType>Library</OutputType>
+    <ProjectGuid>{DE526E74-8784-4709-ABAE-A20A61BFA831}</ProjectGuid>
+    <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Vulpine.Core.Draw</RootNamespace>
-    <AssemblyName>V_Imaging</AssemblyName>
+    <RootNamespace>Vulpine_Core_Draw_Tests</RootNamespace>
+    <AssemblyName>V_Imaging_Unit</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+    <PlatformTarget>x86</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -22,7 +24,8 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <PlatformTarget>x86</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
@@ -31,51 +34,38 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="nunit.framework">
+      <HintPath>..\..\..\..\NUnit 2.6.2\bin\framework\nunit.framework.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Drawing" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Animation.cs" />
-    <Compile Include="Animator.cs" />
-    <Compile Include="Color.cs" />
-    <Compile Include="Colors\ColorHSL.cs" />
-    <Compile Include="Colors\ColorYUV.cs" />
-    <Compile Include="Enums.cs" />
-    <Compile Include="Exceptions\ImagingException.cs" />
-    <Compile Include="Image.cs" />
-    <Compile Include="Images\ImageColor64.cs" />
-    <Compile Include="Images\ImageBasic.cs" />
-    <Compile Include="Images\ImageSystem.cs" />
-    <Compile Include="Images\ImageVector.cs" />
-    <Compile Include="Images\ImageGrey16.cs" />
-    <Compile Include="Images\PixelFormat.cs" />
-    <Compile Include="Pixel.cs" />
-    <Compile Include="RenderEventArgs.cs" />
-    <Compile Include="Texture3D.cs" />
-    <Compile Include="Textures\CmplxMap.cs" />
-    <Compile Include="Textures\ColorWheel.cs" />
-    <Compile Include="Textures\Interpolent.cs" />
+    <Compile Include="AddOns\ErrorConstrant.cs" />
+    <Compile Include="AddOns\Ist.cs" />
+    <Compile Include="AddOns\ZeroConstraint.cs" />
+    <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Renderor.cs" />
-    <Compile Include="Texture.cs" />
-    <Compile Include="Textures\Stereograph.cs" />
-    <Compile Include="Textures\Transformation.cs" />
-    <Compile Include="Transform2D.cs" />
+    <Compile Include="Unit\ColorTests.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\V_DataStruk\V_DataStruk\V_DataStruk.csproj">
-      <Project>{C2C84BBA-4CBD-4DA1-9E1E-F9C964196206}</Project>
-      <Name>V_DataStruk</Name>
+    <ProjectReference Include="..\..\NUnit_Unofficial\NUnit_Unofficial\NUnit_Unofficial.csproj">
+      <Project>{8379E588-F5E8-4F0B-B68A-AD492652472F}</Project>
+      <Name>NUnit_Unofficial</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\V_Mathematics\V_Mathematics\V_Mathematics.csproj">
       <Project>{05D49FA0-CBF3-40D6-B92C-F2D71A0EB587}</Project>
       <Name>V_Mathematics</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Notes\ToDo.txt" />
+    <ProjectReference Include="..\V_Imaging\V_Imaging.csproj">
+      <Project>{FCDE5554-1553-43C4-9554-C1281484CD84}</Project>
+      <Name>V_Imaging</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
