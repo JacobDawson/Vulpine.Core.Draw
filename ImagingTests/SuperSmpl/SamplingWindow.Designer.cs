@@ -74,6 +74,7 @@
             "Jittred",
             "PoissonA",
             "PoissonB",
+            "PoissonKD",
             "PoissonDisk*",
             "HexGrid"});
             this.cboMethod.Location = new System.Drawing.Point(13, 33);

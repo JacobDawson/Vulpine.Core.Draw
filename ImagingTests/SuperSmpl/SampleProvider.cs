@@ -7,6 +7,7 @@ using Vulpine.Core.Data.Queues;
 using Vulpine.Core.Calc;
 using Vulpine.Core.Calc.Geometry;
 using Vulpine.Core.Calc.RandGen;
+using Vulpine.Core.Calc.Data;
 
 namespace ImagingTests.SuperSmpl
 {
@@ -146,6 +147,82 @@ namespace ImagingTests.SuperSmpl
                         processes.PushFront(can);
                         samples.PushFront(can);
                         yield return can;
+                    }
+                }
+            }
+
+        }
+
+        private const int ReBuild = 256; //64
+
+        public static IEnumerable<Point2D> GetPoissonKD(int c, int k)
+        {
+            Deque<Point2D> processes = new DequeArray<Point2D>(c);
+            Deque<Point2D> samples = new DequeArray<Point2D>(c);
+            TreeVector<Point2D> tree = new TreeKD<Point2D>(2);
+
+            double mindist = 0.75 / Math.Sqrt(c);
+            int count = 0;
+
+            double u = rng.RandDouble(0.25, 0.75);
+            double v = rng.RandDouble(0.25, 0.75);
+
+            //starts the process in the dead center
+            Point2D p0 = new Point2D(0.5, 0.5);
+            processes.PushBack(p0);
+            //samples.PushBack(p0);
+            tree.Add(p0, p0);
+            yield return p0;
+
+            //int count = 0;
+
+            tree.Build();
+
+            while (!processes.Empty && (count < c))
+            {
+                Point2D samp = processes.PopFront();
+
+                for (int i = 0; i < k; i++)
+                {
+                    //selects a point in the neighborhood of our current sample
+                    //Point2D can = rng.PointCircle(samp, mindist, mindist * 2.0);
+                    double dist = rng.RandDouble(mindist, mindist * 2.0);
+                    Point2D can = samp + (Point2D)(rng.RandUnit(2) * dist);
+                    bool fail = false;
+
+                    //tests for inclusion in the unit square
+                    fail |= (can.X < 0.0) | (can.X > 1.0);
+                    fail |= (can.Y < 0.0) | (can.Y > 1.0);
+
+                    //uses the KD-Tree to check the nearest point
+                    Point2D near = tree.GetNearest(can).Value;
+                    fail |= (near.Dist(can) < mindist);
+
+                    if (!fail)
+                    {
+                        //tests agenst EACH POINT for min distance
+                        foreach (Point2D p in samples)
+                        {
+                            fail |= (p.Dist(can) < mindist);
+                            if (fail) break;
+                        }
+                    }
+
+                    //adds the canidate if it passes
+                    if (!fail)
+                    {
+                        processes.PushFront(can);
+                        samples.PushBack(can);
+                        tree.Add(can, can);
+
+                        count++;
+                        yield return can;
+
+                        if (samples.Count > ReBuild)
+                        {
+                            samples.Clear();
+                            tree.Build();
+                        }                       
                     }
                 }
             }

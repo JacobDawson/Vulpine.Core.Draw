@@ -47,10 +47,12 @@
     <Compile Include="Image.cs" />
     <Compile Include="Images\ImageColor64.cs" />
     <Compile Include="Images\ImageBasic.cs" />
+    <Compile Include="Images\ImagePallet8.cs" />
     <Compile Include="Images\ImageSystem.cs" />
     <Compile Include="Images\ImageVector.cs" />
     <Compile Include="Images\ImageGrey16.cs" />
     <Compile Include="Images\PixelFormat.cs" />
+    <Compile Include="Pallet.cs" />
     <Compile Include="Pixel.cs" />
     <Compile Include="RenderEventArgs.cs" />
     <Compile Include="Texture3D.cs" />

@@ -253,6 +253,34 @@ namespace Vulpine.Core.Draw
         #region Factory Methods...
 
         /// <summary>
+        /// Creates a new color from a point in the corisponding color space.
+        /// </summary>
+        /// <param name="v">A point inside a color space</param>
+        /// <param name="cs">The color space being sampled</param>
+        /// <returns>The desired color</returns>
+        public static Color FromVector(Vector v, ColorSpace cs)
+        {
+            //extracts the individual compoents of the vector
+            double v0 = v.GetExtended(0);
+            double v1 = v.GetExtended(1);
+            double v2 = v.GetExtended(3);
+
+            switch (cs)
+            {
+                //converts the color to the desired color space
+                case ColorSpace.RGB: return FromRGB(v0, v1, v2);
+                case ColorSpace.HSL: return FromHSL(v0, v1, v2);
+                case ColorSpace.HSV: return FromHSV(v0, v1, v2);
+                case ColorSpace.YUV: return FromYUV(v0, v1, v2);
+                case ColorSpace.XYZ: return FromXYZ(v0, v1, v2);
+                case ColorSpace.LAB: return FromLAB(v0, v1, v2);
+
+                //we default to RGB if no other color space is valid
+                default: return FromRGB(v0, v1, v2);
+            }
+        }
+
+        /// <summary>
         /// Construct a new color given it's RGB color space cordinates. All values
         /// are clamped to be within the range of zero to one.
         /// </summary>
@@ -550,6 +578,29 @@ namespace Vulpine.Core.Draw
         #endregion //////////////////////////////////////////////////////////////////
 
         #region Conversion Methods...
+
+        /// <summary>
+        /// Generates a representaiton of the color as a vector in the desired
+        /// color space.
+        /// </summary>
+        /// <param name="cs">The color space to sample into</param>
+        /// <returns>A vector representaton in the desired color space</returns>
+        public Vector ToVector(ColorSpace cs)
+        {
+            switch (cs)
+            {
+                //converts the color to the desired color space
+                case ColorSpace.RGB: return ToRGB();
+                case ColorSpace.HSL: return ToHSL();
+                case ColorSpace.HSV: return ToHSV();
+                case ColorSpace.YUV: return ToYUV();
+                case ColorSpace.XYZ: return ToXYZ();
+                case ColorSpace.LAB: return ToLAB();
+
+                //by default we convert to RGB if no other space applys
+                default: return ToRGB();
+            }
+        }
 
         /// <summary>
         /// Generates a representaiton of the color as a vector in the RGB color

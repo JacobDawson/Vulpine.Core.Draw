@@ -155,7 +155,7 @@ namespace Vulpine.Core.Draw.Textures
             //invokes the complex function
             Cmplx z = func.Invoke(new Cmplx(x, y));
 
-            if (z.IsInfinity() || z.Abs > Limit)
+            if (z.IsInfinity()) // || z.Abs > Limit)
             {
                 //returns white if we are close to a pole
                 return new Color(1.0, 1.0, 1.0);

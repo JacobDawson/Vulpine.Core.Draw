@@ -210,6 +210,66 @@ namespace Vulpine.Core.Draw
         Lanczos = 5,
     }
 
+    /// <summary>
+    /// Enumerates the vairieus diffrent color spaces that colors can be organised into.
+    /// This can be thought of as a sort of color format, though it dose not include things
+    /// like how many bits per channel should be stored. Diffrent collor spaces are useful
+    /// in diffrent applications, as they allow color to be interpreted in diffrent ways.
+    /// In particular, distances between colors are not the same in all spaces.
+    /// </summary>
+    public enum ColorSpace
+    {
+        /// <summary>
+        /// This is the standard, default color space used by most digital systems. It
+        /// divides colors into red, green, and blue components. This is based on the fact 
+        /// that human eyes have three cones, sensitive to red, green, and blue light. 
+        /// All other color spaces are defined in terms of this one.
+        /// </summary>
+        RGB = 0,
+
+        /// <summary>
+        /// This color space tries to match how humans perceve color, phychologicaly. It
+        /// measures color based on saturation (how washed out or vibrant it is) and 
+        /// value (how bright or dark it is) It also measures a cylical hue component
+        /// which stores the actual cormatic data.
+        /// </summary>
+        HSV = 1,
+
+        /// <summary>
+        /// This is a similar color space to HSV, though it differs in how the saturation
+        /// is computed. Luminance, like value, ranges from dark to light, but a fully 
+        /// luminant color is completly white. This works out better for some computer 
+        /// imaging applications, otherwise it is a personal preference.
+        /// </summary>
+        HSL = 2,
+
+        /// <summary>
+        /// This color space seperates the overall luminance (or brightness) of the color
+        /// from the cromatic informaiton. This is mostly useful for image compression,
+        /// as the human eye is less sensitive to changes in color than it is to changes
+        /// in brightness. 
+        /// </summary>
+        YUV = 3,
+
+        /// <summary>
+        /// A scientificly determined color space, based on how humans pereceve color. 
+        /// Real XYZ space takes into account things like illumination and viewing
+        /// conditions, which are only aproximated here. Tipicaly, this color space is
+        /// only used as an intermediat step in converstion to other color spaces.
+        /// </summary>
+        XYZ = 4,
+
+        /// <summary>
+        /// A scientificly determined color space, ment to be perceptualy uniform. That is,
+        /// pairs of colors which apear the same, should be more or less the same distance
+        /// apart. For that reason, this space gives the best results when interpolating
+        /// or mixing colors. Unfortunatly it is also the most dificult space to compute.
+        /// </summary>
+        LAB = 5,
+
+        
+    }
+
 
 }
 

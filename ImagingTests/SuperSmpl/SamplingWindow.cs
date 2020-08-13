@@ -58,8 +58,10 @@ namespace ImagingTests.SuperSmpl
                 case 3:
                     return SampleProvider.GetPoissonB(n * n, k);
                 case 4:
-                    return SampleProvider.GetPoissonDisk(1.0 / delta);
+                    return SampleProvider.GetPoissonKD(n * n, k);
                 case 5:
+                    return SampleProvider.GetPoissonDisk(1.0 / delta);
+                case 6:
                     return SampleProvider.GetHex(n);
                 default:
                     return SampleProvider.GetRandom(n * n);
