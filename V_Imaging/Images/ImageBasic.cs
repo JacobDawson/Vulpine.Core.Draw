@@ -40,6 +40,8 @@ namespace Vulpine.Core.Draw.Images
     /// <remarks>Last Update: 2019-04-04</remarks>
     public class ImageBasic : Image
     {
+        #region Class Definitions...
+
         //remembers the width and height of the image
         private int width;
         private int height;
@@ -87,6 +89,8 @@ namespace Vulpine.Core.Draw.Images
 
             data = new byte[width * height * bite_size];
         }
+
+        #endregion //////////////////////////////////////////////////////////////
 
         #region Class Properties...
 

@@ -51,6 +51,9 @@ namespace Vulpine.Core.Draw.Textures
         //refrences the method of interpolation
         private Intpol method;
 
+        //determins the maximum dimentions of the image
+        private double smax;
+
         //determins if the image should be tiled
         private bool tiled;
 
@@ -62,8 +65,10 @@ namespace Vulpine.Core.Draw.Textures
         public Interpolent(Image raster)
         {
             this.raster = raster;
-            this.method = Intpol.Default;
+            this.method = Intpol.Default;          
             this.tiled = false;
+
+            this.smax = Math.Max(raster.Width, raster.Height);
         }
 
         /// <summary>
@@ -77,6 +82,8 @@ namespace Vulpine.Core.Draw.Textures
             this.raster = raster;
             this.method = method;
             this.tiled = false;
+
+            this.smax = Math.Max(raster.Width, raster.Height);
         }
 
         /// <summary>
@@ -92,6 +99,8 @@ namespace Vulpine.Core.Draw.Textures
             this.raster = raster;
             this.method = method;
             this.tiled = tiled;
+
+            this.smax = Math.Max(raster.Width, raster.Height);
         }
 
         #endregion ///////////////////////////////////////////////////////////////////////
@@ -144,9 +153,13 @@ namespace Vulpine.Core.Draw.Textures
         /// <returns>The color sampled at the given point</returns>
         public Color Sample(double u, double v)
         {
+            ////scales the UV cordinates as appropriate
+            //double x = (1.0 + u) * raster.Width * 0.5;
+            //double y = (1.0 - v) * raster.Height * 0.5;
+
             //scales the UV cordinates as appropriate
-            double x = (1.0 + u) * raster.Width * 0.5;
-            double y = (1.0 - v) * raster.Height * 0.5;
+            double x = (((double)raster.Width / smax) + u) * smax * 0.5;
+            double y = (((double)raster.Height / smax) - v) * smax * 0.5;
 
             //obtains the desired sub-pixel
             return GetSubPixel(x, y);
@@ -163,6 +176,11 @@ namespace Vulpine.Core.Draw.Textures
         /// <returns>The color sampled at the given point</returns>
         public Color GetSubPixel(double x, double y)
         {
+            //this implements masking
+            Color trans = new Color(0.0, 0.0, 0.0, 0.0);
+            if (x < 0.0 || x > raster.Width) return trans;
+            if (y < 0.0 || y > raster.Height) return trans;
+
             //determins which method to use
             switch (method)
             {

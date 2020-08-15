@@ -13,6 +13,12 @@ using Vulpine.Core.Calc.Data;
 
 namespace Vulpine.Core.Draw
 {
+    /// <summary>
+    /// Pallets are, most smimply, a finite collection of colors. However, pallets 
+    /// also allow for other colors to be searched for, returning the closest matching
+    /// color within the pallet. This is essential for palatizing and image, ie 
+    /// converting all the colors withing an image to conform to a given pallet.
+    /// </summary>
     public class Pallet : IEnumerable<Color>
     {
         #region Class Deffinitions...
@@ -65,9 +71,6 @@ namespace Vulpine.Core.Draw
             //adds each of the collors to the pallet
             for (int i = 0; i < count; i++)
                 AddColor(colors[i]);
-
-            //pre-builds the search tree
-            pallet.Build();
         }
 
         /// <summary>
@@ -76,10 +79,10 @@ namespace Vulpine.Core.Draw
         /// </summary>
         /// <param name="space">Color space for the pallet</param>
         /// <param name="colors">The colors of the pallet</param>
-        public Pallet(ColorSpace space, params Color[] colors)
+        public Pallet(ColorSpace space, IEnumerable<Color> colors)
         {
             //determins the number of collors used
-            int count = colors.Length;
+            int count = colors.Count();
 
             //sets up the data structurs
             this.format = space;
@@ -87,11 +90,25 @@ namespace Vulpine.Core.Draw
             this.pallet = new TreeKD<Int32>(3);
 
             //adds each of the collors to the pallet
-            for (int i = 0; i < count; i++)
-                AddColor(colors[i]);
+            foreach (Color c in colors) AddColor(c);
+        }
 
-            //pre-builds the search tree
-            pallet.Build();
+        /// <summary>
+        /// Creates a copy of a given pallet.
+        /// </summary>
+        /// <param name="other">Pallet to copy</param>
+        public Pallet(Pallet other)
+        {
+            //determins the number of collors used
+            int count = other.collors.Count;
+
+            //sets up the data structurs
+            this.format = other.format;
+            this.collors = new VListArray<Color>(count);
+            this.pallet = new TreeKD<Int32>(3);
+
+            //adds each of the collors to the pallet
+            foreach (Color c in other.collors) AddColor(c);
         }
 
         #endregion /////////////////////////////////////////////////////////////////
@@ -188,6 +205,16 @@ namespace Vulpine.Core.Draw
         {
             //simply defers to the list of collors
             return collors.GetEnumerator();
+        }
+
+        /// <summary>
+        /// Builds the pallet. Normaly this dose not need to be called,
+        /// but it can save some overhead if called before using the pallet.
+        /// </summary>
+        public void BuildPalet()
+        {
+            //rebuilds the pallet, if nessary
+            if (pallet.BuildRequired) pallet.Build();
         }
 
         #endregion /////////////////////////////////////////////////////////////////

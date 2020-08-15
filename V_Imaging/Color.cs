@@ -253,6 +253,27 @@ namespace Vulpine.Core.Draw
         #region Factory Methods...
 
         /// <summary>
+        /// Creates a new color, represented by the 24-bit RGB standard, where each
+        /// of the red, green, and blue components are 8-bit values in the range of
+        /// 0 to 255. Values given outside this range are clamped to fit.
+        /// </summary>
+        /// <param name="r">Red chanel ranging form 0 to 255</param>
+        /// <param name="g">Green channel ranging from 0 to 255</param>
+        /// <param name="b">Blue channel ranging from 0 to 255</param>
+        /// <returns>The New Color</returns>
+        public static Color FromRGB24(int r, int g, int b)
+        {
+            //divides each input by 255
+            double rf = r / 255.0;
+            double gf = g / 255.0;
+            double bf = b / 255.0;
+
+            //returns the new color, clamped
+            return new Color(r, g, b);
+        }
+
+
+        /// <summary>
         /// Creates a new color from a point in the corisponding color space.
         /// </summary>
         /// <param name="v">A point inside a color space</param>

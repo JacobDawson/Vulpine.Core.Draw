@@ -47,7 +47,7 @@
     <Compile Include="Image.cs" />
     <Compile Include="Images\ImageColor64.cs" />
     <Compile Include="Images\ImageBasic.cs" />
-    <Compile Include="Images\ImagePallet8.cs" />
+    <Compile Include="Images\ImagePallet.cs" />
     <Compile Include="Images\ImageSystem.cs" />
     <Compile Include="Images\ImageVector.cs" />
     <Compile Include="Images\ImageGrey16.cs" />
@@ -77,6 +77,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Notes\IdeasForInterpolent.txt" />
     <Content Include="Notes\ToDo.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

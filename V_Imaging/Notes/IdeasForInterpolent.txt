@@ -1,0 +1,67 @@
+﻿
+
+- I think that Tileablility should be a property of the Image class. For several reasons:
+
+  - There are several methods which depend on tileablity, apart form interpolation. Such as
+    applying filters (convolution cernals) and computing the foyier transform.
+
+  - It dosen't NEED to be handled in the interpolent class, which cuts down on the number
+    of things the interpolent class needs to track.
+
+  - It really IS a property of the image, as tilablility depends entierly on the image
+    in question, and it's apearance.
+
+  - The only downside is that every sub-class of image would need to suport this feature.
+    Which may amount to simply including aditional constructors.
+	
+
+- Things I want to add to Interpolent:
+
+  - A mask or border property, to determin what should happen when sampeling points that
+    lie outside the bounds of the internal image. 
+
+	- Note this is diffrent from tileablilty, as interpolation itself depends upon
+	  weather the image is tilable or not.
+
+	- This is better served as part of the Interpolent class, so that we don't have to
+	  waist any time interpolating data that lies outside the internal image.
+
+  - Some sort of gamma correction option. This is important, because interpolation ultemently
+    involves the blending of colors, and colors blend more smoothly when gama is taken into
+	account. Basicly it should adjust the gamma before interpolating, then turn it back after.
+
+	- Alternitivly, we could spesify the color space to use for interpolation. Interpolating
+	  in XYZ or LAB has the same bonus as adjusting gamma, but is much more expensive. Its
+	  unclear why someone might want to interpolate in HSL or YUV.
+
+  - Premultiplying Alpha: I'm not as shure about this one. Basicly my whole library assumes
+    that alpha is premultiplied. However, not all sorces may be premultiplied. Adding this
+	to Interpolent allows it to multiply the alphas before interpolating. However this
+	may be better built into the Image class, or one of it's sub clases.
+
+  - Output Selection: I had this one in my old notes, but I'm not shure why I wanted it.
+    I think the idea was that, if we only wanted one of the channels, we dident need to waist
+	time interpolating the other channels. For instance if we only cared about the grayscale
+	values we could just interpolate those, and not the full RGB values.
+
+	- This might be more usefull once I get into combining textures, and using texturs for
+	  diffrent things, such as bump maps in ray tracing.
+
+	- It feels like it might be a bit overkill, since all colors have 4 values, regardless of
+	  what they are ment to represent. Though it could give significant savings if you are
+	  interpolating a bunch of textures using Sinc3 or something.
+
+	- Selection from old notes: RGB, RGBA, Alpha, Luma, YUV?
+
+
+- The main thing I want to change for the Interpolation class is to keep it from distorting
+  the input image. In the past, it scaled the image to fit inside the unit square, by scaling
+  both the X and Y axis. However, this distorts the image by streaching it.
+
+  - Idealy I would like to scale the image so that it fits inside the unit square without
+    streaching. This seems like an ideal starting point, since textures are ment to be
+	independent of scale.
+	
+  - However what if I actualy want to streach the image? Like what if I want to resise an
+    image by wraping it in a texture, and rendering it out to another image? I don't see
+	how this is presently possable without having the image fill the texture space. 
