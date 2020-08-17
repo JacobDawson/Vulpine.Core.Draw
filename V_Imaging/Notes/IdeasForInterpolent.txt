@@ -54,6 +54,10 @@
 	- Selection from old notes: RGB, RGBA, Alpha, Luma, YUV?
 
 
+======================================================================================================
+
+
+
 - The main thing I want to change for the Interpolation class is to keep it from distorting
   the input image. In the past, it scaled the image to fit inside the unit square, by scaling
   both the X and Y axis. However, this distorts the image by streaching it.
@@ -65,3 +69,27 @@
   - However what if I actualy want to streach the image? Like what if I want to resise an
     image by wraping it in a texture, and rendering it out to another image? I don't see
 	how this is presently possable without having the image fill the texture space. 
+
+
+- As an alternit idea, I could change the way that Render works. In order to make the source
+  image fit inside the target, we need to be able to compare their aspect ratios. This would
+  require textures to pass along their aspect ratio information. 
+
+  - Most textures though are infinite in scope, so assining an aspect ratio to them seems dubious.
+    Perhaps a scale factor would be more apropriate? Most textures would have a scale factor of
+	1:1, but this could be used to indicate that an image has been distorted.
+
+  - Many, many diffrent classes could potentialy be interpreted as textures, which is why I
+    decided to make Texture an interface. To make it easy to implement, I would like to
+	keep the interface as simple as possable. And most textures just don't need a scale factor.
+
+
+- I could set it up so that the user determins if the texture is scaled on the X axis, or the
+  Y axis, or both, similar to what is done for Renderer. This would make fitting the source
+  image to the target possable, but is still rather complicated, and requires configuing both
+  the Interpolent and the Renderer
+
+  - I think it's better to have a signle universal convention for the UV cordinates, that way
+    for any method that accepts a texture, you pretty much know what the UV cordinates mean. 
+
+  - I don't like adding superflous features to the Interpolent class.

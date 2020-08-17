@@ -51,7 +51,7 @@ namespace Vulpine.Core.Draw.Textures
         //refrences the method of interpolation
         private Intpol method;
 
-        //determins the maximum dimentions of the image
+        //determins the maximum scale of the image
         private double smax;
 
         //determins if the image should be tiled
@@ -68,7 +68,7 @@ namespace Vulpine.Core.Draw.Textures
             this.method = Intpol.Default;          
             this.tiled = false;
 
-            this.smax = Math.Max(raster.Width, raster.Height);
+            this.smax = Math.Min(raster.Width, raster.Height);
         }
 
         /// <summary>
@@ -83,7 +83,7 @@ namespace Vulpine.Core.Draw.Textures
             this.method = method;
             this.tiled = false;
 
-            this.smax = Math.Max(raster.Width, raster.Height);
+            this.smax = Math.Min(raster.Width, raster.Height);
         }
 
         /// <summary>
@@ -100,7 +100,7 @@ namespace Vulpine.Core.Draw.Textures
             this.method = method;
             this.tiled = tiled;
 
-            this.smax = Math.Max(raster.Width, raster.Height);
+            this.smax = Math.Min(raster.Width, raster.Height);
         }
 
         #endregion ///////////////////////////////////////////////////////////////////////
@@ -153,13 +153,13 @@ namespace Vulpine.Core.Draw.Textures
         /// <returns>The color sampled at the given point</returns>
         public Color Sample(double u, double v)
         {
-            ////scales the UV cordinates as appropriate
-            //double x = (1.0 + u) * raster.Width * 0.5;
-            //double y = (1.0 - v) * raster.Height * 0.5;
-
             //scales the UV cordinates as appropriate
-            double x = (((double)raster.Width / smax) + u) * smax * 0.5;
-            double y = (((double)raster.Height / smax) - v) * smax * 0.5;
+            double x = (1.0 + u) * raster.Width * 0.5;
+            double y = (1.0 - v) * raster.Height * 0.5;
+
+            ////scales the UV cordinates as appropriate
+            //double x = ((double)raster.Width + smax * u) * 0.5;
+            //double y = ((double)raster.Height - smax * v) * 0.5;
 
             //obtains the desired sub-pixel
             return GetSubPixel(x, y);

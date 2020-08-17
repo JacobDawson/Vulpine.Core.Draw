@@ -269,7 +269,7 @@ namespace Vulpine.Core.Draw
             double bf = b / 255.0;
 
             //returns the new color, clamped
-            return new Color(r, g, b);
+            return new Color(rf, gf, bf);
         }
 
 
