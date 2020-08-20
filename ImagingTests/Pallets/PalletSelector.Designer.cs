@@ -43,7 +43,10 @@
             this.btnFloyd = new System.Windows.Forms.Button();
             this.lblAmount = new System.Windows.Forms.Label();
             this.cmbAmount = new System.Windows.Forms.ComboBox();
+            this.pnlBorder2 = new System.Windows.Forms.Panel();
+            this.pnlPallet = new System.Windows.Forms.Panel();
             this.pnlBorder1.SuspendLayout();
+            this.pnlBorder2.SuspendLayout();
             this.SuspendLayout();
             // 
             // barProgress
@@ -65,7 +68,7 @@
             this.pnlBorder1.Controls.Add(this.pnlCanvas);
             this.pnlBorder1.Location = new System.Drawing.Point(283, 3);
             this.pnlBorder1.Name = "pnlBorder1";
-            this.pnlBorder1.Size = new System.Drawing.Size(480, 513);
+            this.pnlBorder1.Size = new System.Drawing.Size(480, 480);
             this.pnlBorder1.TabIndex = 24;
             // 
             // pnlCanvas
@@ -74,7 +77,7 @@
             this.pnlCanvas.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pnlCanvas.Location = new System.Drawing.Point(0, 0);
             this.pnlCanvas.Name = "pnlCanvas";
-            this.pnlCanvas.Size = new System.Drawing.Size(476, 509);
+            this.pnlCanvas.Size = new System.Drawing.Size(476, 476);
             this.pnlCanvas.TabIndex = 0;
             // 
             // txtFileName
@@ -109,7 +112,25 @@
             "Warm Colors",
             "Cool Colors",
             "Skintones",
-            "Hair Color"});
+            "Hair Color",
+            "CGA-1",
+            "CGA-2",
+            "EGA",
+            "NTSC Artifact",
+            "NTSC Artifact G-R-Y",
+            "NTSC Artifact C-M-W",
+            "CGA-3",
+            "CGA-4",
+            "Apple II",
+            "Macintosh",
+            "Gameboy",
+            "NES",
+            "Mario Paint",
+            "MC Wool",
+            "MC Clay",
+            "MC Stone",
+            "MC Wood",
+            "MC Wood Plus"});
             this.cmbPallet.Location = new System.Drawing.Point(5, 87);
             this.cmbPallet.Name = "cmbPallet";
             this.cmbPallet.Size = new System.Drawing.Size(272, 21);
@@ -158,7 +179,7 @@
             // 
             this.lblTime.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.lblTime.AutoSize = true;
-            this.lblTime.Location = new System.Drawing.Point(17, 486);
+            this.lblTime.Location = new System.Drawing.Point(17, 441);
             this.lblTime.Name = "lblTime";
             this.lblTime.Size = new System.Drawing.Size(54, 13);
             this.lblTime.TabIndex = 33;
@@ -167,7 +188,7 @@
             // btnSave
             // 
             this.btnSave.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.btnSave.Location = new System.Drawing.Point(5, 435);
+            this.btnSave.Location = new System.Drawing.Point(5, 390);
             this.btnSave.Name = "btnSave";
             this.btnSave.Size = new System.Drawing.Size(272, 34);
             this.btnSave.TabIndex = 34;
@@ -213,10 +234,31 @@
             this.cmbAmount.Size = new System.Drawing.Size(272, 21);
             this.cmbAmount.TabIndex = 38;
             // 
+            // pnlBorder2
+            // 
+            this.pnlBorder2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.pnlBorder2.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.pnlBorder2.Controls.Add(this.pnlPallet);
+            this.pnlBorder2.Location = new System.Drawing.Point(5, 487);
+            this.pnlBorder2.Name = "pnlBorder2";
+            this.pnlBorder2.Size = new System.Drawing.Size(758, 29);
+            this.pnlBorder2.TabIndex = 39;
+            // 
+            // pnlPallet
+            // 
+            this.pnlPallet.BackColor = System.Drawing.Color.White;
+            this.pnlPallet.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.pnlPallet.Location = new System.Drawing.Point(0, 0);
+            this.pnlPallet.Name = "pnlPallet";
+            this.pnlPallet.Size = new System.Drawing.Size(754, 25);
+            this.pnlPallet.TabIndex = 0;
+            // 
             // PalletSelector
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.Controls.Add(this.pnlBorder2);
             this.Controls.Add(this.cmbAmount);
             this.Controls.Add(this.lblAmount);
             this.Controls.Add(this.btnFloyd);
@@ -234,6 +276,7 @@
             this.Name = "PalletSelector";
             this.Size = new System.Drawing.Size(770, 550);
             this.pnlBorder1.ResumeLayout(false);
+            this.pnlBorder2.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -256,5 +299,7 @@
         private System.Windows.Forms.Button btnFloyd;
         private System.Windows.Forms.Label lblAmount;
         private System.Windows.Forms.ComboBox cmbAmount;
+        private System.Windows.Forms.Panel pnlBorder2;
+        private System.Windows.Forms.Panel pnlPallet;
     }
 }

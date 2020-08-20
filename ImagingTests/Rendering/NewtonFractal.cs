@@ -31,7 +31,7 @@ namespace ImagingTests.Rendering
                 dx => 4.0 * dx * dx * dx,
                 new Cmplx(u, v));
 
-            if (result.Count < MAX)
+            if (result.Iterations < MAX)
             {
                 double hue = 0.0;        
                 double x = result.Value.CofR;
@@ -48,7 +48,7 @@ namespace ImagingTests.Rendering
                     else hue = 180.0; //blue
                 }
 
-                double val = result.Count / (double)MAX;
+                double val = result.Iterations / (double)MAX;
                 return Color.FromHSV(hue, 1.0, 1.0 - val);
 
             }

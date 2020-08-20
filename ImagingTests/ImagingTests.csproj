@@ -58,6 +58,12 @@
     <Compile Include="Pallets\PalletSelector.Designer.cs">
       <DependentUpon>PalletSelector.cs</DependentUpon>
     </Compile>
+    <Compile Include="Pallets\Quantization.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Pallets\Quantization.Designer.cs">
+      <DependentUpon>Quantization.cs</DependentUpon>
+    </Compile>
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -94,6 +100,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Pallets\PalletSelector.resx">
       <DependentUpon>PalletSelector.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Pallets\Quantization.resx">
+      <DependentUpon>Quantization.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

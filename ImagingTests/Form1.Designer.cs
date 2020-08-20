@@ -30,18 +30,21 @@
         {
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
-            this.tabPage2 = new System.Windows.Forms.TabPage();
-            this.tabPage3 = new System.Windows.Forms.TabPage();
             this.samplingWindow1 = new ImagingTests.SuperSmpl.SamplingWindow();
+            this.tabPage2 = new System.Windows.Forms.TabPage();
             this.renderingWindow1 = new ImagingTests.Rendering.RenderingWindow();
+            this.tabPage3 = new System.Windows.Forms.TabPage();
             this.resampeling1 = new ImagingTests.Resampeling.Resampeling();
             this.tabPage4 = new System.Windows.Forms.TabPage();
             this.palletSelector1 = new ImagingTests.Pallets.PalletSelector();
+            this.tabPage5 = new System.Windows.Forms.TabPage();
+            this.quantization1 = new ImagingTests.Pallets.Quantization();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tabPage2.SuspendLayout();
             this.tabPage3.SuspendLayout();
             this.tabPage4.SuspendLayout();
+            this.tabPage5.SuspendLayout();
             this.SuspendLayout();
             // 
             // tabControl1
@@ -50,6 +53,7 @@
             this.tabControl1.Controls.Add(this.tabPage2);
             this.tabControl1.Controls.Add(this.tabPage3);
             this.tabControl1.Controls.Add(this.tabPage4);
+            this.tabControl1.Controls.Add(this.tabPage5);
             this.tabControl1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tabControl1.Location = new System.Drawing.Point(0, 0);
             this.tabControl1.Name = "tabControl1";
@@ -68,6 +72,14 @@
             this.tabPage1.Text = "Sampeling";
             this.tabPage1.UseVisualStyleBackColor = true;
             // 
+            // samplingWindow1
+            // 
+            this.samplingWindow1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.samplingWindow1.Location = new System.Drawing.Point(3, 3);
+            this.samplingWindow1.Name = "samplingWindow1";
+            this.samplingWindow1.Size = new System.Drawing.Size(770, 530);
+            this.samplingWindow1.TabIndex = 0;
+            // 
             // tabPage2
             // 
             this.tabPage2.Controls.Add(this.renderingWindow1);
@@ -79,6 +91,15 @@
             this.tabPage2.Text = "Anti-Ailising";
             this.tabPage2.UseVisualStyleBackColor = true;
             // 
+            // renderingWindow1
+            // 
+            this.renderingWindow1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.renderingWindow1.Location = new System.Drawing.Point(3, 3);
+            this.renderingWindow1.Name = "renderingWindow1";
+            this.renderingWindow1.Size = new System.Drawing.Size(770, 530);
+            this.renderingWindow1.TabIndex = 0;
+            this.renderingWindow1.Load += new System.EventHandler(this.renderingWindow1_Load);
+            // 
             // tabPage3
             // 
             this.tabPage3.Controls.Add(this.resampeling1);
@@ -88,23 +109,6 @@
             this.tabPage3.TabIndex = 2;
             this.tabPage3.Text = "Resampeling";
             this.tabPage3.UseVisualStyleBackColor = true;
-            // 
-            // samplingWindow1
-            // 
-            this.samplingWindow1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.samplingWindow1.Location = new System.Drawing.Point(3, 3);
-            this.samplingWindow1.Name = "samplingWindow1";
-            this.samplingWindow1.Size = new System.Drawing.Size(770, 530);
-            this.samplingWindow1.TabIndex = 0;
-            // 
-            // renderingWindow1
-            // 
-            this.renderingWindow1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.renderingWindow1.Location = new System.Drawing.Point(3, 3);
-            this.renderingWindow1.Name = "renderingWindow1";
-            this.renderingWindow1.Size = new System.Drawing.Size(770, 530);
-            this.renderingWindow1.TabIndex = 0;
-            this.renderingWindow1.Load += new System.EventHandler(this.renderingWindow1_Load);
             // 
             // resampeling1
             // 
@@ -132,6 +136,24 @@
             this.palletSelector1.Size = new System.Drawing.Size(776, 536);
             this.palletSelector1.TabIndex = 0;
             // 
+            // tabPage5
+            // 
+            this.tabPage5.Controls.Add(this.quantization1);
+            this.tabPage5.Location = new System.Drawing.Point(4, 22);
+            this.tabPage5.Name = "tabPage5";
+            this.tabPage5.Size = new System.Drawing.Size(776, 536);
+            this.tabPage5.TabIndex = 4;
+            this.tabPage5.Text = "Quantization";
+            this.tabPage5.UseVisualStyleBackColor = true;
+            // 
+            // quantization1
+            // 
+            this.quantization1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.quantization1.Location = new System.Drawing.Point(0, 0);
+            this.quantization1.Name = "quantization1";
+            this.quantization1.Size = new System.Drawing.Size(776, 536);
+            this.quantization1.TabIndex = 0;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -145,6 +167,7 @@
             this.tabPage2.ResumeLayout(false);
             this.tabPage3.ResumeLayout(false);
             this.tabPage4.ResumeLayout(false);
+            this.tabPage5.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -160,6 +183,8 @@
         private Resampeling.Resampeling resampeling1;
         private System.Windows.Forms.TabPage tabPage4;
         private Pallets.PalletSelector palletSelector1;
+        private System.Windows.Forms.TabPage tabPage5;
+        private Pallets.Quantization quantization1;
     }
 }
 

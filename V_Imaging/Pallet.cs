@@ -19,7 +19,7 @@ namespace Vulpine.Core.Draw
     /// color within the pallet. This is essential for palatizing and image, ie 
     /// converting all the colors withing an image to conform to a given pallet.
     /// </summary>
-    public class Pallet : IEnumerable<Color>
+    public class Pallet : Texture, IEnumerable<Color>
     {
         #region Class Deffinitions...
 
@@ -65,6 +65,21 @@ namespace Vulpine.Core.Draw
 
             //sets up the data structurs
             this.format = ColorSpace.RGB;
+            this.collors = new VListArray<Color>(count);
+            this.pallet = new TreeKD<Int32>(3);
+
+            //adds each of the collors to the pallet
+            for (int i = 0; i < count; i++)
+                AddColor(colors[i]);
+        }
+
+        public Pallet(ColorSpace space, params Color[] colors)
+        {
+            //determins the number of collors used
+            int count = colors.Length;
+
+            //sets up the data structurs
+            this.format = space;
             this.collors = new VListArray<Color>(count);
             this.pallet = new TreeKD<Int32>(3);
 
@@ -219,8 +234,30 @@ namespace Vulpine.Core.Draw
 
         #endregion /////////////////////////////////////////////////////////////////
 
+        #region Texture Implementation...
+
+        /// <summary>
+        /// Renders the pallet as a series of vertical color stripes.
+        /// </summary>
+        /// <param name="u">The U texture cordinate</param>
+        /// <param name="v">The V texture cordinate</param>
+        /// <returns>The color sampled at the given point</returns>
+        public Color Sample(double u, double v)
+        {
+            int nc = collors.Count;
+
+            double loc = (u + 1.0) * 0.5;
+            loc = (loc * nc); // +0.5;
+ 
+            int index = (int)Math.Floor(loc);
+            index = ((index % nc) + nc) % nc;
+            return collors[index];
+        }
+
+        #endregion /////////////////////////////////////////////////////////////////
+
         IEnumerator IEnumerable.GetEnumerator()
         { return collors.GetEnumerator(); }
-
+        
     }
 }
