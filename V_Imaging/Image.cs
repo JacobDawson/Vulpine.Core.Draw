@@ -47,6 +47,29 @@ namespace Vulpine.Core.Draw
     /// <remarks>Last Update: 2015-10-08</remarks>
     public abstract class Image : IEnumerable<Pixel>
     {
+        #region Class Definitions...
+
+        //Stores the constents used in Floyd-Steinberg dithering
+        private const double FS_0 = 7.0 / 16.0;
+        private const double FS_1 = 3.0 / 16.0;
+        private const double FS_2 = 5.0 / 16.0;
+        private const double FS_3 = 1.0 / 16.0;
+
+        //Stores the Bayer Matrix used for dithering
+        private static readonly byte[] bayer =
+        {
+            00, 48, 12, 60, 03, 51, 15, 63,
+            32, 16, 44, 28, 35, 19, 47, 31,
+            08, 56, 04, 52, 11, 59, 07, 55,
+            40, 24, 36, 20, 43, 27, 39, 23,
+            02, 50, 14, 62, 01, 49, 13, 61,
+            34, 18, 46, 30, 33, 17, 45, 29,
+            10, 58, 06, 54, 09, 57, 05, 53,
+            42, 26, 38, 22, 41, 25, 37, 21,
+        };
+
+        #endregion //////////////////////////////////////////////////////////////
+
         #region Class Properties...
 
         /// <summary>
@@ -271,6 +294,41 @@ namespace Vulpine.Core.Draw
             }
         }
 
+        public void FillDither(Image data, double amount)
+        {
+            //checks that the image is wrightable
+            if (this.IsReadOnly) throw new InvalidOperationException();
+
+            //computes the intersection of both images
+            int w = Math.Min(this.Width, data.Width);
+            int h = Math.Min(this.Height, data.Height);
+
+            //fills the image with new data
+            for (int i = 0; i < h; i++)
+            {
+                for (int j = 0; j < w; j++)
+                {
+                    //obtains the offset from the bayer matrix
+                    int index = (j % 8) + (i % 8) * 8;
+                    double offset = (double)bayer[index];
+                    offset = (offset / 64.0) - 0.5;
+
+                    //offset = offset * (1.0 / 1.0); //0.125;
+                    offset = offset * VMath.Clamp(amount);
+
+                    //extracts the color with the given offset
+                    Color c = data.GetPixelInit(j, i);
+                    double r = c.Red + offset;
+                    double g = c.Green + offset;
+                    double b = c.Blue + offset;
+
+                    //applies the offset color to the image
+                    Color cn = Color.FromRGB(r, g, b);
+                    this.SetPixelInit(j, i, cn);
+                }
+            }
+        }
+
         public void FillDitherFS(Image data)
         {
             //checks that the image is wrightable
@@ -321,30 +379,10 @@ namespace Vulpine.Core.Draw
 
                     //obtains the relitive error between the pixels
                     cp = this.GetPixelInit(j, i);
-                    //r = r - cp.Red;
-                    //g = g - cp.Green;
-                    //b = b - cp.Blue;
 
                     r = c.Red - cp.Red;
                     g = c.Green - cp.Green;
                     b = c.Blue - cp.Blue;
-
-                    ////defuses the error to the neighboring pixels
-                    //r0_error[j + 1] += r * FS_0;
-                    //r1_error[j - 1] += r * FS_1;
-                    //r1_error[j + 0] += r * FS_2;
-                    //r1_error[j + 1] += r * FS_3;
-
-                    //g0_error[j + 1] += g * FS_0;
-                    //g1_error[j - 1] += g * FS_1;
-                    //g1_error[j + 0] += g * FS_2;
-                    //g1_error[j + 1] += g * FS_3;
-
-                    //b0_error[j + 1] += b * FS_0;
-                    //b1_error[j - 1] += b * FS_1;
-                    //b1_error[j + 0] += b * FS_2;
-                    //b1_error[j + 1] += b * FS_3;
-
 
                     if (j > 0)
                     {
@@ -384,220 +422,6 @@ namespace Vulpine.Core.Draw
                 }
             }
         }
-
-        //Stores the constents used in Floyd-Steinberg dithering
-        private const double FS_0 = 7.0 / 16.0;
-        private const double FS_1 = 3.0 / 16.0;
-        private const double FS_2 = 5.0 / 16.0;
-        private const double FS_3 = 1.0 / 16.0;
-
-        //Stores the Bayer Matrix used for dithering
-        private static readonly byte[] bayer =
-        {
-            00, 48, 12, 60, 03, 51, 15, 63,
-            32, 16, 44, 28, 35, 19, 47, 31,
-            08, 56, 04, 52, 11, 59, 07, 55,
-            40, 24, 36, 20, 43, 27, 39, 23,
-            02, 50, 14, 62, 01, 49, 13, 61,
-            34, 18, 46, 30, 33, 17, 45, 29,
-            10, 58, 06, 54, 09, 57, 05, 53,
-            42, 26, 38, 22, 41, 25, 37, 21,
-        };
-
-        public void FillDither(Image data, double amount)
-        {
-            //checks that the image is wrightable
-            if (this.IsReadOnly) throw new InvalidOperationException();
-
-            //computes the intersection of both images
-            int w = Math.Min(this.Width, data.Width);
-            int h = Math.Min(this.Height, data.Height);
-
-            //fills the image with new data
-            for (int i = 0; i < h; i++)
-            {
-                for (int j = 0; j < w; j++)
-                {
-                    //obtains the offset from the bayer matrix
-                    int index = (j % 8) + (i % 8) * 8;
-                    double offset = (double)bayer[index];
-                    offset = (offset / 64.0) - 0.5;
-
-                    //offset = offset * (1.0 / 1.0); //0.125;
-                    offset = offset * VMath.Clamp(amount);
-
-                    //extracts the color with the given offset
-                    Color c = data.GetPixelInit(j, i);
-                    double r = c.Red + offset;
-                    double g = c.Green + offset;
-                    double b = c.Blue + offset;
-
-                    //applies the offset color to the image
-                    Color cn = Color.FromRGB(r, g, b);
-                    this.SetPixelInit(j, i, cn);
-                }
-            }
-        }
-
-        private static readonly double[] JJN =
-        {
-            0.0, 0.0, 0.0, 7.0, 5.0,
-            3.0, 5.0, 7.0, 5.0, 3.0,
-            1.0, 3.0, 5.0, 3.0, 1.0,
-        };
-
-        public void FillDitherJJN(Image data)
-        {
-            //checks that the image is wrightable
-            if (this.IsReadOnly) throw new InvalidOperationException();
-
-            //computes the intersection of both images
-            int w = Math.Min(this.Width, data.Width);
-            int h = Math.Min(this.Height, data.Height);
-
-            //uses an array to store the cumulative errors
-            double[] r0_error = new double[w];
-            double[] g0_error = new double[w];
-            double[] b0_error = new double[w];
-
-            double[] r1_error = new double[w];
-            double[] g1_error = new double[w];
-            double[] b1_error = new double[w];
-
-            double[] r2_error = new double[w];
-            double[] g2_error = new double[w];
-            double[] b2_error = new double[w];
-
-            double r, g, b;
-
-            //initialises the error values to zero
-            for (int i = 0; i < w; i++)
-            {
-                r0_error[i] = 0.0;
-                g0_error[i] = 0.0;
-                b0_error[i] = 0.0;
-
-                r1_error[i] = 0.0;
-                g1_error[i] = 0.0;
-                b1_error[i] = 0.0;
-
-                r2_error[i] = 0.0;
-                g2_error[i] = 0.0;
-                b2_error[i] = 0.0;
-            }
-
-            for (int i = 0; i < h; i++)
-            {
-                for (int j = 0; j < w; j++)
-                {
-                    //extracts the color information from the source
-                    Color c = data.GetPixelInit(j, i);
-
-                    //shifts the color by the computed error
-                    r = c.Red + r0_error[j];
-                    g = c.Green + g0_error[j];
-                    b = c.Blue + b0_error[j];
-
-                    //sets the corrected color into the image
-                    Color cp = Color.FromRGB(r, g, b);
-                    this.SetPixelInit(j, i, cp);
-
-                    //obtains the relitive error between the pixels
-                    cp = this.GetPixelInit(j, i);
-                    //r = r - cp.Red;
-                    //g = g - cp.Green;
-                    //b = b - cp.Blue;
-
-                    r = c.Red - cp.Red;
-                    g = c.Green - cp.Green;
-                    b = c.Blue - cp.Blue;
-
-                    for (int k = 0; k < 5; k++)
-                    {
-                        //computes the offset index
-                        int jp = j + (k - 2);
-                        if (jp < 0 || jp >= w) continue;
-
-                        r0_error[jp] += r * JJN[k + 0] / 48.0;
-                        r1_error[jp] += r * JJN[k + 5] / 48.0;
-                        r2_error[jp] += r * JJN[k + 10] / 48.0;
-
-                        g0_error[jp] += g * JJN[k + 0] / 48.0;
-                        g1_error[jp] += g * JJN[k + 5] / 48.0;
-                        g2_error[jp] += g * JJN[k + 10] / 48.0;
-
-                        b0_error[jp] += b * JJN[k + 0] / 48.0;
-                        b1_error[jp] += b * JJN[k + 5] / 48.0;
-                        b2_error[jp] += b * JJN[k + 10] / 48.0;
-                    }
-
-                }
-
-                for (int j = 0; j < w; j++)
-                {
-                    //coppies one row up
-                    r0_error[j] = r1_error[j];
-                    g0_error[j] = g1_error[j];
-                    b0_error[j] = b1_error[j];
-
-                    //coppies one row up
-                    r1_error[j] = r2_error[j];
-                    g1_error[j] = g2_error[j];
-                    b1_error[j] = b2_error[j];
-
-                    //clears the next row
-                    r2_error[j] = 0.0;
-                    g2_error[j] = 0.0;
-                    b2_error[j] = 0.0;
-                }
-            }
-        }
-
-
-        //Stores the Bayer Matrix used for dithering
-        private static readonly byte[] bayer2 =
-        {
-            00, 08, 02, 10,
-            12, 04, 14, 06, 
-            03, 11, 01, 09,
-            15, 07, 13, 05,
-        };
-
-        public void FillDither2(Image data, double amount)
-        {
-            //checks that the image is wrightable
-            if (this.IsReadOnly) throw new InvalidOperationException();
-
-            //computes the intersection of both images
-            int w = Math.Min(this.Width, data.Width);
-            int h = Math.Min(this.Height, data.Height);
-
-            //fills the image with new data
-            for (int i = 0; i < h; i++)
-            {
-                for (int j = 0; j < w; j++)
-                {
-                    //obtains the offset from the bayer matrix
-                    int index = (j % 4) + (i % 4) * 4;
-                    double offset = (double)bayer2[index];
-                    offset = (offset / 16.0) - 0.5;
-
-                    //offset = offset * (1.0 / 1.0); //0.125;
-                    offset = offset * VMath.Clamp(amount);
-
-                    //extracts the color with the given offset
-                    Color c = data.GetPixelInit(j, i);
-                    double r = c.Red + offset;
-                    double g = c.Green + offset;
-                    double b = c.Blue + offset;
-
-                    //applies the offset color to the image
-                    Color cn = Color.FromRGB(r, g, b);
-                    this.SetPixelInit(j, i, cn);
-                }
-            }
-        }
-
 
         #endregion //////////////////////////////////////////////////////////////
 

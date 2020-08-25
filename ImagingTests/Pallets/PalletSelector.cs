@@ -88,7 +88,7 @@ namespace ImagingTests.Pallets
             double amount = GetAmount();
 
             pimage = new ImagePallet(source.Width, source.Height, pallet);
-            pimage.FillDither2(source, amount);
+            pimage.FillDither(source, amount);
 
             Interpolent intpol = new Interpolent(pimage, Intpol.Nearest);
             ren.Render(intpol, myimage);
@@ -102,8 +102,7 @@ namespace ImagingTests.Pallets
         {
             Pallet pallet = GetPallet();
             pimage = new ImagePallet(source.Width, source.Height, pallet);
-            //pimage.FillDitherFS(source);
-            pimage.FillDitherJJN(source);
+            pimage.FillDitherFS(source);
 
             Interpolent intpol = new Interpolent(pimage, Intpol.Nearest);
             ren.Render(intpol, myimage);

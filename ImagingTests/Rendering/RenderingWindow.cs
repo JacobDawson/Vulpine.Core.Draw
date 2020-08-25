@@ -59,7 +59,8 @@ namespace ImagingTests.Rendering
                     t = new ComplexTestPatern();
                     break;
                 case 2:
-                    t = ColorWheel.Modulated;
+                    //t = ColorWheel.Modulated;
+                    t = ColorWheel.Normal;
                     break;
                 case 3:
                     //pano = Resources.Panorama01;

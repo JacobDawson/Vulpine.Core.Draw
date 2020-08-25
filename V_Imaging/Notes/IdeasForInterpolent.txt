@@ -93,3 +93,66 @@
     for any method that accepts a texture, you pretty much know what the UV cordinates mean. 
 
   - I don't like adding superflous features to the Interpolent class.
+
+
+======================================================================================================
+
+Decisions:
+
+- Consider renaming Interpolent to TextureImage.
+
+- Add Tileing / Mirroring options to the Image class, as this is important for image filters and
+  foyer analisis.
+
+- Masking will be part of the Interpolent / TextureImage class.
+
+- The user should determin the scaling of an Interpolent / TestureImage in the same way they do
+  for the renderer [ScaleX, ScaleY, Strech]
+
+- The default scaling option for Interpolent / TestureImage should probably be Strech, since this
+  is what Interpolent curently dose, it offers the best backwards compatablity.
+
+- Don't worry about alpha values for now. Instead continue on the assumption that ALL alpha values
+  are premultiplied. We may need to add a Premultiply option to ImageSytem in the future.
+
+- I might as well add Output Selection to Interpolent / TextureImage, as it dosen't relly hurt
+  anything and it's better to add it now rather than latter.
+
+- I still need to think more on gamma correction:
+
+
+======================================================================================================
+
+Regarding Gamma:
+
+- There are two possabilities to consider: One is making gamma a part of Interpolent / TextureImage and
+  simply leaving it at that. The other is making it a part of Image, requiring that all floating-point
+  Colors be gamma scaled. The latter is considerably more work, but is is worth it?
+
+- For the most part, adding gamma correction to Interpolent / TextureImage should be suffiecen. Gamma
+  bleed usualy only occors during interpolation. So once we can sample an image as a continious texture,
+  we no longer need to worry about gamma bleed.
+
+- There may be other casses where having correct gamma values could be benificial. It is unclear how
+  gamma correction could affect filters that use convolution cernals. Any time two values are compared,
+  for example finding the distance or midpoint between two colors, it's arguably better to have gamma
+  corected values.
+
+- This would already change things like Pallets, where the answer to "what is the closest color" would
+  be diffrent with gamma corrected values, and could potentialy lead to better results.
+
+- Other collor spaces would change as well. HSL and HSV would then be gamma-corrected HSL and HSV. Curently
+  there are sharp peeks in hue for Yellow, Cyan, and Magenta. Would gamma-correction allow for a smoother
+  gradient of hues? - No.
+
+- The definition for XYZ space would need to change. Since it requires gamma correct values from the get-go
+  it includes a form of gamma correction in the conversion from RGB to XYZ. However if the RGB values are
+  already gamma correct, this step becomes redundant and should be removed.
+
+- The whole reason gamma values exist, is because humans precieve luminance on a logrythmic scale. However
+  most image information is stored in descreet bits. To get the most value out of those bits, it's more
+  economic to store the log of the luminance, than the actual luminance. However, this is not an issue
+  with floating point values. Since floating point values have a logrythimic scale built in, (there are
+  more floating poitn values near zero than one) we can simply store the luminance values directly. 
+
+- From my exprements with the color wheel I think it's clear that I should not implement gamma.

@@ -139,6 +139,9 @@ namespace Vulpine.Core.Draw.Textures
             double lum = (-1.0 / (r + 1.0)) + 1.0;
 
             return Color.FromHSL(hue, 1.0, lum);
+
+            //Color c = Color.FromHSL(hue, 1.0, lum);
+            //return c.SetGamma(1.0 / 2.22);
         }
 
         /// <summary>
