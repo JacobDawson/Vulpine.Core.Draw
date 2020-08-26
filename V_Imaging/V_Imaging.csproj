@@ -48,7 +48,6 @@
     <Compile Include="Images\ImageBasic.cs" />
     <Compile Include="Images\ImagePallet.cs" />
     <Compile Include="Images\ImageSystem.cs" />
-    <Compile Include="Images\ImageVector.cs" />
     <Compile Include="Images\PixelFormat.cs" />
     <Compile Include="Pallet.cs" />
     <Compile Include="Pixel.cs" />

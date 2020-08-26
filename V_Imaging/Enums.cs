@@ -302,6 +302,13 @@ namespace Vulpine.Core.Draw
         /// are not tileable.
         /// </summary>
         MirrorXY = 3,
+
+        /// <summary>
+        /// This is the default setting which should work for all images, regardless
+        /// of tileability. Of course tileable images will preform better if they
+        /// are explicity makred as tileable.
+        /// </summary>
+        Default = MirrorXY,
     }
 
 

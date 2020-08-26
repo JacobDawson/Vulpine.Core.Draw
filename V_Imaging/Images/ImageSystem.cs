@@ -55,22 +55,12 @@ namespace Vulpine.Core.Draw.Images
         private object key;
 
         /// <summary>
-        /// Creates a new wrapper for a curently existing bitmap resorce.
-        /// </summary>
-        /// <param name="bmp">Curent bitmap</param>
-        public ImageSystem(Bitmap bmp)
-        {
-            this.bmp = bmp;
-            key = new object();
-        }
-
-        /// <summary>
         /// Creates a new wrapper for a curently existing bitmap resorce
         /// and assigns it the given tileability.
         /// </summary>
         /// <param name="bmp">Curent bitmap</param>
         /// <param name="ext">Tileability of the image</param>
-        public ImageSystem(Bitmap bmp, ImageExt ext)
+        public ImageSystem(Bitmap bmp, ImageExt ext = ImageExt.Default)
         {
             this.bmp = bmp;
             key = new object();
@@ -79,23 +69,12 @@ namespace Vulpine.Core.Draw.Images
         }       
 
         /// <summary>
-        /// Loads a given image file from disk, creates a system bitmap for
-        /// that image file, and wraps it inside this wrapper class.
-        /// </summary>
-        /// <param name="file">Location to load</param>
-        public ImageSystem(string file)
-        {
-            bmp = new Bitmap(file);
-            key = new object();
-        }
-
-        /// <summary>
         /// Loads a given image file from disk, creates a system image for
         /// that image file, and assigns it the given tileability.
         /// </summary>
         /// <param name="file">Location to load</param>
         /// <param name="ext">Tileability of the image</param>
-        public ImageSystem(string file, ImageExt ext)
+        public ImageSystem(string file, ImageExt ext = ImageExt.Default)
         {
             bmp = new Bitmap(file);
             key = new object();
@@ -109,10 +88,13 @@ namespace Vulpine.Core.Draw.Images
         /// </summary>
         /// <param name="width">Width of the bitmap in pixels</param>
         /// <param name="height">Height of the bitmap in pixels</param>
-        public ImageSystem(int width, int height)
+        /// <param name="ext">Tileability of the image</param>
+        public ImageSystem(int width, int height, ImageExt ext = ImageExt.Default)
         {
             bmp = new Bitmap(width, height, SPixel.Format32bppArgb);
             key = new object();
+
+            base.SetTileability(ext);
         }
 
         /// <summary>

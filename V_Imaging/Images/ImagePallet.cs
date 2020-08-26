@@ -32,34 +32,6 @@ namespace Vulpine.Core.Draw.Images
         //determins if transparent colors are stored
         private bool trans;
 
-        ///// <summary>
-        ///// Constructs a new palleted image, with the given witdth, height,
-        ///// and color pallet. Transparent colors are not included.
-        ///// </summary>
-        ///// <param name="width">Width of the image</param>
-        ///// <param name="height">Height of the image</param>
-        ///// <param name="pallet">Color pallet for the image</param>
-        //public ImagePallet(int width, int height, Pallet pallet)
-        //{
-        //    //checks that we can actualy represent all the colors
-        //    if (pallet.NumColors > 255) 
-        //        throw new InvalidOperationException();
-
-        //    //sets the width and the height
-        //    this.width = width;
-        //    this.height = height;
-        //    this.trans = false;
-
-        //    //creates the array to store the data
-        //    data = new byte[width * height];
-
-        //    //makes an internal copy of the pallet
-        //    this.pallet = new Pallet(pallet);
-
-        //    //pre-builds the pallet
-        //    this.pallet.BuildPalet();
-        //}
-
         /// <summary>
         /// Constructs a new palleted image, with the given witdth, height,
         /// and color pallet. Transparent pixels may optionaly be stored
@@ -71,7 +43,7 @@ namespace Vulpine.Core.Draw.Images
         /// <param name="trans">True to store transparent pixels</param>
         /// <param name="ext">Tileability of the image</param>
         public ImagePallet(int width, int height, Pallet pallet, 
-            bool trans = false, ImageExt ext = ImageExt.MirrorXY)
+            bool trans = false, ImageExt ext = ImageExt.Default)
         {
             //checks that we can actualy represent all the colors
             int colors = pallet.NumColors + (trans ? 1 : 0);
