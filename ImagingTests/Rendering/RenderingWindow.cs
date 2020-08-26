@@ -24,7 +24,7 @@ namespace ImagingTests.Rendering
         //NOTE: This is a test for Github, please ignore
         //NOTE: Change line 214 to test multithreading
 
-        ImageSys myimage;
+        ImageSystem myimage;
         Renderor ren;
 
         public RenderingWindow()
@@ -46,7 +46,7 @@ namespace ImagingTests.Rendering
             Texture t = new AliasTestPatern();
 
             ImageSystem bmp;
-            ImageColor64 pano;
+            ImageBasic pano;
             Interpolent ipo;
 
 
@@ -65,16 +65,16 @@ namespace ImagingTests.Rendering
                 case 3:
                     //pano = Resources.Panorama01;
                     bmp = new Bitmap(Resources.TestSuite + "Panorama01.jpg");
-                    pano = new ImageColor64(bmp.Width, bmp.Height);
-                    pano.FillData(bmp);
+                    //pano = new ImageBasic(bmp.Width, bmp.Height, PixelFormat.Rgb48);
+                    //pano.FillData(bmp);
 
-                    ipo = new Interpolent(pano, Intpol.BiLiniar);
+                    ipo = new Interpolent(bmp, Intpol.BiLiniar);
                     t = new Stereograph(ipo);
                     break;
                 case 4:
                     //pano = Resources.Panorama02;
                     bmp = new Bitmap(Resources.TestSuite + "Panorama02.jpg");
-                    pano = new ImageColor64(bmp.Width, bmp.Height);
+                    pano = new ImageBasic(bmp.Width, bmp.Height, PixelFormat.Rgb48);
                     pano.FillData(bmp);
 
                     ipo = new Interpolent(pano, Intpol.BiLiniar);

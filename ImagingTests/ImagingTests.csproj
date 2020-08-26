@@ -75,7 +75,6 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Rendering\AliasTestPatern.cs" />
-    <Compile Include="ImageSys.cs" />
     <Compile Include="Rendering\RenderingWindow.cs">
       <SubType>UserControl</SubType>
     </Compile>

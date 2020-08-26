@@ -68,6 +68,23 @@ namespace Vulpine.Core.Draw
             42, 26, 38, 22, 41, 25, 37, 21,
         };
 
+        //determins how to extend the image
+        private bool tile_x;
+        private bool tile_y;
+
+        public Image()
+        {
+            //uses the default values
+            tile_x = false;
+            tile_y = false;
+        }
+
+        public Image(ImageExt ext)
+        {
+            //calls the set method
+            SetTileability(ext);
+        }
+
         #endregion //////////////////////////////////////////////////////////////
 
         #region Class Properties...
@@ -100,6 +117,16 @@ namespace Vulpine.Core.Draw
         }
 
         /// <summary>
+        /// Determins if the image is tilable or not, along either the x or y
+        /// axis, or both, or if the image should be mirrored instead.
+        /// </summary>
+        public ImageExt Tileability
+        {
+            get { return GetTileability(); }
+            set { SetTileability(value); }
+        }
+
+        /// <summary>
         /// Accesses the pixels of the image by column and row. See the GetPixel()
         /// and SetPixel() methods for more details.
         /// </summary>
@@ -110,7 +137,7 @@ namespace Vulpine.Core.Draw
         {
             get { return GetPixel(col, row); }
             set { SetPixel(col, row, value); }
-        }
+        }       
 
         #endregion //////////////////////////////////////////////////////////////
 
@@ -129,9 +156,13 @@ namespace Vulpine.Core.Draw
             int dw = Width;
             int dh = Height;
 
-            //computes the true modulous of the width and height
-            int dx = ((col % dw) + dw) % dw;
-            int dy = ((row % dh) + dh) % dh;
+            ////computes the true modulous of the width and height
+            //int dx = ((col % dw) + dw) % dw;
+            //int dy = ((row % dh) + dh) % dh;
+
+            //recalculates the index based on the images tileability
+            int dx = Recal(col, dw, tile_x);
+            int dy = Recal(row, dh, tile_y);
 
             //queries the abstract method
             return GetPixelInit(dx, dy);
@@ -161,6 +192,53 @@ namespace Vulpine.Core.Draw
 
             //queries the abstract method
             SetPixelInit(dx, dy, color);
+        }
+
+        /// <summary>
+        /// Determins the tileability of the current image. That is whether or not
+        /// the image can be tiled allong the x axis, or the y axis, or both.
+        /// </summary>
+        /// <returns>The tileability of the image</returns>
+        public ImageExt GetTileability()
+        {
+            if (tile_x)
+            {
+                if (tile_y) return ImageExt.TileXY;
+                else return ImageExt.TileX_MirrorY;
+            }
+            else
+            {
+                if (tile_y) return ImageExt.MirrorX_TileY;
+                else return ImageExt.MirrorXY;
+            }
+        }
+
+        /// <summary>
+        /// Sets the tileability of the current image. That is whether or not
+        /// the image can be tiled allong the x axis, or the y axis, or both.
+        /// </summary>
+        /// <param name="ext">Tileability of the image</param>
+        public void SetTileability(ImageExt ext)
+        {
+            switch (ext)
+            {
+                case ImageExt.TileXY:
+                    tile_x = true;
+                    tile_y = true;
+                    return;
+                case ImageExt.TileX_MirrorY:
+                    tile_x = true;
+                    tile_y = false;
+                    return;
+                case ImageExt.MirrorX_TileY:
+                    tile_x = false;
+                    tile_y = true;
+                    return;
+                default:
+                    tile_x = false;
+                    tile_y = false;
+                    return;
+            }
         }
 
         /// <summary>
@@ -424,6 +502,23 @@ namespace Vulpine.Core.Draw
         }
 
         #endregion //////////////////////////////////////////////////////////////
+
+        /// <summary>
+        /// Helper method, used to recalculate the pixel index when trying
+        /// to access data outside the bounds of the image.
+        /// </summary>
+        /// <param name="x">Value to recalculate</param>
+        /// <param name="max">Maximum value the value can take</param>
+        /// <param name="tiled">True if tieling should be used</param>
+        /// <returns>The recaluclated value</returns>
+        private int Recal(int x, int max, bool tiled)
+        {
+            int dw = tiled ? max : max + max;
+            int dx = ((x % dw) + dw) % dw;
+            if (dx >= max) dx = dw - dx - 1;
+
+            return dx;
+        }
 
         IEnumerator IEnumerable.GetEnumerator()
         { return GetEnumerator(); }

@@ -90,6 +90,27 @@ namespace Vulpine.Core.Draw.Images
             data = new byte[width * height * bite_size];
         }
 
+        /// <summary>
+        /// Creates a new basic image with the given width and heright, using
+        /// the desired pixle format, and sets the tileability of the image. 
+        /// </summary>
+        /// <param name="width">Width in pixels</param>
+        /// <param name="height">Height in pixels</param>
+        /// <param name="format">Desired pixel format</param>
+        /// <param name="ext">Tileability of the image</param>
+        public ImageBasic(int width, int height, PixelFormat format, ImageExt ext)
+        {
+            this.width = width;
+            this.height = height;
+
+            base.SetTileability(ext);
+
+            bite_size = format.BitDepth / 8;
+            this.format = format;
+
+            data = new byte[width * height * bite_size];
+        }
+
         #endregion //////////////////////////////////////////////////////////////
 
         #region Class Properties...

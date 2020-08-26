@@ -54,8 +54,8 @@ namespace Vulpine.Core.Draw.Textures
         //determins the maximum scale of the image
         private double smax;
 
-        //determins if the image should be tiled
-        private bool tiled;
+        ////determins if the image should be tiled
+        //private bool tiled;
 
         /// <summary>
         /// Constructs a new Interpolated Texture, using the given source
@@ -66,7 +66,7 @@ namespace Vulpine.Core.Draw.Textures
         {
             this.raster = raster;
             this.method = Intpol.Default;          
-            this.tiled = false;
+            //this.tiled = false;
 
             this.smax = Math.Min(raster.Width, raster.Height);
         }
@@ -81,27 +81,27 @@ namespace Vulpine.Core.Draw.Textures
         {
             this.raster = raster;
             this.method = method;
-            this.tiled = false;
+            //this.tiled = false;
 
             this.smax = Math.Min(raster.Width, raster.Height);
         }
 
-        /// <summary>
-        /// Constructs a new Interpolated Texture, using the given image and
-        /// interpolation method to generate it's data. It will tile the
-        /// image indefinatly if tiled is set to true.
-        /// </summary>
-        /// <param name="raster">Source image to interpolate</param>
-        /// <param name="method">Method used for interpolation</param>
-        /// <param name="tiled">Set to true for tiled images</param>
-        public Interpolent(Image raster, Intpol method, bool tiled)
-        {
-            this.raster = raster;
-            this.method = method;
-            this.tiled = tiled;
+        ///// <summary>
+        ///// Constructs a new Interpolated Texture, using the given image and
+        ///// interpolation method to generate it's data. It will tile the
+        ///// image indefinatly if tiled is set to true.
+        ///// </summary>
+        ///// <param name="raster">Source image to interpolate</param>
+        ///// <param name="method">Method used for interpolation</param>
+        ///// <param name="tiled">Set to true for tiled images</param>
+        //public Interpolent(Image raster, Intpol method, bool tiled)
+        //{
+        //    this.raster = raster;
+        //    this.method = method;
+        //    this.tiled = tiled;
 
-            this.smax = Math.Min(raster.Width, raster.Height);
-        }
+        //    this.smax = Math.Min(raster.Width, raster.Height);
+        //}
 
         #endregion ///////////////////////////////////////////////////////////////////////
 
@@ -131,13 +131,13 @@ namespace Vulpine.Core.Draw.Textures
             get { return method; }
         }
 
-        /// <summary>
-        /// Determins if the curent texture is tileable
-        /// </summary>
-        public bool Tiled
-        {
-            get { return tiled; }
-        }
+        ///// <summary>
+        ///// Determins if the curent texture is tileable
+        ///// </summary>
+        //public bool Tiled
+        //{
+        //    get { return tiled; }
+        //}
 
         #endregion ///////////////////////////////////////////////////////////////////////
 
@@ -176,10 +176,10 @@ namespace Vulpine.Core.Draw.Textures
         /// <returns>The color sampled at the given point</returns>
         public Color GetSubPixel(double x, double y)
         {
-            //this implements masking
-            Color trans = new Color(0.0, 0.0, 0.0, 0.0);
-            if (x < 0.0 || x > raster.Width) return trans;
-            if (y < 0.0 || y > raster.Height) return trans;
+            ////this implements masking
+            //Color trans = new Color(0.0, 0.0, 0.0, 0.0);
+            //if (x < 0.0 || x > raster.Width) return trans;
+            //if (y < 0.0 || y > raster.Height) return trans;
 
             //determins which method to use
             switch (method)
@@ -328,10 +328,12 @@ namespace Vulpine.Core.Draw.Textures
         /// <returns>The color of the desired pixel</returns>
         private Color GetPixel(int x, int y)
         {
-            int dx = Recal(x, raster.Width, tiled);
-            int dy = Recal(y, raster.Height, tiled);
+            //int dx = Recal(x, raster.Width, tiled);
+            //int dy = Recal(y, raster.Height, tiled);
 
-            return raster.GetPixel(dx, dy);
+            //return raster.GetPixel(dx, dy);
+
+            return raster.GetPixel(x, y);
         }
 
         /// <summary>

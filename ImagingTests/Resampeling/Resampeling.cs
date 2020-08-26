@@ -37,7 +37,7 @@ namespace ImagingTests.Resampeling
             AppendTextDelegate = (this.AppendText);
         }
 
-        private Bitmap GetBitmap()
+        private ImageSystem GetBitmap()
         {
             string file = "Checkerboard.png";
             //Bitmap img = Resources.Checkerboard;
@@ -72,42 +72,47 @@ namespace ImagingTests.Resampeling
 
             //return (Bitmap)Bitmap.FromFile(Resources.TestSuite + file);
 
-            return new Bitmap(Resources.TestSuite + file);
+            //return new Bitmap(Resources.TestSuite + file);
+
+            bool tile = cboTileable.Checked;
+            ImageExt ext = tile ? ImageExt.TileXY : ImageExt.MirrorXY;
+            return new ImageSystem(Resources.TestSuite + file, ext);
         }
 
-        private Texture GetInterpolent(Bitmap bmp)
+        private Texture GetInterpolent(ImageSystem bmp)
         {
             bool tile = cboTileable.Checked;
+            ImageExt ext = tile ? ImageExt.TileXY : ImageExt.MirrorXY;
             //ImageSys img = new ImageSys(bmp);
 
-            ImageBasic img = new ImageBasic(bmp.Width, bmp.Height, Format);
+            ImageBasic img = new ImageBasic(bmp.Width, bmp.Height, Format, ext);
             img.FillData((ImageSystem)bmp);
 
             //ImageSystem img = new ImageSystem(bmp.Width, bmp.Height);
             //img.FillData((ImageSystem)bmp);
 
-            Interpolent ipo = new Interpolent(img, Intpol.Default, tile);
+            Interpolent ipo = new Interpolent(bmp, Intpol.Default);
             
 
             switch (cboInterp.SelectedIndex)
             {
                 case 0:
-                    ipo = new Interpolent(img, Intpol.Nearest, tile);
+                    ipo = new Interpolent(bmp, Intpol.Nearest);
                     break;
                 case 1:
-                    ipo = new Interpolent(img, Intpol.BiLiniar, tile);
+                    ipo = new Interpolent(bmp, Intpol.BiLiniar);
                     break;
                 case 2:
-                    ipo = new Interpolent(img, Intpol.BiCubic, tile);
+                    ipo = new Interpolent(bmp, Intpol.BiCubic);
                     break;
                 case 3:
-                    ipo = new Interpolent(img, Intpol.Catrom, tile);
+                    ipo = new Interpolent(bmp, Intpol.Catrom);
                     break;
                 case 4:
-                    ipo = new Interpolent(img, Intpol.Mitchel, tile);
+                    ipo = new Interpolent(bmp, Intpol.Mitchel);
                     break;
                 case 5:
-                    ipo = new Interpolent(img, Intpol.Sinc3, tile);
+                    ipo = new Interpolent(bmp, Intpol.Sinc3);
                     break;
             }
 
@@ -128,7 +133,7 @@ namespace ImagingTests.Resampeling
 
         private void RenderThumbnail()
         {
-            Bitmap thumb = GetBitmap();
+            Bitmap thumb = (Bitmap)GetBitmap();
             Graphics gfx = pnlOriginal.CreateGraphics();
             gfx.DrawImage(thumb, 0, 0, thumb.Width, thumb.Height);
             gfx.Dispose();
@@ -136,7 +141,7 @@ namespace ImagingTests.Resampeling
 
         private void RenderImage()
         {
-            Bitmap bmp = GetBitmap();
+            ImageSystem bmp = GetBitmap();
             Texture t = GetInterpolent(bmp);
             Renderor r = GetRenderor();
 
@@ -246,7 +251,7 @@ namespace ImagingTests.Resampeling
 
             barProgress.Value = 0;
             barProgress.Refresh();
-            Bitmap bmp = GetBitmap();
+            ImageSystem bmp = GetBitmap();
             Texture t = GetInterpolent(bmp);
             Renderor r = GetRenderor();
             object[] data = { t, r };

@@ -265,9 +265,43 @@ namespace Vulpine.Core.Draw
         /// apart. For that reason, this space gives the best results when interpolating
         /// or mixing colors. Unfortunatly it is also the most dificult space to compute.
         /// </summary>
-        LAB = 5,
+        LAB = 5,       
+    }
 
-        
+    /// <summary>
+    /// Many opperations, like convolution or interpolation require accessing data that
+    /// lies outside the bounds of an image. The best way to handel these litteral edge
+    /// cases, is to artificialy extend the image beyond it's bounds, either by tiling
+    /// or reflecting the image in both directions.
+    /// </summary>
+    public enum ImageExt
+    {
+        /// <summary>
+        /// This setting tiles the image indefinatly along both direcitons. It should
+        /// only be used if the image can be tiled witout causing unwanted artifacts.
+        /// </summary>
+        TileXY = 0,
+
+        /// <summary>
+        /// This setting tiles the image indefinatly in the horizontal direction, and
+        /// mirrors the image in the virtical direction. This is usefull for images
+        /// that are tilable, but only in the horizontal direction.
+        /// </summary>
+        TileX_MirrorY = 1,
+
+        /// <summary>
+        /// This setting tiles the image indefinatly in the vertical direction, and
+        /// mirrors the image in the horizontal direction. This is usefull for images
+        /// that are tilable, but only in the vertical direction.
+        /// </summary>
+        MirrorX_TileY = 2,
+
+        /// <summary>
+        /// This setting makes mirroed copies of the image in both horizontal and
+        /// vertical directions. This is the prefered setting for all images which
+        /// are not tileable.
+        /// </summary>
+        MirrorXY = 3,
     }
 
 

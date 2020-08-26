@@ -52,9 +52,9 @@ namespace Vulpine.Core.Draw.Images
         //an object used for locking the bitmap
         private object key;
 
-        //stores the dimentions of the image
-        private int width;
-        private int height;
+        ////stores the dimentions of the image
+        //private int width;
+        //private int height;
 
         /// <summary>
         /// Creates a new wrapper for a curently existing bitmap resorce.
@@ -63,10 +63,46 @@ namespace Vulpine.Core.Draw.Images
         public ImageSystem(Bitmap bmp)
         {
             this.bmp = bmp;
-
             key = new object();
-            width = bmp.Width;
-            height = bmp.Height;
+        }
+
+        /// <summary>
+        /// Creates a new wrapper for a curently existing bitmap resorce
+        /// and assigns it the given tileability.
+        /// </summary>
+        /// <param name="bmp">Curent bitmap</param>
+        /// <param name="ext">Tileability of the image</param>
+        public ImageSystem(Bitmap bmp, ImageExt ext)
+        {
+            this.bmp = bmp;
+            key = new object();
+
+            base.SetTileability(ext);
+        }       
+
+        /// <summary>
+        /// Loads a given image file from disk, creates a system bitmap for
+        /// that image file, and wraps it inside this wrapper class.
+        /// </summary>
+        /// <param name="file">Location to load</param>
+        public ImageSystem(string file)
+        {
+            bmp = new Bitmap(file);
+            key = new object();
+        }
+
+        /// <summary>
+        /// Loads a given image file from disk, creates a system image for
+        /// that image file, and assigns it the given tileability.
+        /// </summary>
+        /// <param name="file">Location to load</param>
+        /// <param name="ext">Tileability of the image</param>
+        public ImageSystem(string file, ImageExt ext)
+        {
+            bmp = new Bitmap(file);
+            key = new object();
+
+            base.SetTileability(ext);
         }
 
         /// <summary>
@@ -79,23 +115,6 @@ namespace Vulpine.Core.Draw.Images
         {
             bmp = new Bitmap(width, height, SPixel.Format32bppArgb);
             key = new object();
-
-            this.width = width;
-            this.height = height;
-        }
-
-        /// <summary>
-        /// Loads a given image file from disk, creates a system bitmap for
-        /// that image file, and wraps it inside this wrapper class.
-        /// </summary>
-        /// <param name="file">Location to load</param>
-        public ImageSystem(string file)
-        {
-            bmp = new Bitmap(file);
-            key = new object();
-
-            width = bmp.Width;
-            height = bmp.Height;
         }
 
         #region Class Properties...
@@ -105,7 +124,7 @@ namespace Vulpine.Core.Draw.Images
         /// </summary>
         public override int Width
         {
-            get { return width; }
+            get { return bmp.Width; }
         }
 
         /// <summary>
@@ -113,7 +132,7 @@ namespace Vulpine.Core.Draw.Images
         /// </summary>
         public override int Height
         {
-            get { return height; }
+            get { return bmp.Height; }
         }
 
         /// <summary>
@@ -236,6 +255,10 @@ namespace Vulpine.Core.Draw.Images
             if (bmp.PixelFormat != SPixel.Format32bppArgb)
                 throw new InvalidOperationException("Format Not Suported");
 
+            //gets the image width and height
+            int width = bmp.Width;
+            int height = bmp.Height;
+
             //creates a bit array to hold our data
             int size = width * height * 4;
             byte[] bits = new byte[size];
@@ -278,6 +301,10 @@ namespace Vulpine.Core.Draw.Images
         {
             if (bmp.PixelFormat != SPixel.Format32bppArgb)
                 throw new InvalidOperationException("Format Not Suported");
+
+            //gets the image width and height
+            int width = bmp.Width;
+            int height = bmp.Height;
 
             //creates a bit array to hold our data
             int size = width * height * 4;
