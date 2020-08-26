@@ -46,15 +46,13 @@ namespace Vulpine.Core.Draw.Images
     /// <remarks>Last Update: 2019-03-26</remarks>
     public class ImageSystem : Vulpine.Core.Draw.Image, IDisposable
     {
+        #region Class Definitions...
+
         //stores the internal bitmap
         private Bitmap bmp;
 
         //an object used for locking the bitmap
         private object key;
-
-        ////stores the dimentions of the image
-        //private int width;
-        //private int height;
 
         /// <summary>
         /// Creates a new wrapper for a curently existing bitmap resorce.
@@ -116,6 +114,29 @@ namespace Vulpine.Core.Draw.Images
             bmp = new Bitmap(width, height, SPixel.Format32bppArgb);
             key = new object();
         }
+
+        /// <summary>
+        /// Makes a copy of a given image, as a system bitmap instance. Once
+        /// the image has been copied it may be saved out to disk or used in
+        /// other GDI aplications.
+        /// </summary>
+        /// <param name="other">Image to copy</param>
+        public ImageSystem(Image other)
+        {
+            //obtains the width and height of the other image
+            int width = other.Width;
+            int height = other.Height;
+
+            //creates an new system bitmap to store the image
+            bmp = new Bitmap(width, height, SPixel.Format32bppArgb);
+            key = new object();
+
+            //sets the tileablity and fills the data
+            this.SetTileability(other);
+            this.FillData(other);
+        }
+
+        #endregion //////////////////////////////////////////////////////////////
 
         #region Class Properties...
 
@@ -242,6 +263,8 @@ namespace Vulpine.Core.Draw.Images
 
         //NOTE: I still need to test if the specialised FillData methods are 
         //actualy faster than the default implementation.
+
+        //NOTE: There may be some bugs in the following methods.
 
         /// <summary>
         /// Fills the image with pixel data taken from a stream. Any pixels

@@ -63,12 +63,15 @@ namespace Vulpine.Core.Draw.Images
         /// <param name="height">Height in pixels</param>
         public ImageBasic(int width, int height)
         {
+            //sets the width and the height
             this.width = width;
             this.height = height;
 
+            //sets the format and bit-depth to default
             bite_size = 4;
             format = PixelFormat.Rgba32;
 
+            //creates a byte arrray to store our image data
             data = new byte[width * height * bite_size];
         }
 
@@ -81,12 +84,15 @@ namespace Vulpine.Core.Draw.Images
         /// <param name="format">Desired pixel format</param>
         public ImageBasic(int width, int height, PixelFormat format)
         {
+            //sets the width and the height
             this.width = width;
             this.height = height;
 
+            //determins the format and bit-depth
             bite_size = format.BitDepth / 8;
             this.format = format;
 
+            //creates a byte arrray to store our image data
             data = new byte[width * height * bite_size];
         }
 
@@ -100,15 +106,44 @@ namespace Vulpine.Core.Draw.Images
         /// <param name="ext">Tileability of the image</param>
         public ImageBasic(int width, int height, PixelFormat format, ImageExt ext)
         {
+            //sets the width and the height
             this.width = width;
             this.height = height;
 
+            //sets the tileablity
             base.SetTileability(ext);
 
+            //determins the format and bit-depth
             bite_size = format.BitDepth / 8;
             this.format = format;
 
+            //creates a byte arrray to store our image data
             data = new byte[width * height * bite_size];
+        }
+
+        /// <summary>
+        /// Makes a copy of a given image, applying it to the given pixel format.
+        /// </summary>
+        /// <param name="other">Image to copy</param>
+        /// <param name="format">Format to apply</param>
+        public ImageBasic(Image other, PixelFormat format)
+        {
+            //copies the widht and height
+            this.width = other.Width;
+            this.height = other.Height;
+
+            //copies the tileablity
+            base.SetTileability(other);
+
+            //determins the format and bit-depth
+            bite_size = format.BitDepth / 8;
+            this.format = format;
+
+            //creates a byte arrray to store our image data
+            data = new byte[width * height * bite_size];
+
+            //fills the image with data from the source
+            this.FillData(other);
         }
 
         #endregion //////////////////////////////////////////////////////////////
