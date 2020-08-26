@@ -326,16 +326,74 @@ namespace Vulpine.Core.Draw
             int h = Math.Min(this.Height, data.Height);
 
             //fills the image with new data
-            for (int i = 0; i < w; i++)
+            for (int i = 0; i < h; i++)
             {
-                for (int j = 0; j < h; j++)
+                for (int j = 0; j < w; j++)
                 {
-                    Color c = data.GetPixelInit(i, j);
-                    this.SetPixelInit(i, j, c);
+                    Color c = data.GetPixelInit(j, i);
+                    this.SetPixelInit(j, i, c);
                 }
             }
         }
 
+        /// <summary>
+        /// Fills the image with data taken from a stream and dithers the
+        /// output to try and better replicate the source. The amount of 
+        /// dithering must also be spesified, ranging from no dithering 
+        /// (0.0) to full dithering (1.0). A good rule of thumb is to
+        /// use 1 / log(n) where n is the number of colors in the output.
+        /// </summary>
+        /// <param name="data">Image data stream</param>
+        /// <param name="amount">Amount of dithering</param>
+        /// <exception cref="InvalidOperationException">If the current
+        /// image is marked as read-only</exception>
+        public void FillDither(IEnumerable<Pixel> data, double amount)
+        {
+            //checks that the image is wrightable
+            if (this.IsReadOnly) throw new InvalidOperationException();
+
+            //clamps the amount to determin the weight
+            double weight = VMath.Clamp(amount);
+
+            foreach (Pixel p in data)
+            {
+                //obtains the row and column
+                int j = p.Col;
+                int i = p.Row;
+
+                //skips over pixels outside our bounds
+                if (j >= Width || i >= Height) continue;
+
+                //obtains the offset from the bayer matrix
+                int index = (j % 8) + (i % 8) * 8;
+                double offset = (double)bayer[index];
+                offset = (offset / 64.0) - 0.5;
+                offset = offset * weight;
+
+                //extracts the color with the given offset
+                Color c = p.Color;
+                double r = c.Red + offset;
+                double g = c.Green + offset;
+                double b = c.Blue + offset;
+
+                //applies the offset color to the image
+                Color cn = Color.FromRGB(r, g, b);
+                this.SetPixelInit(j, i, cn);
+            }
+        }
+
+
+        /// <summary>
+        /// Fills the image with data taken from another image, and dithers
+        /// the output to try and replicate the source. The amount of dithering
+        /// must also be spesified, ranging from no dithering (0.0) to full
+        /// dithering (1.0). A good rule of thumb is to use 1 / log(n) where 
+        /// n is the number of colors in the output.
+        /// </summary>
+        /// <param name="data">Image with pixel data</param>
+        /// <param name="amount">Amount of dithering</param>
+        /// <exception cref="InvalidOperationException">If the current
+        /// image is marked as read-only</exception>
         public void FillDither(Image data, double amount)
         {
             //checks that the image is wrightable
@@ -344,6 +402,9 @@ namespace Vulpine.Core.Draw
             //computes the intersection of both images
             int w = Math.Min(this.Width, data.Width);
             int h = Math.Min(this.Height, data.Height);
+
+            //clamps the amount to determin the weight
+            double weight = VMath.Clamp(amount);
 
             //fills the image with new data
             for (int i = 0; i < h; i++)
@@ -354,9 +415,7 @@ namespace Vulpine.Core.Draw
                     int index = (j % 8) + (i % 8) * 8;
                     double offset = (double)bayer[index];
                     offset = (offset / 64.0) - 0.5;
-
-                    //offset = offset * (1.0 / 1.0); //0.125;
-                    offset = offset * VMath.Clamp(amount);
+                    offset = offset * weight;
 
                     //extracts the color with the given offset
                     Color c = data.GetPixelInit(j, i);
@@ -371,6 +430,12 @@ namespace Vulpine.Core.Draw
             }
         }
 
+        /// <summary>
+        /// Uses Floyd Steinberg dithering to the source image in the target.
+        /// Because it uses an error difusion tenique, it is not sutable for
+        /// animations where there may be a lot of jittering. 
+        /// </summary>
+        /// <param name="data">Source image</param>
         public void FillDitherFS(Image data)
         {
             //checks that the image is wrightable
@@ -492,7 +557,7 @@ namespace Vulpine.Core.Draw
         /// Idealy this should be called within the class constructor.
         /// </summary>
         /// <param name="ext">Tileability of the image</param>
-        internal void SetTileability(ImageExt ext)
+        protected void SetTileability(ImageExt ext)
         {
             switch (ext)
             {
@@ -520,7 +585,7 @@ namespace Vulpine.Core.Draw
         /// This is usefull for the implementaiton of copy constructors.
         /// </summary>
         /// <param name="other">Source image</param>
-        internal void SetTileability(Image other)
+        protected void SetTileability(Image other)
         {
             this.tile_x = other.tile_x;
             this.tile_y = other.tile_y;

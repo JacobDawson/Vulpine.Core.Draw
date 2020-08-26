@@ -246,8 +246,6 @@ namespace Vulpine.Core.Draw.Images
         //NOTE: I still need to test if the specialised FillData methods are 
         //actualy faster than the default implementation.
 
-        //NOTE: There may be some bugs in the following methods.
-
         /// <summary>
         /// Fills the image with pixel data taken from a stream. Any pixels
         /// that fall outside the bounds of the image are discarded.
@@ -271,7 +269,7 @@ namespace Vulpine.Core.Draw.Images
             //copies the data into the temporary bit array
             foreach (Pixel pix in data)
             {
-                int index = ((pix.Row * height) + pix.Col) * 4;
+                int index = ((pix.Row * width) + pix.Col) * 4;
                 if (index + 3 >= bits.Length) continue;
 
                 bits[index + 0] = (byte)(pix.Color.Blue * 255.0);
@@ -284,7 +282,8 @@ namespace Vulpine.Core.Draw.Images
             lock (key)
             {
                 Rectangle rect = new Rectangle(0, 0, width, height);
-                BitmapData bdata = bmp.LockBits(rect, ImageLockMode.WriteOnly, bmp.PixelFormat);
+                BitmapData bdata = bmp.LockBits
+                    (rect, ImageLockMode.WriteOnly, SPixel.Format32bppArgb);
 
                 Marshal.Copy(bits, 0, bdata.Scan0, bits.Length);
                 bmp.UnlockBits(bdata);
@@ -325,7 +324,7 @@ namespace Vulpine.Core.Draw.Images
                 for (int col = 0; col < w; col++)
                 {
                     Color c = data.GetPixel(col, row);
-                    int index = ((row * height) + col) * 4;
+                    int index = ((row * width) + col) * 4;
                     if (index + 3 >= bits.Length) continue;
 
                     bits[index + 0] = (byte)(c.Blue * 255.0);
@@ -339,8 +338,9 @@ namespace Vulpine.Core.Draw.Images
             lock (key)
             {
                 Rectangle rect = new Rectangle(0, 0, width, height);
-                BitmapData bdata = bmp.LockBits(rect, ImageLockMode.WriteOnly, bmp.PixelFormat);
-
+                BitmapData bdata = bmp.LockBits
+                    (rect, ImageLockMode.WriteOnly, SPixel.Format32bppArgb);
+                
                 Marshal.Copy(bits, 0, bdata.Scan0, bits.Length);
                 bmp.UnlockBits(bdata);
             }

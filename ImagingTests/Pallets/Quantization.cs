@@ -200,9 +200,9 @@ namespace ImagingTests.Pallets
             pimage = new ImagePallet(source.Width, source.Height, mypallet);
             pimage.FillData(source);
 
-            Interpolent intpol = new Interpolent(pimage, Intpol.Nearest);
-            ren.Render(intpol, myimage);
-            //myimage.FillData(pimage);
+            //Interpolent intpol = new Interpolent(pimage, Intpol.Nearest);
+            //ren.Render(intpol, myimage);
+            myimage.FillData(pimage);
             DrawMyImage();
 
             DisplayPallet(mypallet);
@@ -213,9 +213,9 @@ namespace ImagingTests.Pallets
             pimage = new ImagePallet(source.Width, source.Height, mypallet);
             pimage.FillDither(source, 0.25);
 
-            Interpolent intpol = new Interpolent(pimage, Intpol.Nearest);
-            ren.Render(intpol, myimage);
-            //myimage.FillData(pimage);
+            //Interpolent intpol = new Interpolent(pimage, Intpol.Nearest);
+            //ren.Render(intpol, myimage);
+            myimage.FillData(pimage);
             DrawMyImage();
 
             DisplayPallet(mypallet);
@@ -226,9 +226,9 @@ namespace ImagingTests.Pallets
             pimage = new ImagePallet(source.Width, source.Height, mypallet);
             pimage.FillDitherFS(source);
 
-            Interpolent intpol = new Interpolent(pimage, Intpol.Nearest);
-            ren.Render(intpol, myimage);
-            //myimage.FillData(pimage);
+            //Interpolent intpol = new Interpolent(pimage, Intpol.Nearest);
+            //ren.Render(intpol, myimage);
+            myimage.FillData(pimage);
             DrawMyImage();
 
             DisplayPallet(mypallet);
