@@ -39,12 +39,15 @@
             this.palletSelector1 = new ImagingTests.Pallets.PalletSelector();
             this.tabPage5 = new System.Windows.Forms.TabPage();
             this.quantization1 = new ImagingTests.Pallets.Quantization();
+            this.tabPage6 = new System.Windows.Forms.TabPage();
+            this.transformation1 = new ImagingTests.Transformation.Transformation();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tabPage2.SuspendLayout();
             this.tabPage3.SuspendLayout();
             this.tabPage4.SuspendLayout();
             this.tabPage5.SuspendLayout();
+            this.tabPage6.SuspendLayout();
             this.SuspendLayout();
             // 
             // tabControl1
@@ -54,6 +57,7 @@
             this.tabControl1.Controls.Add(this.tabPage3);
             this.tabControl1.Controls.Add(this.tabPage4);
             this.tabControl1.Controls.Add(this.tabPage5);
+            this.tabControl1.Controls.Add(this.tabPage6);
             this.tabControl1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tabControl1.Location = new System.Drawing.Point(0, 0);
             this.tabControl1.Name = "tabControl1";
@@ -154,6 +158,24 @@
             this.quantization1.Size = new System.Drawing.Size(776, 536);
             this.quantization1.TabIndex = 0;
             // 
+            // tabPage6
+            // 
+            this.tabPage6.Controls.Add(this.transformation1);
+            this.tabPage6.Location = new System.Drawing.Point(4, 22);
+            this.tabPage6.Name = "tabPage6";
+            this.tabPage6.Size = new System.Drawing.Size(776, 536);
+            this.tabPage6.TabIndex = 5;
+            this.tabPage6.Text = "Transformation";
+            this.tabPage6.UseVisualStyleBackColor = true;
+            // 
+            // transformation1
+            // 
+            this.transformation1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.transformation1.Location = new System.Drawing.Point(0, 0);
+            this.transformation1.Name = "transformation1";
+            this.transformation1.Size = new System.Drawing.Size(776, 536);
+            this.transformation1.TabIndex = 0;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -168,6 +190,7 @@
             this.tabPage3.ResumeLayout(false);
             this.tabPage4.ResumeLayout(false);
             this.tabPage5.ResumeLayout(false);
+            this.tabPage6.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -185,6 +208,8 @@
         private Pallets.PalletSelector palletSelector1;
         private System.Windows.Forms.TabPage tabPage5;
         private Pallets.Quantization quantization1;
+        private System.Windows.Forms.TabPage tabPage6;
+        private Transformation.Transformation transformation1;
     }
 }
 

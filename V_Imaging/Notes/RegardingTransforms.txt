@@ -1,0 +1,52 @@
+﻿
+
+
+- In my old library I had a class called Transform, which was basicly a wrapper to a matrix. The core
+  advantange was that it could build up complex transformaiton by applying basic unit transformation,
+  such as Translation, Rotaiton, and Scale. This was all done in-place, possably to save memory or
+  increase speed, or posably because I couden't think of another way to design it at the time.
+
+  - It also handled the transformation of points, as this was it's primary purpous. It handled 
+    augmenting the Point with homognious cordinates, converting it to a vector, and multiplying
+	it with the matrix, abstracting all that detail away.
+
+- Recently I've considered If I shouldent make this class immutable. Whenever you append a core
+  transform, you actualy get a new transform. You can build complex transforms by chaning diffrent
+  appends together in a LINQ style. I don't know if this is better, but it dose seem to fit in
+  more with the rest of the library.
+
+  - This would not have the advangage of multipling the matrices in place. However transfrom
+    matrixes tend to be small, so we shouldent worry too much about memory. Also, the transfrom
+	only needs to be built once, and can be used several times, so speed is not a great concern.
+
+  - Alternativly, I could have static constructors for the core transforms. Complex transforms
+    are only build by combining simplier transforms. This could possably work regardless if
+	transforms are mutable or not, as you still have to build the matrix you are appending.
+
+- I also breifly considered creating just a static class with methods to create diffrent transform
+  matrixes. There would be no special Transform class, the matrices themselves would be the transforms.
+  However, this means that it would be up to code using the transforms to apply them correctly. They
+  would also need to check for correct dimentions if they accepted matrices from outside sources.
+
+- Ultimatly I want to be able to create new textures by applying transformations to existing textures,
+  LINQ style. I also want it to be smart about it, sequential transformation should be combined into
+  a single transformation to make it process faster. This operation should be immutable, as applying
+  an operation to a texture should result in a new texture.
+
+- I would also like a simplier TextureTranform class, which exposes the core transforms used to build
+  it, and lets you adjust the location, rotation, and scale, independently. This could be useful
+  for trying to stich images, or create a sticker mosaic. This class is inherently mutable, as it
+  to allow these values to change.
+
+  =================================================================
+
+- It seems to me, that the only real advangate of having Transforamtion being mutable is that the
+  we can multiply the matrixes in place. However, I'm not convinced this is nessary given that we
+  should only build the transforms once. That said, I don't see any particular disadvantage to
+  making Transformation mutable either.
+
+- The classes that use Transformation can be either mutable or immutable, regardless of the mutablity
+  of Transformation itself. The Matrix class, on which Transformation is based, is mutable, and I
+  have no intentions of changing that! So the use cases for Transform should not determin it's
+  mutablitiy.
+

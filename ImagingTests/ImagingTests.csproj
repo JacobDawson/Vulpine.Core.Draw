@@ -94,6 +94,12 @@
     <Compile Include="SuperSmpl\SamplingWindow.Designer.cs">
       <DependentUpon>SamplingWindow.cs</DependentUpon>
     </Compile>
+    <Compile Include="Transformation\Transformation.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Transformation\Transformation.Designer.cs">
+      <DependentUpon>Transformation.cs</DependentUpon>
+    </Compile>
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
     </EmbeddedResource>
@@ -116,6 +122,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="SuperSmpl\SamplingWindow.resx">
       <DependentUpon>SamplingWindow.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Transformation\Transformation.resx">
+      <DependentUpon>Transformation.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>

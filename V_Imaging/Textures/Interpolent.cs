@@ -51,11 +51,17 @@ namespace Vulpine.Core.Draw.Textures
         //refrences the method of interpolation
         private Intpol method;
 
-        //determins the maximum scale of the image
-        private double smax;
+        ////determins the maximum scale of the image
+        //private double smax;
 
         ////determins if the image should be tiled
         //private bool tiled;
+
+        private Scaling scale = Scaling.Streach;
+
+        private TexBorder border = TexBorder.None;
+
+        private Color matte = Color.FromRGBA(0.0, 0.0, 0.0, 1.0);
 
         /// <summary>
         /// Constructs a new Interpolated Texture, using the given source
@@ -64,11 +70,16 @@ namespace Vulpine.Core.Draw.Textures
         /// <param name="raster">Source image to interpolate</param>
         public Interpolent(Image raster)
         {
+            //refrences the image raster
             this.raster = raster;
-            this.method = Intpol.Default;          
-            //this.tiled = false;
 
-            this.smax = Math.Min(raster.Width, raster.Height);
+            //sets all the default values
+            this.method = Intpol.Default;
+            this.scale = Scaling.Streach;
+            this.border = TexBorder.None;
+            this.matte = Color.Black;
+
+            //this.smax = Math.Min(raster.Width, raster.Height);
         }
 
         /// <summary>
@@ -79,28 +90,67 @@ namespace Vulpine.Core.Draw.Textures
         /// <param name="method">Method used for interpolation</param>
         public Interpolent(Image raster, Intpol method)
         {
+            //sets the image raster and the interpolation method
             this.raster = raster;
+            
+            //copies all the settings for the interpolent
             this.method = method;
-            //this.tiled = false;
+            this.scale = Scaling.Streach;
+            this.border = TexBorder.None;
+            this.matte = Color.Black;
 
-            this.smax = Math.Min(raster.Width, raster.Height);
+            //this.smax = Math.Min(raster.Width, raster.Height);
         }
 
-        ///// <summary>
-        ///// Constructs a new Interpolated Texture, using the given image and
-        ///// interpolation method to generate it's data. It will tile the
-        ///// image indefinatly if tiled is set to true.
-        ///// </summary>
-        ///// <param name="raster">Source image to interpolate</param>
-        ///// <param name="method">Method used for interpolation</param>
-        ///// <param name="tiled">Set to true for tiled images</param>
-        //public Interpolent(Image raster, Intpol method, bool tiled)
-        //{
-        //    this.raster = raster;
-        //    this.method = method;
-        //    this.tiled = tiled;
+        public Interpolent(Image raster, Intpol method, Scaling scale, TexBorder border)
+        {
+            //sets the image raster and the interpolation method
+            this.raster = raster;
 
-        //    this.smax = Math.Min(raster.Width, raster.Height);
+            //copies all the settings for the interpolent
+            this.method = method;
+            this.scale = scale;
+            this.border = border;
+            this.matte = Color.Black;
+        }
+
+        public Interpolent(Image raster, Intpol method, Scaling scale, Color border)
+        {
+            //sets the image raster and the interpolation method
+            this.raster = raster;
+
+            //copies all the settings for the interpolent
+            this.method = method;
+            this.scale = scale;
+            this.border = TexBorder.Matte;
+            this.matte = border.Flaten();
+        }
+
+
+        //public Interpolent(Image raster, Intpol method = Intpol.Default,
+        //    Scaling scale = Scaling.Streach, TexBorder border = TexBorder.None)
+        //{
+        //    //stores a reference to the raster image
+        //    this.raster = raster;
+
+        //    //copies all the settings for the interpolent
+        //    this.method = method;
+        //    this.scale = scale;
+        //    this.border = border;
+        //    this.matte = Color.Black;
+        //}
+
+        //public Interpolent(Image raster, Intpol method = Intpol.Default,
+        //    Scaling scale = Scaling.Streach, Color matte = default(Color))
+        //{
+        //    //stores a reference to the raster image
+        //    this.raster = raster;
+
+        //    //copies all the settings for the interpolent
+        //    this.method = method;
+        //    this.scale = scale;
+        //    this.border = TexBorder.Matte;
+        //    this.matte = matte.Flaten();
         //}
 
         #endregion ///////////////////////////////////////////////////////////////////////
@@ -139,6 +189,21 @@ namespace Vulpine.Core.Draw.Textures
         //    get { return tiled; }
         //}
 
+        public Scaling Scaling
+        {
+            get { return scale; }
+        }
+
+        public TexBorder Border
+        {
+            get { return border; }
+        }
+
+        public Color Background
+        {
+            get { return matte; }
+        }
+
         #endregion ///////////////////////////////////////////////////////////////////////
 
         #region Texture Implenentation...
@@ -153,13 +218,24 @@ namespace Vulpine.Core.Draw.Textures
         /// <returns>The color sampled at the given point</returns>
         public Color Sample(double u, double v)
         {
-            //scales the UV cordinates as appropriate
-            double x = (1.0 + u) * raster.Width * 0.5;
-            double y = (1.0 - v) * raster.Height * 0.5;
+            ////scales the UV cordinates as appropriate
+            //double x = (1.0 + u) * raster.Width * 0.5;
+            //double y = (1.0 - v) * raster.Height * 0.5;
 
             ////scales the UV cordinates as appropriate
             //double x = ((double)raster.Width + smax * u) * 0.5;
             //double y = ((double)raster.Height - smax * v) * 0.5;
+
+            int w = raster.Width;
+            int h = raster.Height;
+
+            //determins the scaling factor in the X and Y direction
+            double sx = (scale == Scaling.Vertical) ? h : w;
+            double sy = (scale == Scaling.Horizontal) ? w : h;
+
+            //scales the UV cordinates as appropriate
+            double x = ((double)raster.Width + sx * u) * 0.5;
+            double y = ((double)raster.Height - sy * v) * 0.5;
 
             //obtains the desired sub-pixel
             return GetSubPixel(x, y);
@@ -180,6 +256,16 @@ namespace Vulpine.Core.Draw.Textures
             //Color trans = new Color(0.0, 0.0, 0.0, 0.0);
             //if (x < 0.0 || x > raster.Width) return trans;
             //if (y < 0.0 || y > raster.Height) return trans;
+
+            //determins if border masking should be used
+            if (border != TexBorder.None)
+            {
+                Color bg = Color.Transparent;
+                if (border == TexBorder.Matte) bg = matte;
+
+                if (x < 0.0 || x > raster.Width) return bg;
+                if (y < 0.0 || y > raster.Height) return bg;
+            }
 
             //determins which method to use
             switch (method)

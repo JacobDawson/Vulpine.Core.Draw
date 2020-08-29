@@ -311,6 +311,35 @@ namespace Vulpine.Core.Draw
         Default = MirrorXY,
     }
 
+    /// <summary>
+    /// Textures are infinate in scope, but raster images are not. Therefore when converting
+    /// images to textures, it's nessary to define a texture border to determin what happens
+    /// when we try to sample points that lie outside the source image. 
+    /// </summary>
+    public enum TexBorder
+    {
+        /// <summary>
+        /// There is no border, and we allow sampeling outside the bounds of the image.
+        /// This geneeraly results in the image being repeated indefinitly across the entire
+        /// texture. Though the exact result depends on the source image.
+        /// </summary>
+        None = 0,
+
+        /// <summary>
+        /// The borders of the texture are treated as transparent, allowing whatever is
+        /// underneath the texture to show through. This is the ideal setting to use if
+        /// you intend to stack multiple textures on top of each other.
+        /// </summary>
+        Transparent = 1,
+
+        /// <summary>
+        /// The borders of the texture are treated as a single matte color. This is useful
+        /// if you want to display the texture on screen, or use it in some envoroment that
+        /// only accepts RGB colors without transparancy.
+        /// </summary>
+        Matte = 2,
+    }
+
 
 }
 

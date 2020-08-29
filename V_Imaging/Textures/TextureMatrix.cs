@@ -1,6 +1,6 @@
 ﻿/**
  *  This file is an integral part of the Vulpine Core Library
- *  Copyright (c) 2016-2019 Benjamin Jacob Dawson
+ *  Copyright (c) 2016-2020 Benjamin Jacob Dawson
  *
  *      http://www.jakesden.com/corelibrary.html
  *
@@ -31,11 +31,11 @@ using Vulpine.Core.Calc.Geometry;
 
 namespace Vulpine.Core.Draw.Textures
 {
-    public class Transformation : Texture
+    public class TextureMatrix : Texture
     {
         //stores the inner texture and it's transfomation
         private Texture inner;
-        private Transform2D trans;
+        private Trans2D trans;
 
         /// <summary>
         /// Builds a transformation texture, given the internal texture
@@ -43,23 +43,23 @@ namespace Vulpine.Core.Draw.Textures
         /// </summary>
         /// <param name="inner">The internal texture</param>
         /// <param name="trans">Transformation to be applied</param>
-        public Transformation(Texture inner, Transform2D trans)
+        public TextureMatrix(Texture inner, Trans2D trans)
         {
             this.inner = inner;
-            this.trans = new Transform2D(trans);
+            this.trans = trans;
         }
 
         /// <summary>
-        /// Extracts the color data from the texture at an explicit point,
-        /// in texture cordinates, where the principle width and height of
-        /// the texture are equal to one.
+        /// Samples the texture at a given point, calculating the color of the 
+        /// texture at that point. The sample point is provided in UV cordinats
+        /// with the origin at the center and the V axis pointing up.
         /// </summary>
-        /// <param name="u">The u texture cordinate</param>
-        /// <param name="v">The v texture cordinate</param>
+        /// <param name="u">The U texture cordinate</param>
+        /// <param name="v">The V texture cordinate</param>
         /// <returns>The color sampled at the given point</returns>
         public Color Sample(double u, double v)
         {
-            Point2D targ = trans.Trans(u, v);
+            Point2D targ = trans.Transform(u, v);
             return inner.Sample(targ.X, targ.Y);
         }
     }

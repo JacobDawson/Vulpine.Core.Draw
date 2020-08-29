@@ -60,8 +60,8 @@
     <Compile Include="Renderor.cs" />
     <Compile Include="Texture.cs" />
     <Compile Include="Textures\Stereograph.cs" />
-    <Compile Include="Textures\Transformation.cs" />
-    <Compile Include="Transform2D.cs" />
+    <Compile Include="Textures\TextureTransform.cs" />
+    <Compile Include="Textures\TextureMatrix.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\V_DataStruk\V_DataStruk\V_DataStruk.csproj">
@@ -75,6 +75,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Notes\IdeasForInterpolent.txt" />
+    <Content Include="Notes\RegardingTransforms.txt" />
     <Content Include="Notes\ToDo.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

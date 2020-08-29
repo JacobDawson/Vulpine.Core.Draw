@@ -118,6 +118,13 @@ Decisions:
 - I might as well add Output Selection to Interpolent / TextureImage, as it dosen't relly hurt
   anything and it's better to add it now rather than latter.
 
+- In retrospect: adding outpout opitions dosen't speed up computation by all that much in the
+  default case. Yet adding the ouption would require rewriting all of the interpolation methods
+  which I'm not shure I feel compelled to do just now.
+
+- The options for masking / borders should be [None, Transparent, Matte] with the third option
+  producing a color determined by a second paramater, Background or Matte
+
 - I still need to think more on gamma correction:
 
 

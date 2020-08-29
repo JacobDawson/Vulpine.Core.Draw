@@ -899,6 +899,17 @@ namespace Vulpine.Core.Draw
             return new Color(lum, lum, lum, alpha);
         }
 
+        /// <summary>
+        /// Flattens the color by basicly removing the transparancy
+        /// component, forcing it to be opaque.
+        /// </summary>
+        /// <returns>The corisponding opaque color</returns>
+        public Color Flaten()
+        {
+            //sets the alpha value to (1.0) fully opaque
+            return new Color(red, green, blue, 1.0);
+        }
+
         #endregion //////////////////////////////////////////////////////////////////
 
         #region Special Methods...    
@@ -1046,6 +1057,20 @@ namespace Vulpine.Core.Draw
         {
             if (t > 0.2068965517) return t * t * t;
             else return 0.1284185493 * (t - 0.1379310344);
+        }
+
+        #endregion //////////////////////////////////////////////////////////////////
+
+        #region Common Colors...
+
+        public static Color Transparent
+        {
+            get { return new Color(0.0, 0.0, 0.0, 0.0); }
+        }
+
+        public static Color Black
+        {
+            get { return new Color(0.0, 0.0, 0.0, 1.0); }
         }
 
         #endregion //////////////////////////////////////////////////////////////////
