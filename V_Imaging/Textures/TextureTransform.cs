@@ -262,6 +262,8 @@ namespace Vulpine.Core.Draw.Textures
             Point2D point = new Point2D(u, v);
             point = trans.Transform(point);
 
+            //point = trans.InvertPoint(point.X, point.Y);
+
             //samples the texture at the transfomred point
             return inner.Sample(point.X, point.Y);
         }
@@ -277,12 +279,25 @@ namespace Vulpine.Core.Draw.Textures
             //derives rotaiton and reflection
             trans = mirror ? Trans2D.ReflectVert : Trans2D.Identity;
             double theta = VMath.ToRad(-rot);
-            
+
             //applies the transfomations in order
             trans += Trans2D.Shear(sheer);
             trans += Trans2D.Scale(scale);
             trans += Trans2D.Rotate(theta);
             trans += Trans2D.Translate(loc);
+            
+            //obtains the inverse transform
+            trans = trans.Invert();
+
+            //double sx = 1.0 / scale.X;
+            //double sy = 1.0 / scale.Y;
+
+            ////applies the inverse transform inorder to go
+            ////from texture space to image space
+            //trans += Trans2D.Translate(-loc);
+            //trans += Trans2D.Rotate(-theta);
+            //trans += Trans2D.Scale(sx, sy);
+            //trans += Trans2D.Shear(-sheer);
 
             //clears the rebuild flag forces garbage collection
             rebuild = false;
