@@ -47,7 +47,7 @@ namespace Vulpine.Core.Draw
     /// stated. We do not imply a fixed standard for the color struct in order to
     /// enshure maximum flexability.
     /// </summary>
-    public struct Color
+    public struct Color : Texture
     {
         #region Class Definitons...
 
@@ -910,6 +910,20 @@ namespace Vulpine.Core.Draw
             return new Color(red, green, blue, 1.0);
         }
 
+        /// <summary>
+        /// This method is provided simply for the sake of implemeniting
+        /// Texture, it simply returns the current color for all points
+        /// in the texture space.
+        /// </summary>
+        /// <param name="u">The U texture cordinate</param>
+        /// <param name="v">The V texture cordinate</param>
+        /// <returns>The color sampled at the given point</returns>
+        public Color Sample(double u, double v)
+        {
+            //simply makes a copy of the current color
+            return new Color(red, green, blue, alpha);
+        }
+
         #endregion //////////////////////////////////////////////////////////////////
 
         #region Special Methods...    
@@ -1071,6 +1085,11 @@ namespace Vulpine.Core.Draw
         public static Color Black
         {
             get { return new Color(0.0, 0.0, 0.0, 1.0); }
+        }
+
+        public static Color White
+        {
+            get { return new Color(1.0, 1.0, 1.0, 1.0); }
         }
 
         #endregion //////////////////////////////////////////////////////////////////

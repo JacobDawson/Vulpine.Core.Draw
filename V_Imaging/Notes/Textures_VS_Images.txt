@@ -1,0 +1,61 @@
+﻿
+
+Textures VS Images:
+
+
+There are basicly two diffrent ways to represent Pictures or other visual objects within my library, Images which
+are raster images, and Textures. However, these encapsulate two very diffrent ways of looking at and interacting
+with visual data. To try and summerise these diffrences I've created the chart below: 
+
+
+
+Images:
+
+- Are made up of indivual elements called pixels.
+- Have a fininte number of pixels.
+- Have a fixed widht and length.
+
+- Cordients are specified in (x, y)-space.
+- The origin (0, 0) is in the top-left corner of the image.
+- the Y-axis points down.
+
+- Immage effects are enacted by creating Filters.
+- Filters are applied greedly, in that a Filter is applied to an entire Image at once.
+
+
+Textures:
+
+- Are functions converting points in space to colors.
+- Are continious, in that they can be sampled at any point.
+- Are infininet in scope, having no bounds.
+
+- Coirdinets are specified in the (u, v)-space.
+- The origin (0, 0) is at the center of the Texture.
+- The V-axis points up.
+
+- Texture effects are enacted by chaning various Textures together.
+- Textures are evaluated laizily, in that colors are computed as they are sampled.
+
+
+Conversion:
+
+- In order to be treated as a Texture, and Image must be interpolated.
+- In order to be viewed as an Image, a Texture must be rendered.
+
+
+
+Some Cavats:
+
+We could have a class like ImageFiltered, which would basicaly allow filters to be evaluated laisily.
+Weather or not such a class would be helpfull, seems rather dubious. 
+
+If our ultment goal is to convert the Image to a texture by interpolation, then it would make sense 
+to apply the Filter first, so that texture rendering could be done faster. You don't want to
+re-evaluate the filter, every time you sample a point. If we want to use the image by itself, 
+such as displaying it to the screen, the image would need to be copied, at which point the 
+Filter would be applied anyway.
+
+It could be argued that the laizy evaluation could save memory, but that is never likely to be
+an issue, unless our images get really big. Perhaps a more compelling argument is that it would
+be more precise, as we wouden't need to downsample the data to store it in an intermediat image.
+Although, this could be a sucessfull use case for floating point color formats.

@@ -42,8 +42,12 @@
     <Compile Include="Color.cs" />
     <Compile Include="Colors\ColorHSL.cs" />
     <Compile Include="Colors\ColorYUV.cs" />
+    <Compile Include="Delegats.cs" />
     <Compile Include="Enums.cs" />
     <Compile Include="Exceptions\ImagingException.cs" />
+    <Compile Include="Filter.cs" />
+    <Compile Include="Filters\FilterKernal.cs" />
+    <Compile Include="Filters\FilterMap.cs" />
     <Compile Include="Image.cs" />
     <Compile Include="Images\ImageBasic.cs" />
     <Compile Include="Images\ImagePallet.cs" />
@@ -74,10 +78,13 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Notes\FiltersAndEffects.txt" />
     <Content Include="Notes\IdeasForInterpolent.txt" />
     <Content Include="Notes\RegardingTransforms.txt" />
+    <Content Include="Notes\Textures_VS_Images.txt" />
     <Content Include="Notes\ToDo.txt" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

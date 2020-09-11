@@ -41,6 +41,8 @@
             this.quantization1 = new ImagingTests.Pallets.Quantization();
             this.tabPage6 = new System.Windows.Forms.TabPage();
             this.transformation1 = new ImagingTests.Transformation.Transformation();
+            this.tabPage7 = new System.Windows.Forms.TabPage();
+            this.filterControl1 = new ImagingTests.Filters.FilterControl();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tabPage2.SuspendLayout();
@@ -48,6 +50,7 @@
             this.tabPage4.SuspendLayout();
             this.tabPage5.SuspendLayout();
             this.tabPage6.SuspendLayout();
+            this.tabPage7.SuspendLayout();
             this.SuspendLayout();
             // 
             // tabControl1
@@ -58,6 +61,7 @@
             this.tabControl1.Controls.Add(this.tabPage4);
             this.tabControl1.Controls.Add(this.tabPage5);
             this.tabControl1.Controls.Add(this.tabPage6);
+            this.tabControl1.Controls.Add(this.tabPage7);
             this.tabControl1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tabControl1.Location = new System.Drawing.Point(0, 0);
             this.tabControl1.Name = "tabControl1";
@@ -176,6 +180,24 @@
             this.transformation1.Size = new System.Drawing.Size(776, 536);
             this.transformation1.TabIndex = 0;
             // 
+            // tabPage7
+            // 
+            this.tabPage7.Controls.Add(this.filterControl1);
+            this.tabPage7.Location = new System.Drawing.Point(4, 22);
+            this.tabPage7.Name = "tabPage7";
+            this.tabPage7.Size = new System.Drawing.Size(776, 536);
+            this.tabPage7.TabIndex = 6;
+            this.tabPage7.Text = "Filters";
+            this.tabPage7.UseVisualStyleBackColor = true;
+            // 
+            // filterControl1
+            // 
+            this.filterControl1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.filterControl1.Location = new System.Drawing.Point(0, 0);
+            this.filterControl1.Name = "filterControl1";
+            this.filterControl1.Size = new System.Drawing.Size(776, 536);
+            this.filterControl1.TabIndex = 0;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -191,6 +213,7 @@
             this.tabPage4.ResumeLayout(false);
             this.tabPage5.ResumeLayout(false);
             this.tabPage6.ResumeLayout(false);
+            this.tabPage7.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -210,6 +233,8 @@
         private Pallets.Quantization quantization1;
         private System.Windows.Forms.TabPage tabPage6;
         private Transformation.Transformation transformation1;
+        private System.Windows.Forms.TabPage tabPage7;
+        private Filters.FilterControl filterControl1;
     }
 }
 

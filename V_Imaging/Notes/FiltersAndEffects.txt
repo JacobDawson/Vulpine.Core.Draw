@@ -1,0 +1,51 @@
+﻿
+
+Filters and Effects
+
+
+Filters are the primary way of altering Images without converting them into textures. They are tipicaly applied
+greadly, in that they are applied to an entiere image at once. However, these belong to a broder class of Image
+alterations which I call Effects. Textures work by looking a only a small portion, or window, of the source image
+at the time; while Effects cover the entire image. 
+
+There are only two Effects, as I have labled them, that I can curently think of. One being Dithering by Error
+Difusion; this dosen't work as a simple filter as it needs to keep track of the error in each pixel. The other
+is some sort of Descreet Foyier Transform. since each pixle of the phase space image needs to evaluate the
+enitre image to be computed.
+
+There may be other examples, but I'm having a hard time thinking of any. If there aren't too many use cases, then
+it might not be nessary to create a seprate Effect interface.
+
+What is more pressing, is determining weather or not the Apply() method should be a member of Filter or Image.
+If Filter is to implement some Effect interface, then it must be a part of Filter. If it is a part of Filter,
+then Filter is better off as an abstract class, rather than an interface. The method invocation also changes
+slightly if it is a member of Image. 
+
+Personaly, I think Apply() being a member of Filter is more intuitive. I do not have a solid case as to why I
+feel this way, it is more of a gut feeling. It also may prove that being a member of Image simply flows better,
+despite being less intuitive. 
+
+I would also like to point out that the Apply() method needs to make use of the SetPixel() method of Image.
+If it were a member of Image it could use SetPixelInit() instead, which is presumably faster. The individual
+filters themselves need to use GetPixel() internaly, rather than GetPixelInit(), as this was one of the core
+reasons why the two methods were seperated in the first place!
+
+I could have it be a member of both, but that could be potentialy more confusing, especialy if one of the method
+is implemented by invoking the other. It also seems to detract from the advantage of having it be a member of
+Image if it is also a member of Filter.
+
+
+==============================================================================================================
+
+
+Ideas for Filters:
+   
+- Binary Filters
+  - Erode
+  - Dilate
+  - Open / Close
+  - Tophat ??
+  - Life ?
+- Special Filters
+  - Median (how to work with color?)
+  - Adaptive Threshold
