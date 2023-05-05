@@ -9,7 +9,7 @@ using System.Windows.Forms;
 
 using Vulpine.Core.Data.Queues;
 using Vulpine.Core.Calc;
-using Vulpine.Core.Calc.Geometry;
+using Vulpine.Core.Calc.Geometry.Planer;
 using Vulpine.Core.Calc.RandGen;
 
 namespace ImagingTests.SuperSmpl

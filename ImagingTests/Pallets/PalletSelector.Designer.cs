@@ -130,7 +130,11 @@
             "MC Clay",
             "MC Stone",
             "MC Wood",
-            "MC Wood Plus"});
+            "MC Wood Plus",
+            "Pico-8",
+            "DawnBringer16",
+            "Kensler16",
+            "DawnBringer32"});
             this.cmbPallet.Location = new System.Drawing.Point(5, 87);
             this.cmbPallet.Name = "cmbPallet";
             this.cmbPallet.Size = new System.Drawing.Size(272, 21);

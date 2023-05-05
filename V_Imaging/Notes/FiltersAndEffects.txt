@@ -49,3 +49,7 @@ Ideas for Filters:
 - Special Filters
   - Median (how to work with color?)
   - Adaptive Threshold
+
+
+- Should I allow non-square filters?
+- Should I allow offset ankers?

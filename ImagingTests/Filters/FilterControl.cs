@@ -92,6 +92,34 @@ namespace ImagingTests.Filters
                 case 17: return FilterKernal.GauseBlur3;
                 case 18: return FilterKernal.GauseBlur5;
                 case 19: return FilterKernal.Unsharp5;
+                case 20: return new FilterStats(3, Stat.Mean);
+                case 21: return new FilterStats(5, Stat.Mean);
+                case 22: return new FilterStats(7, Stat.Mean);
+                case 23: return new FilterStats(3, Stat.Var);
+                case 24: return new FilterStats(5, Stat.Var);
+                case 25: return new FilterStats(7, Stat.Var);
+                case 26: return new FilterStats(3, Stat.Skew);
+                case 27: return new FilterStats(5, Stat.Skew);
+                case 28: return new FilterStats(7, Stat.Skew);
+                case 29: return new FilterStats(3, Stat.Kurt);
+                case 30: return new FilterStats(5, Stat.Kurt);
+                case 31: return new FilterStats(7, Stat.Kurt);
+                case 32: return new FilterSobel2();
+                case 33: return FilterKernal.LineVert;
+                case 34: return FilterKernal.LineHorz;
+                case 35: return FilterKernal.LineDiag1;
+                case 36: return FilterKernal.LineDiag2;
+                case 37: return FilterSobel.Horizontal;
+                case 38: return FilterSobel.Vertical;
+                case 39: return FilterSobel.Magnitude;
+                case 40: return FilterSobel.Gradient;
+                case 41: return FilterMap.MaxValue;
+                case 42: return FilterMap.SwapSatValue;
+                case 43: return FilterMap.MidBrightness;
+                case 44: return FilterMap.HueValue;
+                case 45: return FilterMap.CyanRed;
+                case 46: return FilterMap.YellowBlue;
+                case 47: return FilterMap.MagentaGreen;
             }
 
             throw new NotImplementedException();

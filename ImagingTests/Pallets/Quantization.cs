@@ -58,42 +58,42 @@ namespace ImagingTests.Pallets
             quan = new Quantizer(1000, 1.0 / 1024.0);
             downsize = new ImageBasic(128, 128);
 
-            quan.StartEvent += new EventHandler(quan_StartEvent);
-            quan.StepEvent += new EventHandler<StepEventArgs>(quan_StepEvent);       
-            quan.FinishEvent += new EventHandler<StepEventArgs>(quan_FinishEvent);
+            //quan.StartEvent += new EventHandler(quan_StartEvent);
+            //quan.StepEvent += new EventHandler<StepEventArgs>(quan_StepEvent);       
+            //quan.FinishEvent += new EventHandler<StepEventArgs>(quan_FinishEvent);
             last_Update = run_started = DateTime.Now;
 
 
             IncrementBarDelegate = (this.IncrementBar);
             DrawMyImageDelegate = (this.DrawMyImage);
-            AppendTextDelegate = (this.AppendText);
+            //AppendTextDelegate = (this.AppendText);
             DrawMyPalletDelegate = (this.DrawMyPallet);
         }
 
         
 
-        private void quan_StartEvent(object sender, EventArgs e)
-        {
-            run_started = DateTime.Now;
-        }
+        //private void quan_StartEvent(object sender, EventArgs e)
+        //{
+        //    run_started = DateTime.Now;
+        //}
 
-        private void quan_StepEvent(object sender, StepEventArgs e)
-        {
-            TimeSpan ts = DateTime.Now - last_Update;
+        //private void quan_StepEvent(object sender, StepEventArgs e)
+        //{
+        //    TimeSpan ts = DateTime.Now - last_Update;
 
-            if (ts.TotalSeconds > 0.5)
-            {
-                TimeSpan total = DateTime.Now - run_started;
-                AppendText(total, e);
-                last_Update = DateTime.Now;
-            }
-        }
+        //    if (ts.TotalSeconds > 0.5)
+        //    {
+        //        TimeSpan total = DateTime.Now - run_started;
+        //        AppendText(total, e);
+        //        last_Update = DateTime.Now;
+        //    }
+        //}
 
-        private void quan_FinishEvent(object sender, StepEventArgs e)
-        {
-            TimeSpan total = DateTime.Now - run_started;
-            AppendText(total, e);
-        }
+        //private void quan_FinishEvent(object sender, StepEventArgs e)
+        //{
+        //    TimeSpan total = DateTime.Now - run_started;
+        //    AppendText(total, e);
+        //}
 
         private void LoadFile(string file)
         {
@@ -373,30 +373,30 @@ namespace ImagingTests.Pallets
             }
         }
 
-        private delegate void DelegateAppendText(TimeSpan time, StepEventArgs step);
-        private DelegateAppendText AppendTextDelegate;
+        //private delegate void DelegateAppendText(TimeSpan time, StepEventArgs step);
+        //private DelegateAppendText AppendTextDelegate;
 
-        /**
-         *  Allosw the loading process to apend text to the info window,
-         *  this is primarly to desplay error messages that occor while
-         *  loading the data.
-         */
-        private void AppendText(TimeSpan time, StepEventArgs step)
-        {
-            if (this.InvokeRequired)
-            {
-                //must invoke the delegate to be thread safe
-                this.Invoke(AppendTextDelegate, time, step);
-            }
-            else
-            {
-                lblError.Text = String.Format("Error: {0:0.0000}", step.Error);
-                lblIttr.Text = String.Format("Iterations: {0}", step.Step);
-                lblTime.Text = String.Format("Time: {0}", time);
+        ///**
+        // *  Allosw the loading process to apend text to the info window,
+        // *  this is primarly to desplay error messages that occor while
+        // *  loading the data.
+        // */
+        //private void AppendText(TimeSpan time, StepEventArgs step)
+        //{
+        //    if (this.InvokeRequired)
+        //    {
+        //        //must invoke the delegate to be thread safe
+        //        this.Invoke(AppendTextDelegate, time, step);
+        //    }
+        //    else
+        //    {
+        //        lblError.Text = String.Format("Error: {0:0.0000}", step.Error);
+        //        lblIttr.Text = String.Format("Iterations: {0}", step.Step);
+        //        lblTime.Text = String.Format("Time: {0}", time);
 
-                pnlStats.Refresh();
-            }
-        }
+        //        pnlStats.Refresh();
+        //    }
+        //}
 
         #endregion
 

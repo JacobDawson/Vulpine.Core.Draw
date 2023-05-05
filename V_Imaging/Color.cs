@@ -284,7 +284,7 @@ namespace Vulpine.Core.Draw
             //extracts the individual compoents of the vector
             double v0 = v.GetExtended(0);
             double v1 = v.GetExtended(1);
-            double v2 = v.GetExtended(3);
+            double v2 = v.GetExtended(2);
 
             switch (cs)
             {

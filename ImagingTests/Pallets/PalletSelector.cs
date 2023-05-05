@@ -650,6 +650,99 @@ namespace ImagingTests.Pallets
                     VColor.FromRGB24(220, 204, 154),
                     VColor.FromRGB24(224, 118, 142));
 
+                case 29: return new Pallet( //Pico-8
+                    VColor.FromRGB24(2, 4, 8),
+                    VColor.FromRGB24(29, 43, 83),
+                    VColor.FromRGB24(126, 37, 83),
+                    VColor.FromRGB24(0, 135, 81),
+                    VColor.FromRGB24(171, 82, 54),
+                    VColor.FromRGB24(95, 87, 79),
+                    VColor.FromRGB24(194, 195, 199),
+                    VColor.FromRGB24(255, 241, 232),
+                    VColor.FromRGB24(255, 0, 77),
+                    VColor.FromRGB24(255, 163, 0),
+                    VColor.FromRGB24(255, 263, 39),
+                    VColor.FromRGB24(0, 228, 54),
+                    VColor.FromRGB24(41, 173, 255),
+                    VColor.FromRGB24(131, 118, 156),
+                    VColor.FromRGB24(255, 119, 168),
+                    VColor.FromRGB24(255, 204, 170));
+
+                case 30: return new Pallet( //DawnBringer16
+                    VColor.FromRGB24(20, 12, 28),
+                    VColor.FromRGB24(68, 36, 52),
+                    VColor.FromRGB24(48, 52, 109),
+                    VColor.FromRGB24(78, 74, 78),
+                    VColor.FromRGB24(133, 76, 48),
+                    VColor.FromRGB24(52, 101, 36),
+                    VColor.FromRGB24(208, 70, 72),
+                    VColor.FromRGB24(117, 113, 97),
+                    VColor.FromRGB24(89, 125, 206),
+                    VColor.FromRGB24(210, 125, 44),
+                    VColor.FromRGB24(133, 149, 161),
+                    VColor.FromRGB24(109, 170, 44),
+                    VColor.FromRGB24(210, 170, 153),
+                    VColor.FromRGB24(109, 194, 202),
+                    VColor.FromRGB24(218, 212, 94),
+                    VColor.FromRGB24(222, 238, 214));
+
+                case 31: return new Pallet( //Kensler16
+                    VColor.FromRGB(0.25, 0.195, 0.681),
+                    VColor.FromRGB(0.889, 0.058, 0.759),
+                    VColor.FromRGB(0.728, 0.664, 0.998),
+                    VColor.FromRGB(1.0, 1.0, 1.0),
+                    VColor.FromRGB(0.999, 0.582, 0.617),
+                    VColor.FromRGB(0.907, 0.008, 0.0),
+                    VColor.FromRGB(0.478, 0.142, 0.241),
+                    VColor.FromRGB(0.0, 0.0, 0.0),
+                    VColor.FromRGB(0.1, 0.336, 0.283),
+                    VColor.FromRGB(0.416, 0.539, 0.154),
+                    VColor.FromRGB(0.089, 0.929, 0.459),
+                    VColor.FromRGB(0.197, 0.756, 0.763),
+                    VColor.FromRGB(0.022, 0.499, 0.758),
+                    VColor.FromRGB(0.433, 0.307, 0.140),
+                    VColor.FromRGB(0.787, 0.562, 0.3),
+                    VColor.FromRGB(0.935, 0.89, 0.023));
+
+                case 32: return new Pallet( //DawnBringer32
+                    VColor.FromRGB24(0, 0, 0),
+                    VColor.FromRGB24(34, 32, 52),
+                    VColor.FromRGB24(69, 40, 60),
+                    VColor.FromRGB24(102, 57, 49),
+                    VColor.FromRGB24(143, 86, 59),
+                    VColor.FromRGB24(223, 113, 38),
+                    VColor.FromRGB24(217, 160, 102),
+                    VColor.FromRGB24(238, 195, 154),
+
+                    VColor.FromRGB24(251, 242, 54),
+                    VColor.FromRGB24(153, 229, 80),
+                    VColor.FromRGB24(106, 190, 48),
+                    VColor.FromRGB24(55, 148, 110),
+                    VColor.FromRGB24(75, 105, 47),
+                    VColor.FromRGB24(82, 75, 36),
+                    VColor.FromRGB24(50, 60, 57),
+                    VColor.FromRGB24(63, 63, 116),
+
+                    VColor.FromRGB24(48, 96, 130),
+                    VColor.FromRGB24(91, 110, 225),
+                    VColor.FromRGB24(99, 155, 255),
+                    VColor.FromRGB24(95, 205, 228),
+                    VColor.FromRGB24(203, 219, 252),
+                    VColor.FromRGB24(255, 255, 255),
+                    VColor.FromRGB24(155, 173, 183),
+                    VColor.FromRGB24(132, 126, 135),
+
+                    VColor.FromRGB24(105, 106, 106),
+                    VColor.FromRGB24(89, 86, 82),
+                    VColor.FromRGB24(118, 66, 138),
+                    VColor.FromRGB24(172, 50, 50),
+                    VColor.FromRGB24(217, 87, 99),
+                    VColor.FromRGB24(215, 123, 186),
+                    VColor.FromRGB24(143, 151, 74),
+                    VColor.FromRGB24(138, 111, 48));
+
+
+
                     
             }
 

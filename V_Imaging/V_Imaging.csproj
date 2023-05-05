@@ -39,6 +39,7 @@
   <ItemGroup>
     <Compile Include="Animation.cs" />
     <Compile Include="Animator.cs" />
+    <Compile Include="Canvas.cs" />
     <Compile Include="Color.cs" />
     <Compile Include="Colors\ColorHSL.cs" />
     <Compile Include="Colors\ColorYUV.cs" />
@@ -48,6 +49,7 @@
     <Compile Include="Filter.cs" />
     <Compile Include="Filters\FilterKernal.cs" />
     <Compile Include="Filters\FilterMap.cs" />
+    <Compile Include="Filters\FilterSobel.cs" />
     <Compile Include="Image.cs" />
     <Compile Include="Images\ImageBasic.cs" />
     <Compile Include="Images\ImagePallet.cs" />

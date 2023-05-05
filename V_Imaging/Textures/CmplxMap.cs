@@ -28,7 +28,7 @@ using System.Text;
 
 using Vulpine.Core.Calc;
 using Vulpine.Core.Calc.Numbers;
-using Vulpine.Core.Calc.Geometry;
+using Vulpine.Core.Calc.Geometry.Planer;
 
 namespace Vulpine.Core.Draw.Textures
 {

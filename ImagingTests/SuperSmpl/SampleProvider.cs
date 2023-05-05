@@ -5,7 +5,7 @@ using System.Text;
 
 using Vulpine.Core.Data.Queues;
 using Vulpine.Core.Calc;
-using Vulpine.Core.Calc.Geometry;
+using Vulpine.Core.Calc.Geometry.Planer;
 using Vulpine.Core.Calc.RandGen;
 using Vulpine.Core.Calc.Data;
 

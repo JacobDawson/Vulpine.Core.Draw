@@ -177,6 +177,50 @@ namespace Vulpine.Core.Draw.Filters
             }
         }
 
+        public static FilterKernal LineVert
+        {
+            get
+            {
+                return new FilterKernal(3,
+                    -1, +2, -1,
+                    -1, +2, -1,
+                    -1, +2, -1);
+            }
+        }
+
+        public static FilterKernal LineHorz
+        {
+            get
+            {
+                return new FilterKernal(3,
+                    -1, -1, -1,
+                    +2, +2, +2,
+                    -1, -1, -1);
+            }
+        }
+
+        public static FilterKernal LineDiag1
+        {
+            get
+            {
+                return new FilterKernal(3,
+                    -1, -1, +2,
+                    -1, +2, -1,
+                    +2, -1, -1);
+            }
+        }
+
+        public static FilterKernal LineDiag2
+        {
+            get
+            {
+                return new FilterKernal(3,
+                    +2, -1, -1,
+                    -1, +2, -1,
+                    -1, -1, +2);
+            }
+        }
+
         public static FilterKernal SobelVert
         {
             get
